@@ -69,5 +69,7 @@ namespace Dominio
                 _estadio = value;
             }
         }
+        
+        
     }
 }

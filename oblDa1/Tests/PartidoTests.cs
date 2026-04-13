@@ -123,5 +123,13 @@ namespace Tests
     
             Assert.AreEqual(estadio, partido.Estadio);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConEstadioNulo_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.Estadio = null;
+        }
     }
 }
