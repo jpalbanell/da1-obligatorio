@@ -1,6 +1,22 @@
+using System;
+
 namespace Dominio;
 
 public class Estadio
 {
-    public string Nombre { get; set; } = string.Empty;
+    private string _nombre = string.Empty;
+
+    public string Nombre
+    {
+        get => _nombre;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("El nombre es obligatorio.");
+            }
+
+            _nombre = value;
+        }
+    }
 }
