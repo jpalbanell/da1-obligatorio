@@ -179,5 +179,13 @@ namespace Tests
             var partido = new Partido(1);
             partido.GolesLocal = -1;
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConGolesVisitanteNegativo_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.GolesVisitante = -1;
+        }
     }
 }
