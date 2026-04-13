@@ -143,5 +143,13 @@ namespace Tests
     
             Assert.AreEqual(grupo, partido.Grupo);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConGrupoNulo_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.Grupo = null;
+        }
     }
 }
