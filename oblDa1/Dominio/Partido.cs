@@ -1,17 +1,37 @@
-namespace Dominio;
-
-public class Partido
+namespace Dominio
 {
-    public int Id { get; set; }
-    public string Codigo { get; set; }
-    public DateTime Fecha { get; set; }
-    public FaseTorneo Fase { get; set; }
-
-    public Partido(int id, string codigo = "", DateTime fecha = default, FaseTorneo fase = default)
+    public class Partido
     {
-        Id = id;
-        Codigo = codigo;
-        Fecha = fecha;
-        Fase = fase;
+        private string _codigo;
+        private DateTime _fecha;
+
+        public int Id { get; set; }
+        
+        public string Codigo
+        {
+            get => _codigo;
+            set
+            {
+                if (string.IsNullOrEmpty(value)) throw new ArgumentException("Codigo no puede ser nulo o vacío");
+                _codigo = value;
+            }
+        }
+
+        public DateTime Fecha
+        {
+            get => _fecha;
+            set
+            {
+                if (value == default) throw new ArgumentException("Fecha no puede ser vacía");
+                _fecha = value;
+            }
+        }
+
+        public FaseTorneo Fase { get; set; }
+
+        public Partido(int id)
+        {
+            Id = id;
+        }
     }
 }

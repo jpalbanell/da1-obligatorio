@@ -1,61 +1,39 @@
 using Dominio;
-namespace Tests;
-[TestClass]
-public class PartidoTests
+
+namespace Tests
 {
-    [TestMethod]
-    public void CrearPartido_ConIdValido_AsignaIdCorrectamente()
+    [TestClass]
+    public class PartidoTests
     {
-        // Arrange
-        int idEsperado = 1;
+        [TestMethod]
+        public void CrearPartido_ConIdValido_AsignaIdCorrectamente()
+        {
+            var partido = new Partido(1);
+            Assert.AreEqual(1, partido.Id);
+        }
 
-        // Act
-        var partido = new Partido(idEsperado);
+        [TestMethod]
+        public void CrearPartido_ConCodigoValido_AsignaCodigoCorrectamente()
+        {
+            var partido = new Partido(1);
+            partido.Codigo = "P001";
+            Assert.AreEqual("P001", partido.Codigo);
+        }
 
-        // Assert
-        Assert.AreEqual(idEsperado, partido.Id);
-    }
-    
-    [TestMethod]
-    public void CrearPartido_ConCodigoValido_AsignaCodigoCorrectamente()
-    {
-        // Arrange
-        int id = 1;
-        string codigoEsperado = "P001";
+        [TestMethod]
+        public void CrearPartido_ConFechaValida_AsignaFechaCorrectamente()
+        {
+            var partido = new Partido(1);
+            partido.Fecha = new DateTime(2026, 6, 1);
+            Assert.AreEqual(new DateTime(2026, 6, 1), partido.Fecha);
+        }
 
-        // Act
-        var partido = new Partido(id, codigoEsperado);
-
-        // Assert
-        Assert.AreEqual(codigoEsperado, partido.Codigo);
-    }
-    
-    [TestMethod]
-    public void CrearPartido_ConFechaValida_AsignaFechaCorrectamente()
-    {
-        // Arrange
-        int id = 1;
-        string codigo = "P001";
-        DateTime fechaEsperada = new DateTime(2026, 6, 1);
-
-        // Act
-        var partido = new Partido(id, codigo, fechaEsperada);
-
-        // Assert
-        Assert.AreEqual(fechaEsperada, partido.Fecha);
-    }
-    
-    [TestMethod]
-    public void CrearPartido_ConFaseValida_AsignaFaseCorrectamente()
-    {
-        // Arrange
-        int id = 1;
-        FaseTorneo faseEsperada = FaseTorneo.FaseGrupos;
-
-        // Act
-        var partido = new Partido(id, fase: faseEsperada);
-
-        // Assert
-        Assert.AreEqual(faseEsperada, partido.Fase);
+        [TestMethod]
+        public void CrearPartido_ConFaseValida_AsignaFaseCorrectamente()
+        {
+            var partido = new Partido(1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            Assert.AreEqual(FaseTorneo.FaseGrupos, partido.Fase);
+        }
     }
 }
