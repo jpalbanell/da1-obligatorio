@@ -44,4 +44,18 @@ public class PartidoTests
         // Assert
         Assert.AreEqual(fechaEsperada, partido.Fecha);
     }
+    
+    [TestMethod]
+    public void CrearPartido_ConFaseValida_AsignaFaseCorrectamente()
+    {
+        // Arrange
+        int id = 1;
+        FaseTorneo faseEsperada = FaseTorneo.FaseGrupos;
+
+        // Act
+        var partido = new Partido(id, fase: faseEsperada);
+
+        // Assert
+        Assert.AreEqual(faseEsperada, partido.Fase);
+    }
 }
