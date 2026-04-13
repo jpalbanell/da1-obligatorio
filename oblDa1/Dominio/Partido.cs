@@ -58,5 +58,16 @@ namespace Dominio
                 _equipoVisitante = value;
             }
         }
+        private Estadio _estadio;
+
+        public Estadio Estadio
+        {
+            get => _estadio;
+            set
+            {
+                if (value == null) throw new ArgumentException("Estadio no puede ser nulo");
+                _estadio = value;
+            }
+        }
     }
 }

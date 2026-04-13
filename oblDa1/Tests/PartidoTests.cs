@@ -111,5 +111,17 @@ namespace Tests
             partido.EquipoLocal = equipo;
             partido.EquipoVisitante = equipo;
         }
+        
+        [TestMethod]
+        public void CrearPartido_ConEstadioValido_AsignaEstadioCorrectamente()
+        {
+            var partido = new Partido(1);
+            var estadio = new Estadio();
+            estadio.Nombre = "Estadio Centenario";
+    
+            partido.Estadio = estadio;
+    
+            Assert.AreEqual(estadio, partido.Estadio);
+        }
     }
 }
