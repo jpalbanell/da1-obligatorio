@@ -217,5 +217,17 @@ namespace Tests
             partido.EquipoVisitante = equipoVisitante;
             partido.Vencedor = equipoAjeno;
         }
+        
+        [TestMethod]
+        public void CrearPartido_ConCruceValido_AsignaCruceCorrectamente()
+        {
+            var partido = new Partido(1);
+            var cruce = new Cruce();
+            cruce.Codigo = "A1";
+    
+            partido.Cruce = cruce;
+    
+            Assert.AreEqual(cruce, partido.Cruce);
+        }
     }
 }

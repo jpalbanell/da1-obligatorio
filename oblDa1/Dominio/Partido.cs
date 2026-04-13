@@ -118,5 +118,7 @@ namespace Dominio
                 _vencedor = value;
             }
         }
+        
+        public Cruce Cruce { get; set; }
     }
 }
