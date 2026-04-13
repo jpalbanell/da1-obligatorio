@@ -1,12 +1,20 @@
+
 namespace Dominio
 {
     public class Partido
     {
         private string _codigo;
         private DateTime _fecha;
+        private Equipo _equipoLocal;
+        private Equipo _equipoVisitante;
+        private Estadio _estadio;
+        private Grupo _grupo;
+        private int _golesLocal;
+        private int _golesVisitante;
+        private Equipo _vencedor;
 
         public int Id { get; set; }
-        
+
         public string Codigo
         {
             get => _codigo;
@@ -29,13 +37,6 @@ namespace Dominio
 
         public FaseTorneo Fase { get; set; }
 
-        public Partido(int id)
-        {
-            Id = id;
-        }
-        
-        private Equipo _equipoLocal;
-
         public Equipo EquipoLocal
         {
             get => _equipoLocal;
@@ -45,8 +46,6 @@ namespace Dominio
                 _equipoLocal = value;
             }
         }
-        
-        private Equipo _equipoVisitante;
 
         public Equipo EquipoVisitante
         {
@@ -58,7 +57,6 @@ namespace Dominio
                 _equipoVisitante = value;
             }
         }
-        private Estadio _estadio;
 
         public Estadio Estadio
         {
@@ -69,8 +67,6 @@ namespace Dominio
                 _estadio = value;
             }
         }
-        
-        private Grupo _grupo;
 
         public Grupo Grupo
         {
@@ -81,8 +77,6 @@ namespace Dominio
                 _grupo = value;
             }
         }
-        
-        private int _golesLocal;
 
         public int GolesLocal
         {
@@ -93,8 +87,6 @@ namespace Dominio
                 _golesLocal = value;
             }
         }
-        
-        private int _golesVisitante;
 
         public int GolesVisitante
         {
@@ -105,8 +97,6 @@ namespace Dominio
                 _golesVisitante = value;
             }
         }
-        
-        private Equipo _vencedor;
 
         public Equipo Vencedor
         {
@@ -118,7 +108,12 @@ namespace Dominio
                 _vencedor = value;
             }
         }
-        
+
         public Cruce Cruce { get; set; }
+
+        public Partido(int id)
+        {
+            Id = id;
+        }
     }
 }
