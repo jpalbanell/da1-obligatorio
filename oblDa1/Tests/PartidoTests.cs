@@ -200,5 +200,22 @@ namespace Tests
     
             Assert.AreEqual(equipo, partido.Vencedor);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConVencedorDistintoDeLocalYVisitante_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            var equipoLocal = new Equipo();
+            equipoLocal.Nombre = "Uruguay";
+            var equipoVisitante = new Equipo();
+            equipoVisitante.Nombre = "Argentina";
+            var equipoAjeno = new Equipo();
+            equipoAjeno.Nombre = "Brasil";
+
+            partido.EquipoLocal = equipoLocal;
+            partido.EquipoVisitante = equipoVisitante;
+            partido.Vencedor = equipoAjeno;
+        }
     }
 }
