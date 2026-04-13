@@ -64,4 +64,21 @@ public class EstadioTests
         estadio.Descripcion = null;
         Assert.IsNull(estadio.Descripcion);
     }
+
+    [TestMethod]
+    public void CrearEstadio_ConDescripcionValida_DeberiaAsignarDescripcion()
+    {
+        var estadio = new Estadio();
+        estadio.Descripcion = "Estadio histórico";
+        Assert.AreEqual("Estadio histórico", estadio.Descripcion);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearEstadio_ConDescripcionMayorA400Caracteres_DeberiaLanzarExcepcion()
+    {
+        var estadio = new Estadio();
+        string descripcionLarga = new string('A', 401);
+        estadio.Descripcion = descripcionLarga;
+    }
 }

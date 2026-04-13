@@ -6,6 +6,7 @@ public class Estadio
 {
     private string _nombre = string.Empty;
     private string _ciudad = string.Empty;
+    private string? _descripcion;
 
     public string Nombre
     {
@@ -27,7 +28,19 @@ public class Estadio
         }
     }
 
-    public string? Descripcion { get; set; }
+    public string? Descripcion
+    {
+        get => _descripcion;
+        set
+        {
+            if (value != null && value.Length > 400)
+            {
+                throw new ArgumentException("La descripción no puede superar los 400 caracteres.");
+            }
+
+            _descripcion = value;
+        }
+    }
 
     private void ValidarNombre(string nombre)
     {
