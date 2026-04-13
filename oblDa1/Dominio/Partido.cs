@@ -70,6 +70,16 @@ namespace Dominio
             }
         }
         
-        
+        private Grupo _grupo;
+
+        public Grupo Grupo
+        {
+            get => _grupo;
+            set
+            {
+                if (value == null) throw new ArgumentException("Grupo no puede ser nulo");
+                _grupo = value;
+            }
+        }
     }
 }

@@ -131,5 +131,17 @@ namespace Tests
             var partido = new Partido(1);
             partido.Estadio = null;
         }
+        
+        [TestMethod]
+        public void CrearPartido_ConGrupoValido_AsignaGrupoCorrectamente()
+        {
+            var partido = new Partido(1);
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+    
+            partido.Grupo = grupo;
+    
+            Assert.AreEqual(grupo, partido.Grupo);
+        }
     }
 }
