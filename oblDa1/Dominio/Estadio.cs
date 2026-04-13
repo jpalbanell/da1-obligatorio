@@ -22,16 +22,7 @@ public class Estadio
         get => _ciudad;
         set
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("La ciudad es obligatoria.");
-            }
-
-            if (value.Length > 60)
-            {
-                throw new ArgumentException("La ciudad no puede superar los 60 caracteres.");
-            }
-
+            ValidarCiudad(value);
             _ciudad = value;
         }
     }
@@ -46,6 +37,19 @@ public class Estadio
         if (nombre.Length > 80)
         {
             throw new ArgumentException("El nombre no puede superar los 80 caracteres.");
+        }
+    }
+
+    private void ValidarCiudad(string ciudad)
+    {
+        if (string.IsNullOrWhiteSpace(ciudad))
+        {
+            throw new ArgumentException("La ciudad es obligatoria.");
+        }
+
+        if (ciudad.Length > 60)
+        {
+            throw new ArgumentException("La ciudad no puede superar los 60 caracteres.");
         }
     }
 }
