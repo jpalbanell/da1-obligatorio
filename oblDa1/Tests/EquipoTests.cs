@@ -20,6 +20,14 @@ namespace Tests
             var equipo = new Equipo();
             equipo.Nombre = "";
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearEquipo_ConNombreNulo_DeberiaLanzarExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = null;
+        }
 
     }
 }
