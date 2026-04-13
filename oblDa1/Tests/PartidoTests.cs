@@ -71,5 +71,17 @@ namespace Tests
     
             Assert.AreEqual(equipo, partido.EquipoLocal);
         }
+        
+        [TestMethod]
+        public void CrearPartido_ConEquipoVisitanteValido_AsignaEquipoVisitanteCorrectamente()
+        {
+            var partido = new Partido(1);
+            var equipo = new Equipo();
+            equipo.Nombre = "Argentina";
+    
+            partido.EquipoVisitante = equipo;
+    
+            Assert.AreEqual(equipo, partido.EquipoVisitante);
+        }
     }
 }

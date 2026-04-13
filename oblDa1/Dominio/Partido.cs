@@ -45,5 +45,17 @@ namespace Dominio
                 _equipoLocal = value;
             }
         }
+        
+        private Equipo _equipoVisitante;
+
+        public Equipo EquipoVisitante
+        {
+            get => _equipoVisitante;
+            set
+            {
+                if (value == null) throw new ArgumentException("EquipoVisitante no puede ser nulo");
+                _equipoVisitante = value;
+            }
+        }
     }
 }
