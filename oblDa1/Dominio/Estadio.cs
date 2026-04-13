@@ -5,6 +5,7 @@ namespace Dominio;
 public class Estadio
 {
     private string _nombre = string.Empty;
+    private string _ciudad = string.Empty;
 
     public string Nombre
     {
@@ -16,7 +17,19 @@ public class Estadio
         }
     }
 
-    public string Ciudad { get; set; } = string.Empty;
+    public string Ciudad
+    {
+        get => _ciudad;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("La ciudad es obligatoria.");
+            }
+
+            _ciudad = value;
+        }
+    }
 
     private void ValidarNombre(string nombre)
     {

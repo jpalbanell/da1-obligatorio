@@ -39,4 +39,12 @@ public class EstadioTests
         estadio.Ciudad = "Montevideo";
         Assert.AreEqual("Montevideo", estadio.Ciudad);
     }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearEstadio_ConCiudadVacia_DeberiaLanzarExcepcion()
+    {
+        var estadio = new Estadio();
+        estadio.Ciudad = "";
+    }
 }
