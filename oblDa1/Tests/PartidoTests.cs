@@ -35,5 +35,16 @@ namespace Tests
             partido.Fase = FaseTorneo.FaseGrupos;
             Assert.AreEqual(FaseTorneo.FaseGrupos, partido.Fase);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConCodigoNulo_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.Codigo = null;
+        }
+        
+        
+        
     }
 }
