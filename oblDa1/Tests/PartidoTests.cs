@@ -29,4 +29,19 @@ public class PartidoTests
         // Assert
         Assert.AreEqual(codigoEsperado, partido.Codigo);
     }
+    
+    [TestMethod]
+    public void CrearPartido_ConFechaValida_AsignaFechaCorrectamente()
+    {
+        // Arrange
+        int id = 1;
+        string codigo = "P001";
+        DateTime fechaEsperada = new DateTime(2026, 6, 1);
+
+        // Act
+        var partido = new Partido(id, codigo, fechaEsperada);
+
+        // Assert
+        Assert.AreEqual(fechaEsperada, partido.Fecha);
+    }
 }
