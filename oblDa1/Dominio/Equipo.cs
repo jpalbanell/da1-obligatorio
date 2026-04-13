@@ -25,5 +25,11 @@
             if (nombre.Length > 60)
                 throw new ArgumentException("El nombre no puede superar los 60 caracteres.");
         } 
+        
+        private void ValidarRankingFifa(int ranking)
+        {
+            if (ranking < 300)
+                throw new ArgumentException("El ranking FIFA debe ser mayor o igual a 300.");
+        }
     }
 }

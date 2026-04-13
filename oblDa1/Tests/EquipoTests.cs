@@ -61,5 +61,13 @@ namespace Tests
             equipo.RankingFifa = 1500;
             Assert.AreEqual(1500, equipo.RankingFifa);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearEquipo_ConRankingMenorA300_DeberiaLanzarExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 299;
+        }
     }
 }
