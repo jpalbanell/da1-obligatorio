@@ -47,4 +47,13 @@ public class EstadioTests
         var estadio = new Estadio();
         estadio.Ciudad = "";
     }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearEstadio_ConCiudadMayorA60Caracteres_DeberiaLanzarExcepcion()
+    {
+        var estadio = new Estadio();
+        string ciudadLarga = new string('A', 61);
+        estadio.Ciudad = ciudadLarga;
+    }
 }

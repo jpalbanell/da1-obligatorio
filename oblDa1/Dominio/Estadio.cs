@@ -27,6 +27,11 @@ public class Estadio
                 throw new ArgumentException("La ciudad es obligatoria.");
             }
 
+            if (value.Length > 60)
+            {
+                throw new ArgumentException("La ciudad no puede superar los 60 caracteres.");
+            }
+
             _ciudad = value;
         }
     }
