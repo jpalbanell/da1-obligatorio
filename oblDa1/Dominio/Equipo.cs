@@ -13,13 +13,15 @@
                 _nombre = value;
             }
         }
-
+        
+        public Confederacion Confederacion { get; set; }
+        
         private void ValidarNombre(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
                 throw new ArgumentException("El nombre es obligatorio.");
             if (nombre.Length > 60)
                 throw new ArgumentException("El nombre no puede superar los 60 caracteres.");
-        }
+        } 
     }
 }

@@ -45,5 +45,13 @@ namespace Tests
             equipo.Nombre = nombre;
             Assert.AreEqual(nombre, equipo.Nombre);
         }
+        
+        [TestMethod]
+        public void CrearEquipo_ConConfederacionValida_DeberiaAsignar()
+        {
+            var equipo = new Equipo();
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            Assert.AreEqual(Confederacion.CONMEBOL, equipo.Confederacion);
+        }
     }
 }
