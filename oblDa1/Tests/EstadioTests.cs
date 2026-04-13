@@ -25,4 +25,14 @@ public class EstadioTests
 
         estadio.Nombre = "";
     }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearEstadio_ConNombreMayorA80Caracteres_DeberiaLanzarExcepcion()
+    {
+        var estadio = new Estadio();
+        string nombreLargo = new string('A', 81);
+
+        estadio.Nombre = nombreLargo;
+    }
 }
