@@ -54,6 +54,7 @@ namespace Dominio
             set
             {
                 if (value == null) throw new ArgumentException("EquipoVisitante no puede ser nulo");
+                if (value == _equipoLocal) throw new ArgumentException("EquipoVisitante no puede ser igual al EquipoLocal");
                 _equipoVisitante = value;
             }
         }

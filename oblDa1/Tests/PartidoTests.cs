@@ -99,5 +99,17 @@ namespace Tests
             var partido = new Partido(1);
             partido.EquipoVisitante = null;
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConEquipoVisitanteIgualALocal_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+    
+            partido.EquipoLocal = equipo;
+            partido.EquipoVisitante = equipo;
+        }
     }
 }
