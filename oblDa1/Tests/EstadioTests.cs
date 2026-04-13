@@ -56,4 +56,12 @@ public class EstadioTests
         string ciudadLarga = new string('A', 61);
         estadio.Ciudad = ciudadLarga;
     }
+
+    [TestMethod]
+    public void CrearEstadio_ConDescripcionNula_DeberiaAsignarDescripcion()
+    {
+        var estadio = new Estadio();
+        estadio.Descripcion = null;
+        Assert.IsNull(estadio.Descripcion);
+    }
 }

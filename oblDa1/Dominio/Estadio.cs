@@ -27,6 +27,8 @@ public class Estadio
         }
     }
 
+    public string? Descripcion { get; set; }
+
     private void ValidarNombre(string nombre)
     {
         if (string.IsNullOrWhiteSpace(nombre))
