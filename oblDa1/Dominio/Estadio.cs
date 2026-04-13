@@ -33,11 +33,7 @@ public class Estadio
         get => _descripcion;
         set
         {
-            if (value != null && value.Length > 400)
-            {
-                throw new ArgumentException("La descripción no puede superar los 400 caracteres.");
-            }
-
+            ValidarDescripcion(value);
             _descripcion = value;
         }
     }
@@ -65,6 +61,14 @@ public class Estadio
         if (ciudad.Length > 60)
         {
             throw new ArgumentException("La ciudad no puede superar los 60 caracteres.");
+        }
+    }
+
+    private void ValidarDescripcion(string? descripcion)
+    {
+        if (descripcion != null && descripcion.Length > 400)
+        {
+            throw new ArgumentException("La descripción no puede superar los 400 caracteres.");
         }
     }
 }
