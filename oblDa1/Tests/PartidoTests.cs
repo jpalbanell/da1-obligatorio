@@ -151,5 +151,15 @@ namespace Tests
             var partido = new Partido(1);
             partido.Grupo = null;
         }
+        
+        [TestMethod]
+        public void CrearPartido_ConGolesLocalValido_AsignaGolesLocalCorrectamente()
+        {
+            var partido = new Partido(1);
+    
+            partido.GolesLocal = 2;
+    
+            Assert.AreEqual(2, partido.GolesLocal);
+        }
     }
 }
