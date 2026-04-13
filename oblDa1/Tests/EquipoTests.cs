@@ -36,5 +36,14 @@ namespace Tests
             var equipo = new Equipo();
             equipo.Nombre = new string('A', 61);
         }
+        
+        [TestMethod]
+        public void CrearEquipo_ConNombreDe60Chars_DeberiaAsignarNombre()
+        {
+            var equipo = new Equipo();
+            var nombre = new string('A', 60);
+            equipo.Nombre = nombre;
+            Assert.AreEqual(nombre, equipo.Nombre);
+        }
     }
 }
