@@ -16,6 +16,8 @@ public class Estadio
         }
     }
 
+    public string Ciudad { get; set; } = string.Empty;
+
     private void ValidarNombre(string nombre)
     {
         if (string.IsNullOrWhiteSpace(nombre))

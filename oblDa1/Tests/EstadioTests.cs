@@ -11,9 +11,7 @@ public class EstadioTests
     public void CrearEstadio_ConNombreValido_DeberiaAsignarNombre()
     {
         var estadio = new Estadio();
-
         estadio.Nombre = "Centenario";
-
         Assert.AreEqual("Centenario", estadio.Nombre);
     }
 
@@ -22,7 +20,6 @@ public class EstadioTests
     public void CrearEstadio_ConNombreVacio_DeberiaLanzarExcepcion()
     {
         var estadio = new Estadio();
-
         estadio.Nombre = "";
     }
 
@@ -32,7 +29,14 @@ public class EstadioTests
     {
         var estadio = new Estadio();
         string nombreLargo = new string('A', 81);
-
         estadio.Nombre = nombreLargo;
+    }
+
+    [TestMethod]
+    public void CrearEstadio_ConCiudadValida_DeberiaAsignarCiudad()
+    {
+        var estadio = new Estadio();
+        estadio.Ciudad = "Montevideo";
+        Assert.AreEqual("Montevideo", estadio.Ciudad);
     }
 }
