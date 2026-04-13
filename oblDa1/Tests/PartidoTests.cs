@@ -59,5 +59,17 @@ namespace Tests
             var partido = new Partido(1);
             partido.Fecha = default;
         }
+        
+        [TestMethod]
+        public void CrearPartido_ConEquipoLocalValido_AsignaEquipoLocalCorrectamente()
+        {
+            var partido = new Partido(1);
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+    
+            partido.EquipoLocal = equipo;
+    
+            Assert.AreEqual(equipo, partido.EquipoLocal);
+        }
     }
 }

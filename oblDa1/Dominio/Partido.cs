@@ -33,5 +33,17 @@ namespace Dominio
         {
             Id = id;
         }
+        
+        private Equipo _equipoLocal;
+
+        public Equipo EquipoLocal
+        {
+            get => _equipoLocal;
+            set
+            {
+                if (value == null) throw new ArgumentException("EquipoLocal no puede ser nulo");
+                _equipoLocal = value;
+            }
+        }
     }
 }
