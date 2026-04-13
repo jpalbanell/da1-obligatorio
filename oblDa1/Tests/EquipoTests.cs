@@ -77,5 +77,21 @@ namespace Tests
             var equipo = new Equipo();
             equipo.RankingFifa = 2501;
         }
+        
+        [TestMethod]
+        public void CrearEquipo_ConRankingLimiteInferior_DeberiaAsignar()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 300;
+            Assert.AreEqual(300, equipo.RankingFifa);
+        }
+
+        [TestMethod]
+        public void CrearEquipo_ConRankingLimiteSuperior_DeberiaAsignar()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 2500;
+            Assert.AreEqual(2500, equipo.RankingFifa);
+        }
     }
 }
