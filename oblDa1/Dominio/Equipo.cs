@@ -28,7 +28,7 @@
         
         private void ValidarRankingFifa(int ranking)
         {
-            if (ranking < 300)
+            if (ranking < 300 || ranking > 2500)
                 throw new ArgumentException("El ranking FIFA debe ser mayor o igual a 300.");
         }
     }

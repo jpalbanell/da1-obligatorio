@@ -69,5 +69,13 @@ namespace Tests
             var equipo = new Equipo();
             equipo.RankingFifa = 299;
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearEquipo_ConRankingMayorA2500_DeberiaLanzarExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 2501;
+        }
     }
 }
