@@ -16,6 +16,8 @@
         
         public Confederacion Confederacion { get; set; }
         
+        public int RankingFifa { get; set; }
+        
         private void ValidarNombre(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))

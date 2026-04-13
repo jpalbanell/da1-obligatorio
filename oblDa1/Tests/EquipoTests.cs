@@ -53,5 +53,13 @@ namespace Tests
             equipo.Confederacion = Confederacion.CONMEBOL;
             Assert.AreEqual(Confederacion.CONMEBOL, equipo.Confederacion);
         }
+        
+        [TestMethod]
+        public void CrearEquipo_ConRankingValido_DeberiaAsignar()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 1500;
+            Assert.AreEqual(1500, equipo.RankingFifa);
+        }
     }
 }
