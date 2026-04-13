@@ -93,5 +93,17 @@ namespace Dominio
                 _golesLocal = value;
             }
         }
+        
+        private int _golesVisitante;
+
+        public int GolesVisitante
+        {
+            get => _golesVisitante;
+            set
+            {
+                if (value < 0) throw new ArgumentException("GolesVisitante no puede ser negativo");
+                _golesVisitante = value;
+            }
+        }
     }
 }

@@ -161,5 +161,15 @@ namespace Tests
     
             Assert.AreEqual(2, partido.GolesLocal);
         }
+        
+        [TestMethod]
+        public void CrearPartido_ConGolesVisitanteValido_AsignaGolesVisitanteCorrectamente()
+        {
+            var partido = new Partido(1);
+    
+            partido.GolesVisitante = 3;
+    
+            Assert.AreEqual(3, partido.GolesVisitante);
+        }
     }
 }
