@@ -187,5 +187,18 @@ namespace Tests
             var partido = new Partido(1);
             partido.GolesVisitante = -1;
         }
+        
+        [TestMethod]
+        public void CrearPartido_ConVencedorValido_AsignaVencedorCorrectamente()
+        {
+            var partido = new Partido(1);
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+    
+            partido.EquipoLocal = equipo;
+            partido.Vencedor = equipo;
+    
+            Assert.AreEqual(equipo, partido.Vencedor);
+        }
     }
 }

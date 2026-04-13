@@ -105,5 +105,18 @@ namespace Dominio
                 _golesVisitante = value;
             }
         }
+        
+        private Equipo _vencedor;
+
+        public Equipo Vencedor
+        {
+            get => _vencedor;
+            set
+            {
+                if (value != null && value != _equipoLocal && value != _equipoVisitante)
+                    throw new ArgumentException("Vencedor debe ser EquipoLocal o EquipoVisitante");
+                _vencedor = value;
+            }
+        }
     }
 }
