@@ -83,5 +83,15 @@ namespace Tests
     
             Assert.AreEqual(equipo, partido.EquipoVisitante);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConEquipoLocalNulo_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = null;
+        }
+        
+        
     }
 }
