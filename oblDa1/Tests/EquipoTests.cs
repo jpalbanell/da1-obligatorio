@@ -28,6 +28,13 @@ namespace Tests
             var equipo = new Equipo();
             equipo.Nombre = null;
         }
-
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearEquipo_ConNombreMasDe60Chars_DeberiaLanzarExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = new string('A', 61);
+        }
     }
 }
