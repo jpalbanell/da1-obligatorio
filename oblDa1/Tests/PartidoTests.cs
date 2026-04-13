@@ -44,6 +44,13 @@ namespace Tests
             partido.Codigo = null;
         }
         
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConCodigoVacio_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.Codigo = "";
+        }
         
         
     }
