@@ -52,6 +52,12 @@ namespace Tests
             partido.Codigo = "";
         }
         
-        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConFechaVacia_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.Fecha = default;
+        }
     }
 }
