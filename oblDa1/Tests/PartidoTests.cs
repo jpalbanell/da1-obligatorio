@@ -171,5 +171,13 @@ namespace Tests
     
             Assert.AreEqual(3, partido.GolesVisitante);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConGolesLocalNegativo_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.GolesLocal = -1;
+        }
     }
 }
