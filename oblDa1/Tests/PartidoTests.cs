@@ -92,6 +92,12 @@ namespace Tests
             partido.EquipoLocal = null;
         }
         
-        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearPartido_ConEquipoVisitanteNulo_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.EquipoVisitante = null;
+        }
     }
 }
