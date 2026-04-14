@@ -133,4 +133,12 @@ public class PosicionesGrupoTests
         var posicion = new PosicionesGrupo(1);
         posicion.PosicionFinal = 0;
     }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearPosicionesGrupo_ConPosicionFinalMayorA4_DeberiaLanzarExcepcion()
+    {
+        var posicion = new PosicionesGrupo(1);
+        posicion.PosicionFinal = 5;
+    }
 }
