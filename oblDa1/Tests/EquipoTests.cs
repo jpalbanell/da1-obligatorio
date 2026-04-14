@@ -1,0 +1,97 @@
+﻿using Dominio;
+
+namespace Tests
+{
+    [TestClass]
+    public class EquipoTests
+    {
+        [TestMethod]
+        public void CrearEquipo_ConNombreValido_DeberiaAsignarNombre()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            Assert.AreEqual("Uruguay", equipo.Nombre);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearEquipo_ConNombreVacio_DeberiaLanzarExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "";
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearEquipo_ConNombreNulo_DeberiaLanzarExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = null;
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearEquipo_ConNombreMasDe60Chars_DeberiaLanzarExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = new string('A', 61);
+        }
+        
+        [TestMethod]
+        public void CrearEquipo_ConNombreDe60Chars_DeberiaAsignarNombre()
+        {
+            var equipo = new Equipo();
+            var nombre = new string('A', 60);
+            equipo.Nombre = nombre;
+            Assert.AreEqual(nombre, equipo.Nombre);
+        }
+        
+        [TestMethod]
+        public void CrearEquipo_ConConfederacionValida_DeberiaAsignar()
+        {
+            var equipo = new Equipo();
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            Assert.AreEqual(Confederacion.CONMEBOL, equipo.Confederacion);
+        }
+        
+        [TestMethod]
+        public void CrearEquipo_ConRankingValido_DeberiaAsignar()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 1500;
+            Assert.AreEqual(1500, equipo.RankingFifa);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearEquipo_ConRankingMenorA300_DeberiaLanzarExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 299;
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearEquipo_ConRankingMayorA2500_DeberiaLanzarExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 2501;
+        }
+        
+        [TestMethod]
+        public void CrearEquipo_ConRankingLimiteInferior_DeberiaAsignar()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 300;
+            Assert.AreEqual(300, equipo.RankingFifa);
+        }
+
+        [TestMethod]
+        public void CrearEquipo_ConRankingLimiteSuperior_DeberiaAsignar()
+        {
+            var equipo = new Equipo();
+            equipo.RankingFifa = 2500;
+            Assert.AreEqual(2500, equipo.RankingFifa);
+        }
+    }
+}
