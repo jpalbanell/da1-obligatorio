@@ -45,7 +45,17 @@
             }
         }
         
-        
+        private int _golesFavor;
+
+        public int GolesFavor
+        {
+            get => _golesFavor;
+            set
+            {
+                if (value < 0) throw new ArgumentException("GolesFavor no puede ser negativo");
+                _golesFavor = value;
+            }
+        }
         
         
     }
