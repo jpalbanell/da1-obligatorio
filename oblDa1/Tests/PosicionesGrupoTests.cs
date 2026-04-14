@@ -109,4 +109,12 @@ public class PosicionesGrupoTests
         var posicion = new PosicionesGrupo(1);
         posicion.Puntos = -1;
     }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearPosicionesGrupo_ConGolesFavorNegativos_DeberiaLanzarExcepcion()
+    {
+        var posicion = new PosicionesGrupo(1);
+        posicion.GolesFavor = -1;
+    }
 }
