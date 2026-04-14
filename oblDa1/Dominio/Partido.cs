@@ -1,4 +1,4 @@
-namespace Dominio;
+namespace Dominio
 {
     public class Partido
     {
@@ -19,7 +19,7 @@ namespace Dominio;
             get => _codigo;
             set
             {
-                if (string.IsNullOrEmpty(value)) throw new ArgumentException("Codigo no puede ser nulo o vacío");
+                ValidarNoNuloOVacio(value, "Codigo");
                 _codigo = value;
             }
         }
@@ -29,7 +29,7 @@ namespace Dominio;
             get => _fecha;
             set
             {
-                if (value == default) throw new ArgumentException("Fecha no puede ser vacía");
+                ValidarFecha(value);
                 _fecha = value;
             }
         }
@@ -41,7 +41,7 @@ namespace Dominio;
             get => _equipoLocal;
             set
             {
-                if (value == null) throw new ArgumentException("EquipoLocal no puede ser nulo");
+                ValidarNoNulo(value, "EquipoLocal");
                 _equipoLocal = value;
             }
         }
@@ -51,8 +51,8 @@ namespace Dominio;
             get => _equipoVisitante;
             set
             {
-                if (value == null) throw new ArgumentException("EquipoVisitante no puede ser nulo");
-                if (value == _equipoLocal) throw new ArgumentException("EquipoVisitante no puede ser igual al EquipoLocal");
+                ValidarNoNulo(value, "EquipoVisitante");
+                ValidarEquipoDistintoDeLocal(value);
                 _equipoVisitante = value;
             }
         }
@@ -62,7 +62,7 @@ namespace Dominio;
             get => _estadio;
             set
             {
-                if (value == null) throw new ArgumentException("Estadio no puede ser nulo");
+                ValidarNoNulo(value, "Estadio");
                 _estadio = value;
             }
         }
@@ -72,7 +72,7 @@ namespace Dominio;
             get => _grupo;
             set
             {
-                if (value == null) throw new ArgumentException("Grupo no puede ser nulo");
+                ValidarNoNulo(value, "Grupo");
                 _grupo = value;
             }
         }
@@ -82,7 +82,7 @@ namespace Dominio;
             get => _golesLocal;
             set
             {
-                if (value < 0) throw new ArgumentException("GolesLocal no puede ser negativo");
+                ValidarNoNegativo(value, "GolesLocal");
                 _golesLocal = value;
             }
         }
@@ -92,7 +92,7 @@ namespace Dominio;
             get => _golesVisitante;
             set
             {
-                if (value < 0) throw new ArgumentException("GolesVisitante no puede ser negativo");
+                ValidarNoNegativo(value, "GolesVisitante");
                 _golesVisitante = value;
             }
         }
@@ -102,8 +102,7 @@ namespace Dominio;
             get => _vencedor;
             set
             {
-                if (value != null && value != _equipoLocal && value != _equipoVisitante)
-                    throw new ArgumentException("Vencedor debe ser EquipoLocal o EquipoVisitante");
+                ValidarVencedor(value);
                 _vencedor = value;
             }
         }
@@ -113,6 +112,42 @@ namespace Dominio;
         public Partido(int id)
         {
             Id = id;
+        }
+
+        private void ValidarNoNuloOVacio(string valor, string campo)
+        {
+            if (string.IsNullOrEmpty(valor))
+                throw new ArgumentException($"{campo} no puede ser nulo o vacío");
+        }
+
+        private void ValidarNoNulo(object valor, string campo)
+        {
+            if (valor == null)
+                throw new ArgumentException($"{campo} no puede ser nulo");
+        }
+
+        private void ValidarFecha(DateTime fecha)
+        {
+            if (fecha == default)
+                throw new ArgumentException("Fecha no puede ser vacía");
+        }
+
+        private void ValidarNoNegativo(int valor, string campo)
+        {
+            if (valor < 0)
+                throw new ArgumentException($"{campo} no puede ser negativo");
+        }
+
+        private void ValidarEquipoDistintoDeLocal(Equipo equipo)
+        {
+            if (equipo == _equipoLocal)
+                throw new ArgumentException("EquipoVisitante no puede ser igual al EquipoLocal");
+        }
+
+        private void ValidarVencedor(Equipo equipo)
+        {
+            if (equipo != null && equipo != _equipoLocal && equipo != _equipoVisitante)
+                throw new ArgumentException("Vencedor debe ser EquipoLocal o EquipoVisitante");
         }
     }
 }
