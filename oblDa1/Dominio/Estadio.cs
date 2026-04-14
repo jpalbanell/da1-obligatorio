@@ -7,7 +7,21 @@ public class Estadio
     private string _nombre = string.Empty;
     private string _ciudad = string.Empty;
     private string? _descripcion;
-    public int Capacidad { get; set; }
+    private int _capacidad;
+
+    public int Capacidad
+    {
+        get => _capacidad;
+        set
+        {
+            if (value < 20000)
+            {
+                throw new ArgumentException("La capacidad debe ser mayor o igual a 20000.");
+            }
+
+            _capacidad = value;
+        }
+    }
 
     public string Nombre
     {

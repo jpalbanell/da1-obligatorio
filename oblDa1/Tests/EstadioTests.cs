@@ -89,4 +89,12 @@ public class EstadioTests
         estadio.Capacidad = 20000;
         Assert.AreEqual(20000, estadio.Capacidad);
     }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearEstadio_ConCapacidadMenorA20000_DeberiaLanzarExcepcion()
+    {
+        var estadio = new Estadio();
+        estadio.Capacidad = 19999;
+    }
 }
