@@ -14,11 +14,7 @@ public class Estadio
         get => _capacidad;
         set
         {
-            if (value < 20000)
-            {
-                throw new ArgumentException("La capacidad debe ser mayor o igual a 20000.");
-            }
-
+            ValidarCapacidad(value);
             _capacidad = value;
         }
     }
@@ -84,6 +80,14 @@ public class Estadio
         if (descripcion != null && descripcion.Length > 400)
         {
             throw new ArgumentException("La descripción no puede superar los 400 caracteres.");
+        }
+    }
+    
+    private void ValidarCapacidad(int capacidad)
+    {
+        if (capacidad < 20000)
+        {
+            throw new ArgumentException("La capacidad debe ser mayor o igual a 20000.");
         }
     }
 }
