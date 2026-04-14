@@ -12,5 +12,13 @@ namespace Tests
             grupo.Etiqueta = "A";
             Assert.AreEqual("A", grupo.Etiqueta);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearGrupo_ConEtiquetaInvalida_DeberiaLanzarExcepcion()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "Z";
+        }
     }
 }
