@@ -57,6 +57,16 @@
             }
         }
         
-        
+        private int _golesContra;
+
+        public int GolesContra
+        {
+            get => _golesContra;
+            set
+            {
+                if (value < 0) throw new ArgumentException("GolesContra no puede ser negativo");
+                _golesContra = value;
+            }
+        }
     }
 }

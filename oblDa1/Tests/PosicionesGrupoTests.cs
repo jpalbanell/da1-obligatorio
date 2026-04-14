@@ -55,4 +55,15 @@ public class PosicionesGrupoTests
 
         Assert.AreEqual(5, posicion.GolesFavor);
     }
+    
+    [TestMethod]
+    public void CrearPosicionesGrupo_ConGolesContraValidos_AsignaGolesContraCorrectamente()
+    {
+        var posicion = new PosicionesGrupo(1);
+
+        posicion.GolesContra = 2;
+
+        Assert.AreEqual(2, posicion.GolesContra);
+    }
+    
 }
