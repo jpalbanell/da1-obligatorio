@@ -101,4 +101,12 @@ public class PosicionesGrupoTests
         var posicion = new PosicionesGrupo(1);
         posicion.Grupo = null;
     }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearPosicionesGrupo_ConPuntosNegativos_DeberiaLanzarExcepcion()
+    {
+        var posicion = new PosicionesGrupo(1);
+        posicion.Puntos = -1;
+    }
 }
