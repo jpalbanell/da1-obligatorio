@@ -3,6 +3,8 @@
     public class Equipo
     {
         private string _nombre;
+        public Confederacion Confederacion { get; set; }
+        private int _rankingFifa;
 
         public string Nombre
         {
@@ -14,9 +16,15 @@
             }
         }
         
-        public Confederacion Confederacion { get; set; }
-        
-        public int RankingFifa { get; set; }
+        public int RankingFifa
+        {
+            get => _rankingFifa;
+            set
+            {
+                ValidarRankingFifa(value);
+                _rankingFifa = value;
+            }
+        }
         
         private void ValidarNombre(string nombre)
         {
@@ -29,7 +37,7 @@
         private void ValidarRankingFifa(int ranking)
         {
             if (ranking < 300 || ranking > 2500)
-                throw new ArgumentException("El ranking FIFA debe ser mayor o igual a 300.");
+                throw new ArgumentException("El ranking FIFA debe estar entre 300 y 2500.");
         }
     }
 }
