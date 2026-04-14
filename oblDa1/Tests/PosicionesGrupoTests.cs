@@ -93,4 +93,12 @@ public class PosicionesGrupoTests
         var posicion = new PosicionesGrupo(1);
         posicion.Equipo = null;
     }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearPosicionesGrupo_ConGrupoNulo_DeberiaLanzarExcepcion()
+    {
+        var posicion = new PosicionesGrupo(1);
+        posicion.Grupo = null;
+    }
 }
