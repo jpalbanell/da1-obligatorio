@@ -75,4 +75,14 @@ public class PosicionesGrupoTests
 
         Assert.AreEqual(-3, posicion.DiferenciaGoles);
     }
+    
+    [TestMethod]
+    public void CrearPosicionesGrupo_ConPosicionFinalValida_AsignaPosicionFinalCorrectamente()
+    {
+        var posicion = new PosicionesGrupo(1);
+
+        posicion.PosicionFinal = 2;
+
+        Assert.AreEqual(2, posicion.PosicionFinal);
+    }
 }

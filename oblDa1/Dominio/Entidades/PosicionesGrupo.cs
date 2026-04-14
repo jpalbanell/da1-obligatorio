@@ -70,5 +70,17 @@
         }
         
         public int DiferenciaGoles { get; set; }
+        
+        private int _posicionFinal;
+
+        public int PosicionFinal
+        {
+            get => _posicionFinal;
+            set
+            {
+                if (value < 1 || value > 4) throw new ArgumentException("PosicionFinal debe estar entre 1 y 4");
+                _posicionFinal = value;
+            }
+        }
     }
 }
