@@ -81,4 +81,12 @@ public class EstadioTests
         string descripcionLarga = new string('A', 401);
         estadio.Descripcion = descripcionLarga;
     }
+    
+    [TestMethod]
+    public void CrearEstadio_ConCapacidadValida_DeberiaAsignarCapacidad()
+    {
+        var estadio = new Estadio();
+        estadio.Capacidad = 20000;
+        Assert.AreEqual(20000, estadio.Capacidad);
+    }
 }
