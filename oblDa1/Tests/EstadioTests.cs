@@ -105,4 +105,11 @@ public class EstadioTests
         estadio.Id = 1;
         Assert.AreEqual(1, estadio.Id);
     }
+    
+    [TestMethod]
+    public void CrearEstadio_DeberiaInicializarPartidos()
+    {
+        var estadio = new Estadio();
+        Assert.IsNotNull(estadio.Partidos);
+    }
 }

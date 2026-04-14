@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Dominio;
 
@@ -9,6 +10,7 @@ public class Estadio
     private string? _descripcion;
     private int _capacidad;
     public int Id { get; set; }
+    public List<Partido> Partidos { get; set; } = new List<Partido>();
 
     public int Capacidad
     {
