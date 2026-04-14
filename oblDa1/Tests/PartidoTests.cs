@@ -1,4 +1,4 @@
-using Dominio;
+using Dominio.Entidades;
 
 namespace Tests
 {

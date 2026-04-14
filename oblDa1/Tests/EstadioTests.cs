@@ -1,5 +1,5 @@
 using System;
-using Dominio;
+using Dominio.Entidades;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tests;
