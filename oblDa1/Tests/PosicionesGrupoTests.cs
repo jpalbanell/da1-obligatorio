@@ -23,4 +23,16 @@ public class PosicionesGrupoTests
 
         Assert.AreEqual(equipo, posicion.Equipo);
     }
+    
+    [TestMethod]
+    public void CrearPosicionesGrupo_ConGrupoValido_AsignaGrupoCorrectamente()
+    {
+        var posicion = new PosicionesGrupo(1);
+        var grupo = new Grupo();
+        grupo.Etiqueta = "A";
+
+        posicion.Grupo = grupo;
+
+        Assert.AreEqual(grupo, posicion.Grupo);
+    }
 }
