@@ -8,6 +8,7 @@ namespace Dominio.Entidades
         private string _etiqueta;
         public int Id { get; set; }
         public List<Partido> ListaPartidos { get; private set; } = new List<Partido>();
+        public List<PosicionesGrupo> ListaPosiciones { get; private set; } = new List<PosicionesGrupo>();
         
 
         public string Etiqueta

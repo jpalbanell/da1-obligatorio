@@ -29,5 +29,12 @@ namespace Tests
             Assert.AreEqual(0, grupo.ListaPartidos.Count);
         }
         
+        [TestMethod]
+        public void CrearGrupo_ListaPosicionesDeberiaEstarVacia()
+        {
+            var grupo = new Grupo();
+            Assert.IsNotNull(grupo.ListaPosiciones);
+            Assert.AreEqual(0, grupo.ListaPosiciones.Count);
+        }
     }
 }
