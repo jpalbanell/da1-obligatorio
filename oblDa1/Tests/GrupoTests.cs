@@ -20,5 +20,14 @@ namespace Tests
             var grupo = new Grupo();
             grupo.Etiqueta = "Z";
         }
+        
+        [TestMethod]
+        public void CrearGrupo_ListaPartidosDeberiaEstarVacia()
+        {
+            var grupo = new Grupo();
+            Assert.IsNotNull(grupo.ListaPartidos);
+            Assert.AreEqual(0, grupo.ListaPartidos.Count);
+        }
+        
     }
 }
