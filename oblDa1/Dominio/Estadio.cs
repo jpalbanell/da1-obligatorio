@@ -8,6 +8,7 @@ public class Estadio
     private string _ciudad = string.Empty;
     private string? _descripcion;
     private int _capacidad;
+    public int Id { get; set; }
 
     public int Capacidad
     {

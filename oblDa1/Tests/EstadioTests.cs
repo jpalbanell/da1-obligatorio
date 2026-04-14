@@ -97,4 +97,12 @@ public class EstadioTests
         var estadio = new Estadio();
         estadio.Capacidad = 19999;
     }
+    
+    [TestMethod]
+    public void CrearEstadio_ConIdValido_DeberiaAsignarId()
+    {
+        var estadio = new Estadio();
+        estadio.Id = 1;
+        Assert.AreEqual(1, estadio.Id);
+    }
 }
