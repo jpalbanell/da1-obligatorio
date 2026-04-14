@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-namespace Dominio;
+namespace Dominio.Entidades;
 
 public class Estadio
 {

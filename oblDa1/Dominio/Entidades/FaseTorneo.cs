@@ -1,4 +1,4 @@
-namespace Dominio;
+namespace Dominio.Entidades;
 
 public enum FaseTorneo
 {
