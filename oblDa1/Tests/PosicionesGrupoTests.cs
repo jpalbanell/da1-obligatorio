@@ -85,4 +85,12 @@ public class PosicionesGrupoTests
 
         Assert.AreEqual(2, posicion.PosicionFinal);
     }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CrearPosicionesGrupo_ConEquipoNulo_DeberiaLanzarExcepcion()
+    {
+        var posicion = new PosicionesGrupo(1);
+        posicion.Equipo = null;
+    }
 }
