@@ -66,4 +66,13 @@ public class PosicionesGrupoTests
         Assert.AreEqual(2, posicion.GolesContra);
     }
     
+    [TestMethod]
+    public void CrearPosicionesGrupo_ConDiferenciaGolesValida_AsignaDiferenciaGolesCorrectamente()
+    {
+        var posicion = new PosicionesGrupo(1);
+
+        posicion.DiferenciaGoles = -3;
+
+        Assert.AreEqual(-3, posicion.DiferenciaGoles);
+    }
 }

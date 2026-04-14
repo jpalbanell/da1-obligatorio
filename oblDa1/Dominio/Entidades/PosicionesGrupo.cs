@@ -68,5 +68,7 @@
                 _golesContra = value;
             }
         }
+        
+        public int DiferenciaGoles { get; set; }
     }
 }
