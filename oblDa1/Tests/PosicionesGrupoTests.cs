@@ -35,4 +35,14 @@ public class PosicionesGrupoTests
 
         Assert.AreEqual(grupo, posicion.Grupo);
     }
+    
+    [TestMethod]
+    public void CrearPosicionesGrupo_ConPuntosValidos_AsignaPuntosCorrectamente()
+    {
+        var posicion = new PosicionesGrupo(1);
+
+        posicion.Puntos = 3;
+
+        Assert.AreEqual(3, posicion.Puntos);
+    }
 }

@@ -32,5 +32,21 @@
                 _grupo = value;
             }
         }
+        
+        private int _puntos;
+
+        public int Puntos
+        {
+            get => _puntos;
+            set
+            {
+                if (value < 0) throw new ArgumentException("Puntos no puede ser negativo");
+                _puntos = value;
+            }
+        }
+        
+        
+        
+        
     }
 }
