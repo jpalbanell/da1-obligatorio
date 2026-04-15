@@ -2,6 +2,7 @@ namespace Dominio.Entidades
 {
     public class Usuario
     {
+        public int Id { get; set; }
         public List<Rol> Roles { get; set; } = new List<Rol>();
         private string _nombre;
         private string _apellido;

@@ -198,5 +198,13 @@ namespace Tests
             Assert.IsNotNull(usuario.Roles);
             Assert.AreEqual(0, usuario.Roles.Count);
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ConIdValido_DeberiaAsignarId()
+        {
+            var usuario = new Usuario();
+            usuario.Id = 1;
+            Assert.AreEqual(1, usuario.Id);
+        }
     }
 }
