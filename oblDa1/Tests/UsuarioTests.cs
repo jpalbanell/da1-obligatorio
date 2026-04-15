@@ -148,5 +148,13 @@ namespace Tests
             var usuario = new Usuario();
             usuario.Contrasena = "ABCDEF1@";
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConContrasenaSinNumero_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Contrasena = "Abcdefg@";
+        }
     }
 }
