@@ -182,5 +182,13 @@ namespace Tests
             Assert.IsTrue(usuario.Roles.Contains(Rol.Administrador));
             Assert.IsTrue(usuario.Roles.Contains(Rol.Editor));
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ConRolEditor_DeberiaContenerRol()
+        {
+            var usuario = new Usuario();
+            usuario.Roles.Add(Rol.Editor);
+            Assert.IsTrue(usuario.Roles.Contains(Rol.Editor));
+        }
     }
 }
