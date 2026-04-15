@@ -20,5 +20,13 @@ namespace Tests
             usuario.Nombre = "Juan";
             Assert.AreEqual("Juan", usuario.Nombre);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConNombreVacio_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "";
+        }
     }
 }
