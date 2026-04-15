@@ -37,5 +37,13 @@ namespace Tests
             log.Accion = "Alta de equipo: Uruguay";
             Assert.AreEqual("Alta de equipo: Uruguay", log.Accion);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearLogAuditoria_ConAccionVacia_DeberiaLanzarExcepcion()
+        {
+            var log = new LogAuditoria();
+            log.Accion = "";
+        }
     }
 }
