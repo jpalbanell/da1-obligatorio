@@ -92,5 +92,13 @@ namespace Tests
             usuario.FechaNacimiento = new DateTime(1990, 5, 15);
             Assert.AreEqual(new DateTime(1990, 5, 15), usuario.FechaNacimiento);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConFechaNacimientoVacia_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.FechaNacimiento = default;
+        }
     }
 }
