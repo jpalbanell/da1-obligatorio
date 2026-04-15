@@ -60,5 +60,13 @@ namespace Tests
             var usuario = new Usuario();
             usuario.Apellido = null;
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ConEmailValido_DeberiaAsignarEmail()
+        {
+            var usuario = new Usuario();
+            usuario.Email = "juan@ejemplo.com";
+            Assert.AreEqual("juan@ejemplo.com", usuario.Email);
+        }
     }
 }
