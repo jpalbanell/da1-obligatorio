@@ -29,5 +29,13 @@ namespace Tests
             var log = new LogAuditoria();
             log.Timestamp = default;
         }
+        
+        [TestMethod]
+        public void CrearLogAuditoria_ConAccionValida_DeberiaAsignarAccion()
+        {
+            var log = new LogAuditoria();
+            log.Accion = "Alta de equipo: Uruguay";
+            Assert.AreEqual("Alta de equipo: Uruguay", log.Accion);
+        }
     }
 }

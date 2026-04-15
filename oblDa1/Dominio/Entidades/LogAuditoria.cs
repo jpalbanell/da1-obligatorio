@@ -4,6 +4,7 @@ namespace Dominio.Entidades
     {
         public int Id { get; set; }
         private DateTime _timestamp;
+        private string _accion;
 
         public DateTime Timestamp
         {
@@ -19,6 +20,22 @@ namespace Dominio.Entidades
         {
             if (timestamp == default)
                 throw new ArgumentException("El timestamp es obligatorio.");
+        }
+
+        public string Accion
+        {
+            get => _accion;
+            set
+            {
+                ValidarAccion(value);
+                _accion = value;
+            }
+        }
+
+        private void ValidarAccion(string accion)
+        {
+            if (string.IsNullOrWhiteSpace(accion))
+                throw new ArgumentException("La acción es obligatoria.");
         }
     }
 }
