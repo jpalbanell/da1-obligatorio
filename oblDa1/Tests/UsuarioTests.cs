@@ -68,5 +68,13 @@ namespace Tests
             usuario.Email = "juan@ejemplo.com";
             Assert.AreEqual("juan@ejemplo.com", usuario.Email);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConEmailVacio_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Email = "";
+        }
     }
 }
