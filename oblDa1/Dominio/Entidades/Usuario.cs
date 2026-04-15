@@ -4,6 +4,7 @@ namespace Dominio.Entidades
     {
         public List<Rol> Roles { get; set; } = new List<Rol>();
         private string _nombre;
+        private string _apellido;
 
         public string Nombre
         {
@@ -19,6 +20,22 @@ namespace Dominio.Entidades
         {
             if (string.IsNullOrWhiteSpace(nombre))
                 throw new ArgumentException("El nombre es obligatorio.");
+        }
+
+        public string Apellido
+        {
+            get => _apellido;
+            set
+            {
+                ValidarApellido(value);
+                _apellido = value;
+            }
+        }
+
+        private void ValidarApellido(string apellido)
+        {
+            if (string.IsNullOrWhiteSpace(apellido))
+                throw new ArgumentException("El apellido es obligatorio.");
         }
     }
 }

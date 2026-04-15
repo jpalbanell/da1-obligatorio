@@ -36,5 +36,13 @@ namespace Tests
             var usuario = new Usuario();
             usuario.Nombre = null;
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ConApellidoValido_DeberiaAsignarApellido()
+        {
+            var usuario = new Usuario();
+            usuario.Apellido = "Pérez";
+            Assert.AreEqual("Pérez", usuario.Apellido);
+        }
     }
 }
