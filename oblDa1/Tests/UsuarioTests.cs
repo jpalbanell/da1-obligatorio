@@ -44,5 +44,13 @@ namespace Tests
             usuario.Apellido = "Pérez";
             Assert.AreEqual("Pérez", usuario.Apellido);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConApellidoVacio_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Apellido = "";
+        }
     }
 }
