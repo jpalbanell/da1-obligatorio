@@ -164,5 +164,13 @@ namespace Tests
             var usuario = new Usuario();
             usuario.Contrasena = "Abcdefg1";
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ConContrasenaDeExactamente8Caracteres_DeberiaAsignar()
+        {
+            var usuario = new Usuario();
+            usuario.Contrasena = "Abcdef1@";
+            Assert.IsNotNull(usuario.Contrasena);
+        }
     }
 }
