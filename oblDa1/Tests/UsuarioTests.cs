@@ -84,5 +84,13 @@ namespace Tests
             var usuario = new Usuario();
             usuario.Email = null;
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ConFechaNacimientoValida_DeberiaAsignarFecha()
+        {
+            var usuario = new Usuario();
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            Assert.AreEqual(new DateTime(1990, 5, 15), usuario.FechaNacimiento);
+        }
     }
 }

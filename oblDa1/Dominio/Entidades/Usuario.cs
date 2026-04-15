@@ -6,6 +6,7 @@ namespace Dominio.Entidades
         private string _nombre;
         private string _apellido;
         private string _email;
+        private DateTime _fechaNacimiento;
 
         public string Nombre
         {
@@ -53,6 +54,22 @@ namespace Dominio.Entidades
         {
             if (string.IsNullOrWhiteSpace(email))
                 throw new ArgumentException("El email es obligatorio.");
+        }
+
+        public DateTime FechaNacimiento
+        {
+            get => _fechaNacimiento;
+            set
+            {
+                ValidarFechaNacimiento(value);
+                _fechaNacimiento = value;
+            }
+        }
+
+        private void ValidarFechaNacimiento(DateTime fecha)
+        {
+            if (fecha == default)
+                throw new ArgumentException("La fecha de nacimiento es obligatoria.");
         }
     }
 }
