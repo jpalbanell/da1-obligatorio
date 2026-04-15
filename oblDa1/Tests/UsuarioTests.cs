@@ -52,5 +52,13 @@ namespace Tests
             var usuario = new Usuario();
             usuario.Apellido = "";
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConApellidoNulo_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Apellido = null;
+        }
     }
 }
