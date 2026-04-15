@@ -67,5 +67,13 @@ namespace Tests
 
             Assert.AreEqual(usuario, log.Usuario);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearLogAuditoria_ConUsuarioNulo_DeberiaLanzarExcepcion()
+        {
+            var log = new LogAuditoria();
+            log.Usuario = null;
+        }
     }
 }
