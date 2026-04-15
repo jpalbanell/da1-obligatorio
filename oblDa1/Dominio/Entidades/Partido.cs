@@ -13,6 +13,8 @@ namespace Dominio.Entidades
         private Equipo _vencedor;
 
         public int Id { get; set; }
+        public Partido OrigenLocal { get; set; }
+        public Partido OrigenVisitante { get; set; }
 
         public string Codigo
         {
@@ -106,8 +108,6 @@ namespace Dominio.Entidades
                 _vencedor = value;
             }
         }
-
-        public Cruce Cruce { get; set; }
 
         public Partido(int id)
         {
