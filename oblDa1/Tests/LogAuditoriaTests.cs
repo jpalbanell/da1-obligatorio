@@ -53,5 +53,19 @@ namespace Tests
             var log = new LogAuditoria();
             log.Accion = null;
         }
+        
+        [TestMethod]
+        public void CrearLogAuditoria_ConUsuarioValido_DeberiaAsignarUsuario()
+        {
+            var log = new LogAuditoria();
+            var usuario = new Usuario();
+            usuario.Nombre = "Juan";
+            usuario.Apellido = "Pérez";
+            usuario.Email = "juan@ejemplo.com";
+
+            log.Usuario = usuario;
+
+            Assert.AreEqual(usuario, log.Usuario);
+        }
     }
 }

@@ -5,6 +5,7 @@ namespace Dominio.Entidades
         public int Id { get; set; }
         private DateTime _timestamp;
         private string _accion;
+        private Usuario _usuario;
 
         public DateTime Timestamp
         {
@@ -36,6 +37,22 @@ namespace Dominio.Entidades
         {
             if (string.IsNullOrWhiteSpace(accion))
                 throw new ArgumentException("La acción es obligatoria.");
+        }
+
+        public Usuario Usuario
+        {
+            get => _usuario;
+            set
+            {
+                ValidarUsuario(value);
+                _usuario = value;
+            }
+        }
+
+        private void ValidarUsuario(Usuario usuario)
+        {
+            if (usuario == null)
+                throw new ArgumentException("El usuario es obligatorio.");
         }
     }
 }
