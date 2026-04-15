@@ -116,5 +116,13 @@ namespace Tests
             usuario.Contrasena = "Abcdef1@";
             Assert.AreNotEqual("Abcdef1@", usuario.Contrasena);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConContrasenaVacia_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Contrasena = "";
+        }
     }
 }
