@@ -108,5 +108,13 @@ namespace Tests
             usuario.Contrasena = "Abcdef1@";
             Assert.IsNotNull(usuario.Contrasena);
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ConContrasenaValida_DeberiaGuardarCifrada()
+        {
+            var usuario = new Usuario();
+            usuario.Contrasena = "Abcdef1@";
+            Assert.AreNotEqual("Abcdef1@", usuario.Contrasena);
+        }
     }
 }
