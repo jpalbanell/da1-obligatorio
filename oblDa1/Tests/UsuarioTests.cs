@@ -100,5 +100,13 @@ namespace Tests
             var usuario = new Usuario();
             usuario.FechaNacimiento = default;
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ConContrasenaValida_DeberiaAsignarContrasena()
+        {
+            var usuario = new Usuario();
+            usuario.Contrasena = "Abcdef1@";
+            Assert.IsNotNull(usuario.Contrasena);
+        }
     }
 }

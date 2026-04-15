@@ -7,6 +7,7 @@ namespace Dominio.Entidades
         private string _apellido;
         private string _email;
         private DateTime _fechaNacimiento;
+        private string _contrasena;
 
         public string Nombre
         {
@@ -70,6 +71,40 @@ namespace Dominio.Entidades
         {
             if (fecha == default)
                 throw new ArgumentException("La fecha de nacimiento es obligatoria.");
+        }
+
+        public string Contrasena
+        {
+            get => _contrasena;
+            set
+            {
+                ValidarContrasena(value);
+                _contrasena = CifrarContrasena(value);
+            }
+        }
+
+        private void ValidarContrasena(string contrasena)
+        {
+            if (string.IsNullOrWhiteSpace(contrasena))
+                throw new ArgumentException("La contraseña es obligatoria.");
+            if (contrasena.Length < 8)
+                throw new ArgumentException("La contraseña debe tener al menos 8 caracteres.");
+            if (!contrasena.Any(char.IsUpper))
+                throw new ArgumentException("La contraseña debe incluir al menos una letra mayúscula.");
+            if (!contrasena.Any(char.IsLower))
+                throw new ArgumentException("La contraseña debe incluir al menos una letra minúscula.");
+            if (!contrasena.Any(char.IsDigit))
+                throw new ArgumentException("La contraseña debe incluir al menos un número.");
+            if (!contrasena.Any(c => "@#$.".Contains(c)))
+                throw new ArgumentException("La contraseña debe incluir al menos un carácter especial (@, #, $, .).");
+        }
+
+        private string CifrarContrasena(string contrasena)
+        {
+            using var sha256 = System.Security.Cryptography.SHA256.Create();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(contrasena);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
         }
     }
 }
