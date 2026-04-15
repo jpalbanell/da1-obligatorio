@@ -190,5 +190,13 @@ namespace Tests
             usuario.Roles.Add(Rol.Editor);
             Assert.IsTrue(usuario.Roles.Contains(Rol.Editor));
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ListaRolesDeberiaIniciarVacia()
+        {
+            var usuario = new Usuario();
+            Assert.IsNotNull(usuario.Roles);
+            Assert.AreEqual(0, usuario.Roles.Count);
+        }
     }
 }
