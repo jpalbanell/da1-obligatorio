@@ -45,5 +45,13 @@ namespace Tests
             var log = new LogAuditoria();
             log.Accion = "";
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearLogAuditoria_ConAccionNula_DeberiaLanzarExcepcion()
+        {
+            var log = new LogAuditoria();
+            log.Accion = null;
+        }
     }
 }
