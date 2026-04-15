@@ -2,13 +2,14 @@ namespace Dominio.Entidades
 {
     public class Usuario
     {
-        public int Id { get; set; }
-        public List<Rol> Roles { get; set; } = new List<Rol>();
         private string _nombre;
         private string _apellido;
         private string _email;
         private DateTime _fechaNacimiento;
         private string _contrasena;
+
+        public int Id { get; set; }
+        public List<Rol> Roles { get; set; } = new List<Rol>();
 
         public string Nombre
         {
@@ -18,12 +19,6 @@ namespace Dominio.Entidades
                 ValidarNombre(value);
                 _nombre = value;
             }
-        }
-
-        private void ValidarNombre(string nombre)
-        {
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new ArgumentException("El nombre es obligatorio.");
         }
 
         public string Apellido
@@ -36,12 +31,6 @@ namespace Dominio.Entidades
             }
         }
 
-        private void ValidarApellido(string apellido)
-        {
-            if (string.IsNullOrWhiteSpace(apellido))
-                throw new ArgumentException("El apellido es obligatorio.");
-        }
-
         public string Email
         {
             get => _email;
@@ -50,12 +39,6 @@ namespace Dominio.Entidades
                 ValidarEmail(value);
                 _email = value;
             }
-        }
-
-        private void ValidarEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-                throw new ArgumentException("El email es obligatorio.");
         }
 
         public DateTime FechaNacimiento
@@ -68,12 +51,6 @@ namespace Dominio.Entidades
             }
         }
 
-        private void ValidarFechaNacimiento(DateTime fecha)
-        {
-            if (fecha == default)
-                throw new ArgumentException("La fecha de nacimiento es obligatoria.");
-        }
-
         public string Contrasena
         {
             get => _contrasena;
@@ -82,6 +59,30 @@ namespace Dominio.Entidades
                 ValidarContrasena(value);
                 _contrasena = CifrarContrasena(value);
             }
+        }
+
+        private void ValidarNombre(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new ArgumentException("El nombre es obligatorio.");
+        }
+
+        private void ValidarApellido(string apellido)
+        {
+            if (string.IsNullOrWhiteSpace(apellido))
+                throw new ArgumentException("El apellido es obligatorio.");
+        }
+
+        private void ValidarEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentException("El email es obligatorio.");
+        }
+
+        private void ValidarFechaNacimiento(DateTime fecha)
+        {
+            if (fecha == default)
+                throw new ArgumentException("La fecha de nacimiento es obligatoria.");
         }
 
         private void ValidarContrasena(string contrasena)
