@@ -172,5 +172,15 @@ namespace Tests
             usuario.Contrasena = "Abcdef1@";
             Assert.IsNotNull(usuario.Contrasena);
         }
+        
+        [TestMethod]
+        public void CrearUsuario_ConAmbosRoles_DeberiaContenerAmbos()
+        {
+            var usuario = new Usuario();
+            usuario.Roles.Add(Rol.Administrador);
+            usuario.Roles.Add(Rol.Editor);
+            Assert.IsTrue(usuario.Roles.Contains(Rol.Administrador));
+            Assert.IsTrue(usuario.Roles.Contains(Rol.Editor));
+        }
     }
 }
