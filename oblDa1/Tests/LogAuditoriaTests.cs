@@ -21,5 +21,13 @@ namespace Tests
             log.Timestamp = fecha;
             Assert.AreEqual(fecha, log.Timestamp);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearLogAuditoria_ConTimestampVacio_DeberiaLanzarExcepcion()
+        {
+            var log = new LogAuditoria();
+            log.Timestamp = default;
+        }
     }
 }
