@@ -65,5 +65,14 @@ namespace Tests
             var resultado = _repositorio.ObtenerPorId(1);
             Assert.AreEqual(new DateTime(2026, 6, 5), resultado.Fecha);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void Actualizar_ConPartidoInexistente_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(999);
+
+            _repositorio.Actualizar(partido);
+        }
     }
 }
