@@ -23,7 +23,15 @@ namespace Repositorios
 
         public void Actualizar(Estadio estadio)
         {
-            throw new NotImplementedException();
+            var indice = _estadios.FindIndex(e => e.Id == estadio.Id);
+            ValidarEstadioExistente(indice);
+            _estadios[indice] = estadio;
+        }
+
+        private void ValidarEstadioExistente(int indice)
+        {
+            if (indice == -1)
+                throw new Exception("Estadio no encontrado");
         }
 
         public void Eliminar(int id)

@@ -63,5 +63,21 @@ namespace Tests
             var resultado = _repositorio.ObtenerPorId(999);
             Assert.IsNull(resultado);
         }
+        
+        [TestMethod]
+        public void Actualizar_ConEstadioExistente_DeberiaActualizarDatos()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            estadio.Id = 1;
+            _repositorio.Agregar(estadio);
+
+            estadio.Nombre = "Centenario Renovado";
+            estadio.Capacidad = 65000;
+            _repositorio.Actualizar(estadio);
+
+            var resultado = _repositorio.ObtenerPorId(1);
+            Assert.AreEqual("Centenario Renovado", resultado.Nombre);
+            Assert.AreEqual(65000, resultado.Capacidad);
+        }
     }
 }
