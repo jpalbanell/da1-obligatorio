@@ -127,5 +127,25 @@ namespace Tests.TestsServicios
             equipoExtra.RankingFifa = 1500;
             _equipoServicio.AgregarEquipo(equipoExtra);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarEquipo_ConCupoAFCCompleto_LanzaExcepcion()
+        {
+            for (int i = 1; i <= 8; i++)
+            {
+                var equipo = new Equipo();
+                equipo.Nombre = $"AFC_{i}";
+                equipo.Confederacion = Confederacion.AFC;
+                equipo.RankingFifa = 1500;
+                _equipoServicio.AgregarEquipo(equipo);
+            }
+
+            var equipoExtra = new Equipo();
+            equipoExtra.Nombre = "AFC_9";
+            equipoExtra.Confederacion = Confederacion.AFC;
+            equipoExtra.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipoExtra);
+        }
     }
 }
