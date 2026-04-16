@@ -99,5 +99,15 @@ namespace Tests
         {
             _repositorio.Eliminar(999);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void Actualizar_ConUsuarioInexistente_DeberiaLanzarExcepcion()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            usuario.Id = 999;
+
+            _repositorio.Actualizar(usuario);
+        }
     }
 }
