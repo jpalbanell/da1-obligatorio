@@ -36,5 +36,15 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
+        
+        [TestMethod]
+        public void AgregarEstadio_DeberiaAsignarIdAutomaticamente()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+
+            _servicio.AgregarEstadio(estadio);
+
+            Assert.AreEqual(1, estadio.Id);
+        }
     }
 }
