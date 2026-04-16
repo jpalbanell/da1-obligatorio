@@ -6,7 +6,6 @@ namespace Servicios
     public class EstadioServicio : IEstadioServicio
     {
         private readonly IEstadioRepositorio _repositorio;
-        private int _proximoId = 1;
 
         public EstadioServicio(IEstadioRepositorio repositorio)
         {
@@ -16,13 +15,12 @@ namespace Servicios
         public void AgregarEstadio(Estadio estadio)
         {
             ValidarNombreUnico(estadio.Nombre);
-            estadio.Id = _proximoId++;
             _repositorio.Agregar(estadio);
         }
 
-        public Estadio ObtenerEstadio(int id)
+        public Estadio ObtenerEstadio(string nombre)
         {
-            return _repositorio.ObtenerPorId(id);
+            return _repositorio.ObtenerPorNombre(nombre);
         }
 
         public List<Estadio> ObtenerTodos()
@@ -32,29 +30,18 @@ namespace Servicios
 
         public void ModificarEstadio(Estadio estadio)
         {
-            ValidarNombreUnicoAlModificar(estadio);
             _repositorio.Actualizar(estadio);
         }
 
-        public void EliminarEstadio(int id)
+        public void EliminarEstadio(string nombre)
         {
-            _repositorio.Eliminar(id);
+            _repositorio.Eliminar(nombre);
         }
 
         private void ValidarNombreUnico(string nombre)
         {
-            var existente = _repositorio.ObtenerTodos()
-                .Any(e => e.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
-            if (existente)
-                throw new Exception("Ya existe un estadio con ese nombre.");
-        }
-
-        private void ValidarNombreUnicoAlModificar(Estadio estadio)
-        {
-            var existente = _repositorio.ObtenerTodos()
-                .Any(e => e.Nombre.Equals(estadio.Nombre, StringComparison.OrdinalIgnoreCase)
-                          && e.Id != estadio.Id);
-            if (existente)
+            var existente = _repositorio.ObtenerPorNombre(nombre);
+            if (existente != null)
                 throw new Exception("Ya existe un estadio con ese nombre.");
         }
     }
