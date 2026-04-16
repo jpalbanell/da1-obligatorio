@@ -2,7 +2,7 @@ using Dominio.Entidades;
 
 namespace Repositorios
 {
-    public class EquipoRepository : IEquipoRepository
+    public class EquipoRepositorio : IEquipoRepositorio
     {
         private List<Equipo> _equipos = new List<Equipo>();
 

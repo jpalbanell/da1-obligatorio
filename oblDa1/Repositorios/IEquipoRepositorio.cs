@@ -2,7 +2,7 @@ using Dominio.Entidades;
 
 namespace Repositorios
 {
-    public interface IEquipoRepository
+    public interface IEquipoRepositorio
     {
         void Add(Equipo equipo);
         List<Equipo> GetAll();
