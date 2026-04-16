@@ -79,5 +79,18 @@ namespace Tests
             Assert.AreEqual("Centenario Renovado", resultado.Nombre);
             Assert.AreEqual(65000, resultado.Capacidad);
         }
+        
+        [TestMethod]
+        public void Eliminar_ConEstadioExistente_DeberiaEliminarlo()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            estadio.Id = 1;
+            _repositorio.Agregar(estadio);
+
+            _repositorio.Eliminar(1);
+            var resultado = _repositorio.ObtenerPorId(1);
+
+            Assert.IsNull(resultado);
+        }
     }
 }

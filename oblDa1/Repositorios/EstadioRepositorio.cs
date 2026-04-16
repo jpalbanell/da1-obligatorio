@@ -36,7 +36,15 @@ namespace Repositorios
 
         public void Eliminar(int id)
         {
-            throw new NotImplementedException();
+            var estadio = ObtenerPorId(id);
+            ValidarEstadioNoNulo(estadio);
+            _estadios.Remove(estadio);
+        }
+
+        private void ValidarEstadioNoNulo(Estadio estadio)
+        {
+            if (estadio == null)
+                throw new Exception("Estadio no encontrado");
         }
     }
 }
