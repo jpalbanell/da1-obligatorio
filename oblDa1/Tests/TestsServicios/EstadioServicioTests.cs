@@ -81,5 +81,12 @@ namespace Tests
 
             Assert.AreEqual("Centenario", resultado.Nombre);
         }
+        
+        [TestMethod]
+        public void ObtenerEstadio_ConIdInexistente_DeberiaRetornarNull()
+        {
+            var resultado = _servicio.ObtenerEstadio(999);
+            Assert.IsNull(resultado);
+        }
     }
 }
