@@ -20,14 +20,6 @@ namespace Servicios
             _repositorio.Agregar(estadio);
         }
 
-        private void ValidarNombreUnico(string nombre)
-        {
-            var existente = _repositorio.ObtenerTodos()
-                .Any(e => e.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
-            if (existente)
-                throw new Exception("Ya existe un estadio con ese nombre.");
-        }
-
         public Estadio ObtenerEstadio(int id)
         {
             return _repositorio.ObtenerPorId(id);
@@ -44,6 +36,19 @@ namespace Servicios
             _repositorio.Actualizar(estadio);
         }
 
+        public void EliminarEstadio(int id)
+        {
+            _repositorio.Eliminar(id);
+        }
+
+        private void ValidarNombreUnico(string nombre)
+        {
+            var existente = _repositorio.ObtenerTodos()
+                .Any(e => e.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+            if (existente)
+                throw new Exception("Ya existe un estadio con ese nombre.");
+        }
+
         private void ValidarNombreUnicoAlModificar(Estadio estadio)
         {
             var existente = _repositorio.ObtenerTodos()
@@ -51,11 +56,6 @@ namespace Servicios
                           && e.Id != estadio.Id);
             if (existente)
                 throw new Exception("Ya existe un estadio con ese nombre.");
-        }
-
-        public void EliminarEstadio(int id)
-        {
-            _repositorio.Eliminar(id);
         }
     }
 }
