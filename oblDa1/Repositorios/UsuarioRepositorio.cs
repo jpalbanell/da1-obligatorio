@@ -36,7 +36,15 @@ namespace Repositorios
 
         public void Eliminar(int id)
         {
-            throw new NotImplementedException();
+            var usuario = ObtenerPorId(id);
+            ValidarUsuarioNoNulo(usuario);
+            _usuarios.Remove(usuario);
+        }
+
+        private void ValidarUsuarioNoNulo(Usuario usuario)
+        {
+            if (usuario == null)
+                throw new Exception("Usuario no encontrado");
         }
     }
 }

@@ -79,5 +79,18 @@ namespace Tests
             Assert.AreEqual("Juan Pablo", resultado.Nombre);
             Assert.AreEqual("González", resultado.Apellido);
         }
+        
+        [TestMethod]
+        public void Eliminar_ConUsuarioExistente_DeberiaEliminarlo()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            usuario.Id = 1;
+            _repositorio.Agregar(usuario);
+
+            _repositorio.Eliminar(1);
+            var resultado = _repositorio.ObtenerPorId(1);
+
+            Assert.IsNull(resultado);
+        }
     }
 }
