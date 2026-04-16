@@ -1,6 +1,29 @@
-namespace Tests.TestsRespositorios;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Dominio.Entidades;
+using Repositorios;
 
-public class EquipoRepositoryTests
+namespace Tests
 {
-    
+    [TestClass]
+    public class EquipoRepositoryTests
+    {
+        private IEquipoRepository _equipoRepository;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _equipoRepository = new EquipoRepository();
+        }
+
+        [TestMethod]
+        public void Add_EquipoValido_GetAllRetornaUnEquipo()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+
+            _equipoRepository.Add(equipo);
+
+            Assert.AreEqual(1, _equipoRepository.GetAll().Count);
+        }
+    }
 }

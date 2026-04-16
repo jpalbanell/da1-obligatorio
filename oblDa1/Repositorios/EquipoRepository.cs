@@ -1,6 +1,19 @@
-namespace Repositorios;
+using Dominio.Entidades;
 
-public class EquipoRepository
+namespace Repositorios
 {
-    
+    public class EquipoRepository : IEquipoRepository
+    {
+        private List<Equipo> _equipos = new List<Equipo>();
+
+        public void Add(Equipo equipo)
+        {
+            _equipos.Add(equipo);
+        }
+
+        public List<Equipo> GetAll()
+        {
+            return _equipos;
+        }
+    }
 }

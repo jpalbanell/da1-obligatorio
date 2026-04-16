@@ -1,6 +1,10 @@
-namespace Repositorios;
+using Dominio.Entidades;
 
-public class IEquipoRepository
+namespace Repositorios
 {
-    
+    public interface IEquipoRepository
+    {
+        void Add(Equipo equipo);
+        List<Equipo> GetAll();
+    }
 }
