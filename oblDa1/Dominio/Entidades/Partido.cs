@@ -108,12 +108,13 @@ namespace Dominio.Entidades
                 _vencedor = value;
             }
         }
+        public Partido() { }
 
         public Partido(int id)
         {
             Id = id;
         }
-
+        
         private void ValidarNoNuloOVacio(string valor, string campo)
         {
             if (string.IsNullOrEmpty(valor))
