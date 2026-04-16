@@ -61,5 +61,16 @@ namespace Tests
             Assert.AreEqual(1, usuario1.Id);
             Assert.AreEqual(2, usuario2.Id);
         }
+        
+        [TestMethod]
+        public void ObtenerUsuario_ConIdExistente_DeberiaRetornarlo()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            var resultado = _servicio.ObtenerUsuario(usuario.Id);
+
+            Assert.AreEqual("Juan", resultado.Nombre);
+        }
     }
 }
