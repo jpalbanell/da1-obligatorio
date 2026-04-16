@@ -99,5 +99,15 @@ namespace Tests
         {
             _repositorio.Eliminar(999);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void Actualizar_ConEstadioInexistente_DeberiaLanzarExcepcion()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            estadio.Id = 999;
+
+            _repositorio.Actualizar(estadio);
+        }
     }
 }
