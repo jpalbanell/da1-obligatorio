@@ -119,5 +119,12 @@ namespace Tests
 
             Assert.AreEqual(0, resultado.Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void EliminarUsuario_ConIdInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.EliminarUsuario(999);
+        }
     }
 }
