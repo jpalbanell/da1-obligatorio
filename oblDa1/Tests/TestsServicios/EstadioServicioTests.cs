@@ -129,5 +129,18 @@ namespace Tests
             estadio2.Nombre = "Centenario";
             _servicio.ModificarEstadio(estadio2);
         }
+        
+        [TestMethod]
+        public void ModificarEstadio_ManteniendoSuNombre_NoDeberiaLanzarExcepcion()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+
+            estadio.Capacidad = 70000;
+            _servicio.ModificarEstadio(estadio);
+
+            var resultado = _servicio.ObtenerEstadio(estadio.Id);
+            Assert.AreEqual(70000, resultado.Capacidad);
+        }
     }
 }
