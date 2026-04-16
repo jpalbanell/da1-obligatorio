@@ -59,6 +59,16 @@ namespace Tests
         }
         
         [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void Update_EquipoInexistente_LanzaExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+
+            _equipoRepository.Update(equipo);
+        }
+        
+        [TestMethod]
         public void Delete_EquipoExistente_GetAllRetornaListaVacia()
         {
             var equipo = new Equipo();
@@ -76,5 +86,7 @@ namespace Tests
         {
             _equipoRepository.Delete("Uruguay");
         }
+        
+        
     }
 }

@@ -23,7 +23,9 @@ namespace Repositorios
         
         public void Update(Equipo equipo)
         {
-            var index = _equipos.FindIndex(e => e.Nombre == equipo.Nombre);
+            var index = _equipos.FindIndex(e => e == equipo);
+            if (index == -1)
+                throw new Exception("Equipo no encontrado");
             _equipos[index] = equipo;
         }
         
