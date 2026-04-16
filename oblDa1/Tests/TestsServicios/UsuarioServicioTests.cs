@@ -38,5 +38,15 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
+        
+        [TestMethod]
+        public void AgregarUsuario_DeberiaAsignarIdAutomaticamente()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+
+            _servicio.AgregarUsuario(usuario);
+
+            Assert.AreEqual(1, usuario.Id);
+        }
     }
 }
