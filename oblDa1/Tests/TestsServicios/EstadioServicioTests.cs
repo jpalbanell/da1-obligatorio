@@ -88,5 +88,18 @@ namespace Tests
             var resultado = _servicio.ObtenerEstadio(999);
             Assert.IsNull(resultado);
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_ConVariosEstadios_DeberiaRetornarTodos()
+        {
+            var estadio1 = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            var estadio2 = CrearEstadioValido("Camp Nou", "Barcelona", 99000);
+            _servicio.AgregarEstadio(estadio1);
+            _servicio.AgregarEstadio(estadio2);
+
+            var resultado = _servicio.ObtenerTodos();
+
+            Assert.AreEqual(2, resultado.Count);
+        }
     }
 }
