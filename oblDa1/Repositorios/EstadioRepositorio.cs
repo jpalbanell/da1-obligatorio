@@ -1,0 +1,34 @@
+using Dominio.Entidades;
+
+namespace Repositorios
+{
+    public class EstadioRepositorio : IEstadioRepositorio
+    {
+        private List<Estadio> _estadios = new List<Estadio>();
+
+        public void Agregar(Estadio estadio)
+        {
+            _estadios.Add(estadio);
+        }
+
+        public List<Estadio> ObtenerTodos()
+        {
+            return _estadios;
+        }
+
+        public Estadio ObtenerPorId(int id)
+        {
+            return _estadios.FirstOrDefault(e => e.Id == id);
+        }
+
+        public void Actualizar(Estadio estadio)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Eliminar(int id)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
