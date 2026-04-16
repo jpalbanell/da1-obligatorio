@@ -147,5 +147,22 @@ namespace Tests.TestsServicios
             equipoExtra.RankingFifa = 1500;
             _equipoServicio.AgregarEquipo(equipoExtra);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarEquipo_ConCupoOFCCompleto_LanzaExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "OFC_1";
+            equipo.Confederacion = Confederacion.OFC;
+            equipo.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo);
+
+            var equipoExtra = new Equipo();
+            equipoExtra.Nombre = "OFC_2";
+            equipoExtra.Confederacion = Confederacion.OFC;
+            equipoExtra.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipoExtra);
+        }
     }
 }
