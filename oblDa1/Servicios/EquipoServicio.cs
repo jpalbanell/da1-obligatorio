@@ -14,27 +14,17 @@ namespace Servicios
         
         public void AgregarEquipo(Equipo equipo)
         {
-            if (_equipoRepositorio.ObtenerPorNombre(equipo.Nombre) != null)
-                throw new Exception("Ya existe un equipo con ese nombre");
-
-            int cupo = ObtenerCupoConfederacion(equipo.Confederacion);
-            int cantActual = _equipoRepositorio.ObtenerTodos()
-                .Count(e => e.Confederacion == equipo.Confederacion);
-            if (cantActual >= cupo)
-                throw new Exception("Cupo de confederación completo");
-
+            ValidarNombreUnico(equipo.Nombre);
+            ValidarCupoConfederacion(equipo.Confederacion);
             _equipoRepositorio.Agregar(equipo);
         }
-        
+
         public void EditarEquipo(Equipo equipo)
         {
-            var equipoExistente = _equipoRepositorio.ObtenerPorNombre(equipo.Nombre);
-            if (equipoExistente != null && equipoExistente != equipo)
-                throw new Exception("Ya existe un equipo con ese nombre");
-
+            ValidarNombreUnicoEnEdicion(equipo);
             _equipoRepositorio.Actualizar(equipo);
         }
-        
+
         public void EliminarEquipo(string nombre)
         {
             _equipoRepositorio.Eliminar(nombre);
@@ -62,6 +52,28 @@ namespace Servicios
                 Confederacion.OFC => 1,
                 _ => throw new Exception("Confederación inválida")
             };
+        }
+        
+        private void ValidarNombreUnico(string nombre)
+        {
+            if (_equipoRepositorio.ObtenerPorNombre(nombre) != null)
+                throw new Exception("Ya existe un equipo con ese nombre");
+        }
+
+        private void ValidarNombreUnicoEnEdicion(Equipo equipo)
+        {
+            var equipoExistente = _equipoRepositorio.ObtenerPorNombre(equipo.Nombre);
+            if (equipoExistente != null && equipoExistente != equipo)
+                throw new Exception("Ya existe un equipo con ese nombre");
+        }
+
+        private void ValidarCupoConfederacion(Confederacion confederacion)
+        {
+            int cupo = ObtenerCupoConfederacion(confederacion);
+            int cantActual = _equipoRepositorio.ObtenerTodos()
+                .Count(e => e.Confederacion == confederacion);
+            if (cantActual >= cupo)
+                throw new Exception("Cupo de confederación completo");
         }
         
         
