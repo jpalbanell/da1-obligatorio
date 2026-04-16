@@ -36,7 +36,7 @@ namespace Servicios
 
         public void EliminarUsuario(int id)
         {
-            throw new NotImplementedException();
+            _repositorio.Eliminar(id);
         }
     }
 }
