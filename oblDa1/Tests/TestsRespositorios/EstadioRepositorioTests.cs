@@ -34,5 +34,20 @@ namespace Tests
 
             Assert.AreEqual(estadio, resultado);
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_ConEstadiosAgregados_DeberiaRetornarTodos()
+        {
+            var estadio1 = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            estadio1.Id = 1;
+            var estadio2 = CrearEstadioValido("Camp Nou", "Barcelona", 99000);
+            estadio2.Id = 2;
+
+            _repositorio.Agregar(estadio1);
+            _repositorio.Agregar(estadio2);
+            var resultado = _repositorio.ObtenerTodos();
+
+            Assert.AreEqual(2, resultado.Count);
+        }
     }
 }
