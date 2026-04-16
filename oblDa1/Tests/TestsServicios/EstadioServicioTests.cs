@@ -116,5 +116,18 @@ namespace Tests
             Assert.AreEqual("Centenario Renovado", resultado.Nombre);
             Assert.AreEqual(65000, resultado.Capacidad);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarEstadio_ConNombreDuplicado_DeberiaLanzarExcepcion()
+        {
+            var estadio1 = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            var estadio2 = CrearEstadioValido("Camp Nou", "Barcelona", 99000);
+            _servicio.AgregarEstadio(estadio1);
+            _servicio.AgregarEstadio(estadio2);
+
+            estadio2.Nombre = "Centenario";
+            _servicio.ModificarEstadio(estadio2);
+        }
     }
 }
