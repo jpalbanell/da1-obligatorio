@@ -26,5 +26,11 @@ namespace Repositorios
             var index = _equipos.FindIndex(e => e.Nombre == equipo.Nombre);
             _equipos[index] = equipo;
         }
+        
+        public void Delete(string nombre)
+        {
+            var equipo = GetByNombre(nombre);
+            _equipos.Remove(equipo);
+        }
     }
 }

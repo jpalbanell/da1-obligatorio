@@ -57,5 +57,17 @@ namespace Tests
 
             Assert.AreEqual("Argentina", _equipoRepository.GetByNombre("Argentina").Nombre);
         }
+        
+        [TestMethod]
+        public void Delete_EquipoExistente_GetAllRetornaListaVacia()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            _equipoRepository.Add(equipo);
+
+            _equipoRepository.Delete("Uruguay");
+
+            Assert.AreEqual(0, _equipoRepository.GetAll().Count);
+        }
     }
 }
