@@ -39,6 +39,11 @@ namespace Servicios
         {
             _equipoRepositorio.Eliminar(nombre);
         }
+        
+        public List<Equipo> ObtenerTodos()
+        {
+            return _equipoRepositorio.ObtenerTodos();
+        }
 
         private int ObtenerCupoConfederacion(Confederacion confederacion)
         {

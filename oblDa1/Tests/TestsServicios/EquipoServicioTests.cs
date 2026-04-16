@@ -235,5 +235,13 @@ namespace Tests.TestsServicios
         {
             _equipoServicio.EliminarEquipo("Uruguay");
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_ListaVacia_RetornaListaVacia()
+        {
+            var resultado = _equipoServicio.ObtenerTodos();
+
+            Assert.AreEqual(0, resultado.Count);
+        }
     }
 }
