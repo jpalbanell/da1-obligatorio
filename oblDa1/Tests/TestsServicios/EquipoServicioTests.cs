@@ -228,5 +228,12 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(0, _equipoRepositorio.ObtenerTodos().Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void EliminarEquipo_EquipoInexistente_LanzaExcepcion()
+        {
+            _equipoServicio.EliminarEquipo("Uruguay");
+        }
     }
 }
