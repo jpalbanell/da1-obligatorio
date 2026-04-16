@@ -34,6 +34,11 @@ namespace Servicios
 
             _equipoRepositorio.Actualizar(equipo);
         }
+        
+        public void EliminarEquipo(string nombre)
+        {
+            _equipoRepositorio.Eliminar(nombre);
+        }
 
         private int ObtenerCupoConfederacion(Confederacion confederacion)
         {

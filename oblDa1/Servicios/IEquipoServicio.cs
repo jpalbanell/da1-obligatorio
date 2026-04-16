@@ -6,5 +6,6 @@ namespace Servicios
     {
         void AgregarEquipo(Equipo equipo);
         void EditarEquipo(Equipo equipo);
+        void EliminarEquipo(string nombre);
     }
 }

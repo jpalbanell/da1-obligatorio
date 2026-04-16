@@ -214,5 +214,19 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(1800, _equipoRepositorio.ObtenerPorNombre("Uruguay").RankingFifa);
         }
+        
+        [TestMethod]
+        public void EliminarEquipo_EquipoExistente_EliminaCorrectamente()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo);
+
+            _equipoServicio.EliminarEquipo("Uruguay");
+
+            Assert.AreEqual(0, _equipoRepositorio.ObtenerTodos().Count);
+        }
     }
 }
