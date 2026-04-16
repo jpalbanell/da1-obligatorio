@@ -70,5 +70,16 @@ namespace Tests
             _servicio.AgregarEstadio(estadio1);
             _servicio.AgregarEstadio(estadio2);
         }
+        
+        [TestMethod]
+        public void ObtenerEstadio_ConIdExistente_DeberiaRetornarlo()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+
+            var resultado = _servicio.ObtenerEstadio(estadio.Id);
+
+            Assert.AreEqual("Centenario", resultado.Nombre);
+        }
     }
 }
