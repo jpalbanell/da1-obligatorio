@@ -20,5 +20,11 @@ namespace Repositorios
         {
             return _equipos.FirstOrDefault(e => e.Nombre == nombre);
         }
+        
+        public void Update(Equipo equipo)
+        {
+            var index = _equipos.FindIndex(e => e.Nombre == equipo.Nombre);
+            _equipos[index] = equipo;
+        }
     }
 }

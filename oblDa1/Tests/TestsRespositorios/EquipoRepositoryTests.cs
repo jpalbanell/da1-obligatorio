@@ -44,5 +44,18 @@ namespace Tests
 
             Assert.IsNull(resultado);
         }
+        
+        [TestMethod]
+        public void Update_EquipoExistente_ActualizaCorrectamente()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            _equipoRepository.Add(equipo);
+
+            equipo.Nombre = "Argentina";
+            _equipoRepository.Update(equipo);
+
+            Assert.AreEqual("Argentina", _equipoRepository.GetByNombre("Argentina").Nombre);
+        }
     }
 }
