@@ -24,5 +24,18 @@ namespace Tests
 
             Assert.AreEqual(partido, resultado);
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_ConPartidosAgregados_DeberiaRetornarTodos()
+        {
+            var partido1 = new Partido(1);
+            var partido2 = new Partido(2);
+
+            _repositorio.Agregar(partido1);
+            _repositorio.Agregar(partido2);
+            var resultado = _repositorio.ObtenerTodos();
+
+            Assert.AreEqual(2, resultado.Count);
+        }
     }
 }

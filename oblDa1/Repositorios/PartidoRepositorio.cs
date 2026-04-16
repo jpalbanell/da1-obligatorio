@@ -15,5 +15,10 @@ namespace Repositorios
         {
             return _partidos.FirstOrDefault(p => p.Id == id);
         }
+        
+        public List<Partido> ObtenerTodos()
+        {
+            return _partidos;
+        }
     }
 }
