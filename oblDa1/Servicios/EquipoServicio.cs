@@ -28,6 +28,10 @@ namespace Servicios
         
         public void EditarEquipo(Equipo equipo)
         {
+            var equipoExistente = _equipoRepositorio.ObtenerPorNombre(equipo.Nombre);
+            if (equipoExistente != null && equipoExistente != equipo)
+                throw new Exception("Ya existe un equipo con ese nombre");
+
             _equipoRepositorio.Actualizar(equipo);
         }
 

@@ -179,5 +179,25 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(1800, _equipoRepositorio.ObtenerPorNombre("Uruguay").RankingFifa);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void EditarEquipo_ConNombreDuplicadoDeOtroEquipo_LanzaExcepcion()
+        {
+            var equipo1 = new Equipo();
+            equipo1.Nombre = "Uruguay";
+            equipo1.Confederacion = Confederacion.CONMEBOL;
+            equipo1.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo1);
+
+            var equipo2 = new Equipo();
+            equipo2.Nombre = "Argentina";
+            equipo2.Confederacion = Confederacion.CONMEBOL;
+            equipo2.RankingFifa = 1200;
+            _equipoServicio.AgregarEquipo(equipo2);
+
+            equipo2.Nombre = "Uruguay";
+            _equipoServicio.EditarEquipo(equipo2);
+        }
     }
 }
