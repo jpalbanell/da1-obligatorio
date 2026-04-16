@@ -1,0 +1,34 @@
+using Dominio.Entidades;
+
+namespace Repositorios
+{
+    public class UsuarioRepositorio : IUsuarioRepositorio
+    {
+        private List<Usuario> _usuarios = new List<Usuario>();
+
+        public void Agregar(Usuario usuario)
+        {
+            _usuarios.Add(usuario);
+        }
+
+        public List<Usuario> ObtenerTodos()
+        {
+            return _usuarios;
+        }
+
+        public Usuario ObtenerPorId(int id)
+        {
+            return _usuarios.FirstOrDefault(u => u.Id == id);
+        }
+
+        public void Actualizar(Usuario usuario)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Eliminar(int id)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
