@@ -65,5 +65,15 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
+        
+        [TestMethod]
+        public void AgregarPartido_DeberiaAsignarIdAutomaticamente()
+        {
+            var partido = CrearPartidoValido();
+
+            _servicio.AgregarPartido(partido);
+
+            Assert.AreEqual(1, partido.Id);
+        }
     }
 }
