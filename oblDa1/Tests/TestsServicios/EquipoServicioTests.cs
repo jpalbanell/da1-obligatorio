@@ -257,5 +257,19 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(1, resultado.Count);
         }
+        
+        [TestMethod]
+        public void ObtenerPorNombre_NombreExistente_RetornaEquipoCorrecto()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo);
+
+            var resultado = _equipoServicio.ObtenerPorNombre("Uruguay");
+
+            Assert.AreEqual(equipo, resultado);
+        }
     }
 }

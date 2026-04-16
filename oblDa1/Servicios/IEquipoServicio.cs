@@ -8,6 +8,7 @@ namespace Servicios
         void EditarEquipo(Equipo equipo);
         void EliminarEquipo(string nombre);
         List<Equipo> ObtenerTodos();
+        Equipo ObtenerPorNombre(string nombre);
 
     }
 }

@@ -44,6 +44,11 @@ namespace Servicios
         {
             return _equipoRepositorio.ObtenerTodos();
         }
+        
+        public Equipo ObtenerPorNombre(string nombre)
+        {
+            return _equipoRepositorio.ObtenerPorNombre(nombre);
+        }
 
         private int ObtenerCupoConfederacion(Confederacion confederacion)
         {
