@@ -51,5 +51,19 @@ namespace Tests
             var resultado = _repositorio.ObtenerPorId(999);
             Assert.IsNull(resultado);
         }
+        
+        [TestMethod]
+        public void Actualizar_ConPartidoExistente_DeberiaActualizarDatos()
+        {
+            var partido = new Partido(1);
+            partido.Fecha = new DateTime(2026, 6, 1);
+            _repositorio.Agregar(partido);
+
+            partido.Fecha = new DateTime(2026, 6, 5);
+            _repositorio.Actualizar(partido);
+
+            var resultado = _repositorio.ObtenerPorId(1);
+            Assert.AreEqual(new DateTime(2026, 6, 5), resultado.Fecha);
+        }
     }
 }

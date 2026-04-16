@@ -20,5 +20,13 @@ namespace Repositorios
         {
             return _partidos;
         }
+        
+        public void Actualizar(Partido partido)
+        {
+            var indice = _partidos.FindIndex(p => p.Id == partido.Id);
+            if (indice == -1)
+                throw new Exception("Partido no encontrado");
+            _partidos[indice] = partido;
+        }
     }
 }
