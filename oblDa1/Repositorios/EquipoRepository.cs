@@ -30,6 +30,8 @@ namespace Repositorios
         public void Delete(string nombre)
         {
             var equipo = GetByNombre(nombre);
+            if (equipo == null)
+                throw new Exception("Equipo no encontrado");
             _equipos.Remove(equipo);
         }
     }

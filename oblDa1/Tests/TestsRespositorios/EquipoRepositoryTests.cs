@@ -69,5 +69,12 @@ namespace Tests
 
             Assert.AreEqual(0, _equipoRepository.GetAll().Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void Delete_EquipoInexistente_LanzaExcepcion()
+        {
+            _equipoRepository.Delete("Uruguay");
+        }
     }
 }
