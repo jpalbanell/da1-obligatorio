@@ -164,5 +164,20 @@ namespace Tests.TestsServicios
             equipoExtra.RankingFifa = 1500;
             _equipoServicio.AgregarEquipo(equipoExtra);
         }
+        
+        [TestMethod]
+        public void EditarEquipo_ConDatosValidos_EditaCorrectamente()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo);
+
+            equipo.RankingFifa = 1800;
+            _equipoServicio.EditarEquipo(equipo);
+
+            Assert.AreEqual(1800, _equipoRepositorio.ObtenerPorNombre("Uruguay").RankingFifa);
+        }
     }
 }

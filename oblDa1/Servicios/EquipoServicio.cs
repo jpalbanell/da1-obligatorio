@@ -25,6 +25,11 @@ namespace Servicios
 
             _equipoRepositorio.Agregar(equipo);
         }
+        
+        public void EditarEquipo(Equipo equipo)
+        {
+            _equipoRepositorio.Actualizar(equipo);
+        }
 
         private int ObtenerCupoConfederacion(Confederacion confederacion)
         {
