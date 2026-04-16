@@ -92,5 +92,12 @@ namespace Tests
 
             Assert.IsNull(resultado);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void Eliminar_ConIdInexistente_DeberiaLanzarExcepcion()
+        {
+            _repositorio.Eliminar(999);
+        }
     }
 }
