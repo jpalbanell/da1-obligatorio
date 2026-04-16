@@ -36,5 +36,13 @@ namespace Tests
 
             Assert.AreEqual(equipo, _equipoRepository.GetByNombre("Uruguay"));
         }
+        
+        [TestMethod]
+        public void GetByNombre_ConNombreInexistente_RetornaNull()
+        {
+            var resultado = _equipoRepository.GetByNombre("Uruguay");
+
+            Assert.IsNull(resultado);
+        }
     }
 }
