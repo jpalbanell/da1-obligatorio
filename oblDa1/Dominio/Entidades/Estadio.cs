@@ -8,7 +8,6 @@ public class Estadio
     private string _ciudad = string.Empty;
     private string? _descripcion;
     private int _capacidad;
-    public int Id { get; set; }
     public List<Partido> Partidos { get; set; } = new List<Partido>();
 
     public int Capacidad
@@ -84,7 +83,7 @@ public class Estadio
             throw new ArgumentException("La descripción no puede superar los 400 caracteres.");
         }
     }
-    
+
     private void ValidarCapacidad(int capacidad)
     {
         if (capacidad < 20000)
