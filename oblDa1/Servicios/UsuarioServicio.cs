@@ -31,7 +31,7 @@ namespace Servicios
 
         public void ModificarUsuario(Usuario usuario)
         {
-            throw new NotImplementedException();
+            _repositorio.Actualizar(usuario);
         }
 
         public void EliminarUsuario(int id)

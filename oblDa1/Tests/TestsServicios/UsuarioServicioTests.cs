@@ -92,5 +92,20 @@ namespace Tests
 
             Assert.AreEqual(2, resultado.Count);
         }
+        
+        [TestMethod]
+        public void ModificarUsuario_ConDatosValidos_DeberiaActualizar()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            usuario.Nombre = "Juan Pablo";
+            usuario.Apellido = "González";
+            _servicio.ModificarUsuario(usuario);
+
+            var resultado = _servicio.ObtenerUsuario(usuario.Id);
+            Assert.AreEqual("Juan Pablo", resultado.Nombre);
+            Assert.AreEqual("González", resultado.Apellido);
+        }
     }
 }
