@@ -29,5 +29,23 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(1, _equipoRepositorio.ObtenerTodos().Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarEquipo_ConNombreDuplicado_LanzaExcepcion()
+        {
+            var equipo1 = new Equipo();
+            equipo1.Nombre = "Uruguay";
+            equipo1.Confederacion = Confederacion.CONMEBOL;
+            equipo1.RankingFifa = 1500;
+
+            var equipo2 = new Equipo();
+            equipo2.Nombre = "Uruguay";
+            equipo2.Confederacion = Confederacion.CONMEBOL;
+            equipo2.RankingFifa = 1200;
+
+            _equipoServicio.AgregarEquipo(equipo1);
+            _equipoServicio.AgregarEquipo(equipo2);
+        }
     }
 }
