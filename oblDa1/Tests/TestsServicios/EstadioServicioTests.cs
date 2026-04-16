@@ -142,5 +142,17 @@ namespace Tests
             var resultado = _servicio.ObtenerEstadio(estadio.Id);
             Assert.AreEqual(70000, resultado.Capacidad);
         }
+        
+        [TestMethod]
+        public void EliminarEstadio_ConIdExistente_DeberiaEliminarlo()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+
+            _servicio.EliminarEstadio(estadio.Id);
+            var resultado = _servicio.ObtenerTodos();
+
+            Assert.AreEqual(0, resultado.Count);
+        }
     }
 }

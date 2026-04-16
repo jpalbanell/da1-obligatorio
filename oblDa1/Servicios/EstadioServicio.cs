@@ -55,7 +55,7 @@ namespace Servicios
 
         public void EliminarEstadio(int id)
         {
-            throw new NotImplementedException();
+            _repositorio.Eliminar(id);
         }
     }
 }
