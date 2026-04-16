@@ -72,5 +72,12 @@ namespace Tests
 
             Assert.AreEqual("Juan", resultado.Nombre);
         }
+        
+        [TestMethod]
+        public void ObtenerUsuario_ConIdInexistente_DeberiaRetornarNull()
+        {
+            var resultado = _servicio.ObtenerUsuario(999);
+            Assert.IsNull(resultado);
+        }
     }
 }
