@@ -271,5 +271,13 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(equipo, resultado);
         }
+        
+        [TestMethod]
+        public void ObtenerPorNombre_NombreInexistente_RetornaNull()
+        {
+            var resultado = _equipoServicio.ObtenerPorNombre("Uruguay");
+
+            Assert.IsNull(resultado);
+        }
     }
 }
