@@ -24,17 +24,27 @@ namespace Repositorios
         public void Actualizar(Usuario usuario)
         {
             var indice = _usuarios.FindIndex(u => u.Id == usuario.Id);
-            if (indice == -1)
-                throw new Exception("Usuario no encontrado");
+            ValidarUsuarioExistente(indice);
             _usuarios[indice] = usuario;
         }
 
         public void Eliminar(int id)
         {
             var usuario = ObtenerPorId(id);
+            ValidarUsuarioNoNulo(usuario);
+            _usuarios.Remove(usuario);
+        }
+
+        private void ValidarUsuarioExistente(int indice)
+        {
+            if (indice == -1)
+                throw new Exception("Usuario no encontrado");
+        }
+
+        private void ValidarUsuarioNoNulo(Usuario usuario)
+        {
             if (usuario == null)
                 throw new Exception("Usuario no encontrado");
-            _usuarios.Remove(usuario);
         }
     }
 }
