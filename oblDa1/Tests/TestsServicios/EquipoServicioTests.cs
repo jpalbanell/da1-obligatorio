@@ -47,5 +47,25 @@ namespace Tests.TestsServicios
             _equipoServicio.AgregarEquipo(equipo1);
             _equipoServicio.AgregarEquipo(equipo2);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarEquipo_ConCupoUEFACompleto_LanzaExcepcion()
+        {
+            for (int i = 1; i <= 16; i++)
+            {
+                var equipo = new Equipo();
+                equipo.Nombre = $"UEFA_{i}";
+                equipo.Confederacion = Confederacion.UEFA;
+                equipo.RankingFifa = 1500;
+                _equipoServicio.AgregarEquipo(equipo);
+            }
+
+            var equipoExtra = new Equipo();
+            equipoExtra.Nombre = "UEFA_17";
+            equipoExtra.Confederacion = Confederacion.UEFA;
+            equipoExtra.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipoExtra);
+        }
     }
 }
