@@ -44,5 +44,12 @@ namespace Tests
             var resultado = _repositorio.ObtenerTodos();
             Assert.AreEqual(0, resultado.Count);
         }
+        
+        [TestMethod]
+        public void ObtenerPorId_ConIdInexistente_DeberiaRetornarNull()
+        {
+            var resultado = _repositorio.ObtenerPorId(999);
+            Assert.IsNull(resultado);
+        }
     }
 }
