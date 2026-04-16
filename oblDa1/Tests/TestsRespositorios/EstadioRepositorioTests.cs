@@ -24,24 +24,21 @@ namespace Tests
         }
 
         [TestMethod]
-        public void Agregar_ConEstadioValido_DeberiaPoderObtenerPorId()
+        public void Agregar_ConEstadioValido_DeberiaPoderObtenerPorNombre()
         {
             var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
-            estadio.Id = 1;
 
             _repositorio.Agregar(estadio);
-            var resultado = _repositorio.ObtenerPorId(1);
+            var resultado = _repositorio.ObtenerPorNombre("Centenario");
 
             Assert.AreEqual(estadio, resultado);
         }
-        
+
         [TestMethod]
         public void ObtenerTodos_ConEstadiosAgregados_DeberiaRetornarTodos()
         {
             var estadio1 = CrearEstadioValido("Centenario", "Montevideo", 60000);
-            estadio1.Id = 1;
             var estadio2 = CrearEstadioValido("Camp Nou", "Barcelona", 99000);
-            estadio2.Id = 2;
 
             _repositorio.Agregar(estadio1);
             _repositorio.Agregar(estadio2);
@@ -49,63 +46,58 @@ namespace Tests
 
             Assert.AreEqual(2, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ObtenerTodos_SinEstadios_DeberiaRetornarListaVacia()
         {
             var resultado = _repositorio.ObtenerTodos();
             Assert.AreEqual(0, resultado.Count);
         }
-        
+
         [TestMethod]
-        public void ObtenerPorId_ConIdInexistente_DeberiaRetornarNull()
+        public void ObtenerPorNombre_ConNombreInexistente_DeberiaRetornarNull()
         {
-            var resultado = _repositorio.ObtenerPorId(999);
+            var resultado = _repositorio.ObtenerPorNombre("NoExiste");
             Assert.IsNull(resultado);
         }
-        
+
         [TestMethod]
         public void Actualizar_ConEstadioExistente_DeberiaActualizarDatos()
         {
             var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
-            estadio.Id = 1;
             _repositorio.Agregar(estadio);
 
-            estadio.Nombre = "Centenario Renovado";
             estadio.Capacidad = 65000;
             _repositorio.Actualizar(estadio);
 
-            var resultado = _repositorio.ObtenerPorId(1);
-            Assert.AreEqual("Centenario Renovado", resultado.Nombre);
+            var resultado = _repositorio.ObtenerPorNombre("Centenario");
             Assert.AreEqual(65000, resultado.Capacidad);
         }
-        
+
         [TestMethod]
         public void Eliminar_ConEstadioExistente_DeberiaEliminarlo()
         {
             var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
-            estadio.Id = 1;
             _repositorio.Agregar(estadio);
 
-            _repositorio.Eliminar(1);
-            var resultado = _repositorio.ObtenerPorId(1);
+            _repositorio.Eliminar("Centenario");
+            var resultado = _repositorio.ObtenerPorNombre("Centenario");
 
             Assert.IsNull(resultado);
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-        public void Eliminar_ConIdInexistente_DeberiaLanzarExcepcion()
+        public void Eliminar_ConNombreInexistente_DeberiaLanzarExcepcion()
         {
-            _repositorio.Eliminar(999);
+            _repositorio.Eliminar("NoExiste");
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(Exception))]
         public void Actualizar_ConEstadioInexistente_DeberiaLanzarExcepcion()
         {
-            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
-            estadio.Id = 999;
+            var estadio = CrearEstadioValido("NoExiste", "Ciudad", 30000);
 
             _repositorio.Actualizar(estadio);
         }

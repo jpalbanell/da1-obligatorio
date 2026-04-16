@@ -6,8 +6,8 @@ namespace Repositorios
     {
         void Agregar(Estadio estadio);
         List<Estadio> ObtenerTodos();
-        Estadio ObtenerPorId(int id);
+        Estadio ObtenerPorNombre(string nombre);
         void Actualizar(Estadio estadio);
-        void Eliminar(int id);
+        void Eliminar(string nombre);
     }
 }

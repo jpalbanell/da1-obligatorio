@@ -81,7 +81,7 @@ public class EstadioTests
         string descripcionLarga = new string('A', 401);
         estadio.Descripcion = descripcionLarga;
     }
-    
+
     [TestMethod]
     public void CrearEstadio_ConCapacidadValida_DeberiaAsignarCapacidad()
     {
@@ -89,7 +89,7 @@ public class EstadioTests
         estadio.Capacidad = 20000;
         Assert.AreEqual(20000, estadio.Capacidad);
     }
-    
+
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
     public void CrearEstadio_ConCapacidadMenorA20000_DeberiaLanzarExcepcion()
@@ -97,15 +97,7 @@ public class EstadioTests
         var estadio = new Estadio();
         estadio.Capacidad = 19999;
     }
-    
-    [TestMethod]
-    public void CrearEstadio_ConIdValido_DeberiaAsignarId()
-    {
-        var estadio = new Estadio();
-        estadio.Id = 1;
-        Assert.AreEqual(1, estadio.Id);
-    }
-    
+
     [TestMethod]
     public void CrearEstadio_DeberiaInicializarPartidos()
     {

@@ -16,21 +16,21 @@ namespace Repositorios
             return _estadios;
         }
 
-        public Estadio ObtenerPorId(int id)
+        public Estadio ObtenerPorNombre(string nombre)
         {
-            return _estadios.FirstOrDefault(e => e.Id == id);
+            return _estadios.FirstOrDefault(e => e.Nombre == nombre);
         }
 
         public void Actualizar(Estadio estadio)
         {
-            var indice = _estadios.FindIndex(e => e.Id == estadio.Id);
+            var indice = _estadios.FindIndex(e => e.Nombre == estadio.Nombre);
             ValidarEstadioExistente(indice);
             _estadios[indice] = estadio;
         }
 
-        public void Eliminar(int id)
+        public void Eliminar(string nombre)
         {
-            var estadio = ObtenerPorId(id);
+            var estadio = ObtenerPorNombre(nombre);
             ValidarEstadioNoNulo(estadio);
             _estadios.Remove(estadio);
         }
