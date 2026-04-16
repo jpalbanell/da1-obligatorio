@@ -48,5 +48,18 @@ namespace Tests
 
             Assert.AreEqual(1, usuario.Id);
         }
+        
+        [TestMethod]
+        public void AgregarUsuario_VariosUsuarios_DeberiaAsignarIdsIncrementales()
+        {
+            var usuario1 = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            var usuario2 = CrearUsuarioValido("María", "López", "maria@ejemplo.com");
+
+            _servicio.AgregarUsuario(usuario1);
+            _servicio.AgregarUsuario(usuario2);
+
+            Assert.AreEqual(1, usuario1.Id);
+            Assert.AreEqual(2, usuario2.Id);
+        }
     }
 }
