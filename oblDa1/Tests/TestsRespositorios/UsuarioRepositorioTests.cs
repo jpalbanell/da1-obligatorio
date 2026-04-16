@@ -34,5 +34,20 @@ namespace Tests
 
             Assert.AreEqual(usuario, resultado);
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_ConUsuariosAgregados_DeberiaRetornarTodos()
+        {
+            var usuario1 = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            usuario1.Id = 1;
+            var usuario2 = CrearUsuarioValido("María", "López", "maria@ejemplo.com");
+            usuario2.Id = 2;
+
+            _repositorio.Agregar(usuario1);
+            _repositorio.Agregar(usuario2);
+            var resultado = _repositorio.ObtenerTodos();
+
+            Assert.AreEqual(2, resultado.Count);
+        }
     }
 }
