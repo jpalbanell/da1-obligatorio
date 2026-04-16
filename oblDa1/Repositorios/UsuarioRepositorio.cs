@@ -23,7 +23,15 @@ namespace Repositorios
 
         public void Actualizar(Usuario usuario)
         {
-            throw new NotImplementedException();
+            var indice = _usuarios.FindIndex(u => u.Id == usuario.Id);
+            ValidarUsuarioExistente(indice);
+            _usuarios[indice] = usuario;
+        }
+
+        private void ValidarUsuarioExistente(int indice)
+        {
+            if (indice == -1)
+                throw new Exception("Usuario no encontrado");
         }
 
         public void Eliminar(int id)

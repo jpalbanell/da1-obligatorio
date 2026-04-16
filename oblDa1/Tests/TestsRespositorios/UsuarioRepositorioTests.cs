@@ -63,5 +63,21 @@ namespace Tests
             var resultado = _repositorio.ObtenerPorId(999);
             Assert.IsNull(resultado);
         }
+        
+        [TestMethod]
+        public void Actualizar_ConUsuarioExistente_DeberiaActualizarDatos()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            usuario.Id = 1;
+            _repositorio.Agregar(usuario);
+
+            usuario.Nombre = "Juan Pablo";
+            usuario.Apellido = "González";
+            _repositorio.Actualizar(usuario);
+
+            var resultado = _repositorio.ObtenerPorId(1);
+            Assert.AreEqual("Juan Pablo", resultado.Nombre);
+            Assert.AreEqual("González", resultado.Apellido);
+        }
     }
 }
