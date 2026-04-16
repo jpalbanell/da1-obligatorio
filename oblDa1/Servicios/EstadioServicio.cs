@@ -15,8 +15,17 @@ namespace Servicios
 
         public void AgregarEstadio(Estadio estadio)
         {
+            ValidarNombreUnico(estadio.Nombre);
             estadio.Id = _proximoId++;
             _repositorio.Agregar(estadio);
+        }
+
+        private void ValidarNombreUnico(string nombre)
+        {
+            var existente = _repositorio.ObtenerTodos()
+                .Any(e => e.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+            if (existente)
+                throw new Exception("Ya existe un estadio con ese nombre.");
         }
 
         public Estadio ObtenerEstadio(int id)

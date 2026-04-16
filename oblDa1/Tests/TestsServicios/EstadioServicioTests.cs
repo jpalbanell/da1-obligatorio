@@ -59,5 +59,16 @@ namespace Tests
             Assert.AreEqual(1, estadio1.Id);
             Assert.AreEqual(2, estadio2.Id);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarEstadio_ConNombreDuplicado_DeberiaLanzarExcepcion()
+        {
+            var estadio1 = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            var estadio2 = CrearEstadioValido("Centenario", "Buenos Aires", 50000);
+
+            _servicio.AgregarEstadio(estadio1);
+            _servicio.AgregarEstadio(estadio2);
+        }
     }
 }
