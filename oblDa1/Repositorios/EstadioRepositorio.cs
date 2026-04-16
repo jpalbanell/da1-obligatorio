@@ -28,17 +28,17 @@ namespace Repositorios
             _estadios[indice] = estadio;
         }
 
-        private void ValidarEstadioExistente(int indice)
-        {
-            if (indice == -1)
-                throw new Exception("Estadio no encontrado");
-        }
-
         public void Eliminar(int id)
         {
             var estadio = ObtenerPorId(id);
             ValidarEstadioNoNulo(estadio);
             _estadios.Remove(estadio);
+        }
+
+        private void ValidarEstadioExistente(int indice)
+        {
+            if (indice == -1)
+                throw new Exception("Estadio no encontrado");
         }
 
         private void ValidarEstadioNoNulo(Estadio estadio)
