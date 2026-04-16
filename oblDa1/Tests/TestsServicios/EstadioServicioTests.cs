@@ -101,5 +101,20 @@ namespace Tests
 
             Assert.AreEqual(2, resultado.Count);
         }
+        
+        [TestMethod]
+        public void ModificarEstadio_ConDatosValidos_DeberiaActualizar()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+
+            estadio.Nombre = "Centenario Renovado";
+            estadio.Capacidad = 65000;
+            _servicio.ModificarEstadio(estadio);
+
+            var resultado = _servicio.ObtenerEstadio(estadio.Id);
+            Assert.AreEqual("Centenario Renovado", resultado.Nombre);
+            Assert.AreEqual(65000, resultado.Capacidad);
+        }
     }
 }

@@ -40,7 +40,17 @@ namespace Servicios
 
         public void ModificarEstadio(Estadio estadio)
         {
-            throw new NotImplementedException();
+            ValidarNombreUnicoAlModificar(estadio);
+            _repositorio.Actualizar(estadio);
+        }
+
+        private void ValidarNombreUnicoAlModificar(Estadio estadio)
+        {
+            var existente = _repositorio.ObtenerTodos()
+                .Any(e => e.Nombre.Equals(estadio.Nombre, StringComparison.OrdinalIgnoreCase)
+                          && e.Id != estadio.Id);
+            if (existente)
+                throw new Exception("Ya existe un estadio con ese nombre.");
         }
 
         public void EliminarEstadio(int id)
