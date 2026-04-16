@@ -16,75 +16,75 @@ namespace Tests
         }
 
         [TestMethod]
-        public void Add_EquipoValido_GetAllRetornaUnEquipo()
+        public void Agregar_EquipoValido_GetAllRetornaUnEquipo()
         {
             var equipo = new Equipo();
             equipo.Nombre = "Uruguay";
 
-            _equipoRepositorio.Add(equipo);
+            _equipoRepositorio.Agregar(equipo);
 
-            Assert.AreEqual(1, _equipoRepositorio.GetAll().Count);
+            Assert.AreEqual(1, _equipoRepositorio.ObtenerTodos().Count);
         }
         
         [TestMethod]
-        public void Add_EquipoValido_GetByNombreRetornaEquipoCorrecto()
+        public void Agregar_EquipoValido_GetByNombreRetornaEquipoCorrecto()
         {
             var equipo = new Equipo();
             equipo.Nombre = "Uruguay";
 
-            _equipoRepositorio.Add(equipo);
+            _equipoRepositorio.Agregar(equipo);
 
-            Assert.AreEqual(equipo, _equipoRepositorio.GetByNombre("Uruguay"));
+            Assert.AreEqual(equipo, _equipoRepositorio.ObtenerPorNombre("Uruguay"));
         }
         
         [TestMethod]
-        public void GetByNombre_ConNombreInexistente_RetornaNull()
+        public void ObtenerPorNombre_ConNombreInexistente_RetornaNull()
         {
-            var resultado = _equipoRepositorio.GetByNombre("Uruguay");
+            var resultado = _equipoRepositorio.ObtenerPorNombre("Uruguay");
 
             Assert.IsNull(resultado);
         }
         
         [TestMethod]
-        public void Update_EquipoExistente_ActualizaCorrectamente()
+        public void Actualizar_EquipoExistente_ActualizaCorrectamente()
         {
             var equipo = new Equipo();
             equipo.Nombre = "Uruguay";
-            _equipoRepositorio.Add(equipo);
+            _equipoRepositorio.Agregar(equipo);
 
             equipo.Nombre = "Argentina";
-            _equipoRepositorio.Update(equipo);
+            _equipoRepositorio.Actualizar(equipo);
 
-            Assert.AreEqual("Argentina", _equipoRepositorio.GetByNombre("Argentina").Nombre);
+            Assert.AreEqual("Argentina", _equipoRepositorio.ObtenerPorNombre("Argentina").Nombre);
         }
         
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-        public void Update_EquipoInexistente_LanzaExcepcion()
+        public void Actualizar_EquipoInexistente_LanzaExcepcion()
         {
             var equipo = new Equipo();
             equipo.Nombre = "Uruguay";
 
-            _equipoRepositorio.Update(equipo);
+            _equipoRepositorio.Actualizar(equipo);
         }
         
         [TestMethod]
-        public void Delete_EquipoExistente_GetAllRetornaListaVacia()
+        public void Eliminar_EquipoExistente_GetAllRetornaListaVacia()
         {
             var equipo = new Equipo();
             equipo.Nombre = "Uruguay";
-            _equipoRepositorio.Add(equipo);
+            _equipoRepositorio.Agregar(equipo);
 
-            _equipoRepositorio.Delete("Uruguay");
+            _equipoRepositorio.Eliminar("Uruguay");
 
-            Assert.AreEqual(0, _equipoRepositorio.GetAll().Count);
+            Assert.AreEqual(0, _equipoRepositorio.ObtenerTodos().Count);
         }
         
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-        public void Delete_EquipoInexistente_LanzaExcepcion()
+        public void Eliminar_EquipoInexistente_LanzaExcepcion()
         {
-            _equipoRepositorio.Delete("Uruguay");
+            _equipoRepositorio.Eliminar("Uruguay");
         }
         
         

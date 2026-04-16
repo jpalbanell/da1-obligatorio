@@ -4,11 +4,11 @@ namespace Repositorios
 {
     public interface IEquipoRepositorio
     {
-        void Add(Equipo equipo);
-        List<Equipo> GetAll();
-        Equipo GetByNombre(string nombre);
-        void Update(Equipo equipo);
-        void Delete(string nombre);
+        void Agregar(Equipo equipo);
+        List<Equipo> ObtenerTodos();
+        Equipo ObtenerPorNombre(string nombre);
+        void Actualizar(Equipo equipo);
+        void Eliminar(string nombre);
 
     }
 }

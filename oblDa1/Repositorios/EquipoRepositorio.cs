@@ -6,31 +6,31 @@ namespace Repositorios
     {
         private List<Equipo> _equipos = new List<Equipo>();
 
-        public void Add(Equipo equipo)
+        public void Agregar(Equipo equipo)
         {
             _equipos.Add(equipo);
         }
 
-        public List<Equipo> GetAll()
+        public List<Equipo> ObtenerTodos()
         {
             return _equipos;
         }
         
-        public Equipo GetByNombre(string nombre)
+        public Equipo ObtenerPorNombre(string nombre)
         {
             return _equipos.FirstOrDefault(e => e.Nombre == nombre);
         }
         
-        public void Update(Equipo equipo)
+        public void Actualizar(Equipo equipo)
         {
             var index = _equipos.FindIndex(e => e == equipo);
             ValidarEquipoExistente(index);
             _equipos[index] = equipo;
         }
 
-        public void Delete(string nombre)
+        public void Eliminar(string nombre)
         {
-            var equipo = GetByNombre(nombre);
+            var equipo = ObtenerPorNombre(nombre);
             ValidarEquipoNoNulo(equipo);
             _equipos.Remove(equipo);
         }
