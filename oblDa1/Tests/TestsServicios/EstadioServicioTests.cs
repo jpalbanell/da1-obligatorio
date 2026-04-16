@@ -46,5 +46,18 @@ namespace Tests
 
             Assert.AreEqual(1, estadio.Id);
         }
+        
+        [TestMethod]
+        public void AgregarEstadio_VariosEstadios_DeberiaAsignarIdsIncrementales()
+        {
+            var estadio1 = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            var estadio2 = CrearEstadioValido("Camp Nou", "Barcelona", 99000);
+
+            _servicio.AgregarEstadio(estadio1);
+            _servicio.AgregarEstadio(estadio2);
+
+            Assert.AreEqual(1, estadio1.Id);
+            Assert.AreEqual(2, estadio2.Id);
+        }
     }
 }
