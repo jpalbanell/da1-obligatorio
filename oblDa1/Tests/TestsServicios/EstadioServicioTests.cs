@@ -154,5 +154,12 @@ namespace Tests
 
             Assert.AreEqual(0, resultado.Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void EliminarEstadio_ConIdInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.EliminarEstadio(999);
+        }
     }
 }
