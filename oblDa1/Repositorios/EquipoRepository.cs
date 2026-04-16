@@ -15,5 +15,10 @@ namespace Repositorios
         {
             return _equipos;
         }
+        
+        public Equipo GetByNombre(string nombre)
+        {
+            return _equipos.FirstOrDefault(e => e.Nombre == nombre);
+        }
     }
 }

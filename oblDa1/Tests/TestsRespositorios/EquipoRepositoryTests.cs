@@ -25,5 +25,16 @@ namespace Tests
 
             Assert.AreEqual(1, _equipoRepository.GetAll().Count);
         }
+        
+        [TestMethod]
+        public void Add_EquipoValido_GetByNombreRetornaEquipoCorrecto()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+
+            _equipoRepository.Add(equipo);
+
+            Assert.AreEqual(equipo, _equipoRepository.GetByNombre("Uruguay"));
+        }
     }
 }
