@@ -79,5 +79,18 @@ namespace Tests
             var resultado = _servicio.ObtenerUsuario(999);
             Assert.IsNull(resultado);
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_ConVariosUsuarios_DeberiaRetornarTodos()
+        {
+            var usuario1 = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            var usuario2 = CrearUsuarioValido("María", "López", "maria@ejemplo.com");
+            _servicio.AgregarUsuario(usuario1);
+            _servicio.AgregarUsuario(usuario2);
+
+            var resultado = _servicio.ObtenerTodos();
+
+            Assert.AreEqual(2, resultado.Count);
+        }
     }
 }
