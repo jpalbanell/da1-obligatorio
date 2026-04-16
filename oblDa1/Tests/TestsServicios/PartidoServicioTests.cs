@@ -1,0 +1,69 @@
+﻿using Dominio.Entidades;
+using Repositorios;
+using Servicios;
+
+namespace Tests
+{
+    [TestClass]
+    public class PartidoServicioTests
+    {
+        private IPartidoRepositorio _repositorio;
+        private IPartidoServicio _servicio;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _repositorio = new PartidoRepositorio();
+            _servicio = new PartidoServicio(_repositorio);
+        }
+
+        private Equipo CrearEquipoValido(string nombre)
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = nombre;
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            return equipo;
+        }
+
+        private Estadio CrearEstadioValido(string nombre)
+        {
+            var estadio = new Estadio();
+            estadio.Nombre = nombre;
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 60000;
+            return estadio;
+        }
+
+        private Grupo CrearGrupoValido(string etiqueta)
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = etiqueta;
+            return grupo;
+        }
+
+        private Partido CrearPartidoValido()
+        {
+            var partido = new Partido();
+            partido.Codigo = "P001";
+            partido.Fecha = new DateTime(2026, 6, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.EquipoLocal = CrearEquipoValido("Uruguay");
+            partido.EquipoVisitante = CrearEquipoValido("Argentina");
+            partido.Estadio = CrearEstadioValido("Centenario");
+            partido.Grupo = CrearGrupoValido("A");
+            return partido;
+        }
+
+        [TestMethod]
+        public void AgregarPartido_ConDatosValidos_DeberiaAgregarlo()
+        {
+            var partido = CrearPartidoValido();
+
+            _servicio.AgregarPartido(partido);
+            var resultado = _servicio.ObtenerTodos();
+
+            Assert.AreEqual(1, resultado.Count);
+        }
+    }
+}
