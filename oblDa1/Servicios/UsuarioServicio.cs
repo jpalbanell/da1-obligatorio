@@ -1,0 +1,42 @@
+using Dominio.Entidades;
+using Repositorios;
+
+namespace Servicios
+{
+    public class UsuarioServicio : IUsuarioServicio
+    {
+        private readonly IUsuarioRepositorio _repositorio;
+        private int _proximoId = 1;
+
+        public UsuarioServicio(IUsuarioRepositorio repositorio)
+        {
+            _repositorio = repositorio;
+        }
+
+        public void AgregarUsuario(Usuario usuario)
+        {
+            usuario.Id = _proximoId++;
+            _repositorio.Agregar(usuario);
+        }
+
+        public Usuario ObtenerUsuario(int id)
+        {
+            return _repositorio.ObtenerPorId(id);
+        }
+
+        public List<Usuario> ObtenerTodos()
+        {
+            return _repositorio.ObtenerTodos();
+        }
+
+        public void ModificarUsuario(Usuario usuario)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EliminarUsuario(int id)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
