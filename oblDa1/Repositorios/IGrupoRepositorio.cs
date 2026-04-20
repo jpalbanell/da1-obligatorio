@@ -1,6 +1,10 @@
-namespace Repositorios;
+using Dominio.Entidades;
 
-public class IGrupoRepositorio
+namespace Repositorios
 {
-    
+    public interface IGrupoRepositorio
+    {
+        void Agregar(Grupo grupo);
+        List<Grupo> ObtenerTodos();
+    }
 }
