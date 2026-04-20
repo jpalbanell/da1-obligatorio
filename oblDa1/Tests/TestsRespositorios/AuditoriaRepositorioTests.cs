@@ -24,5 +24,12 @@ namespace Tests.TestsRepositorios
 
             _auditoriaRepositorio.Agregar(log);
         }
+        [TestMethod]
+        public void ObtenerTodos_ListaVacia_RetornaListaVacia()
+        {
+            var resultado = _auditoriaRepositorio.ObtenerTodos();
+
+            Assert.AreEqual(0, resultado.Count);
+        }
     }
 }

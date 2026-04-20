@@ -10,5 +10,10 @@ namespace Repositorios
         {
             _logs.Add(log);
         }
+        
+        public List<LogAuditoria> ObtenerTodos()
+        {
+            return _logs;
+        }
     }
 }
