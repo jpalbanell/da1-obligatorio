@@ -1,6 +1,9 @@
-namespace Repositorios;
+using Dominio.Entidades;
 
-public class IAuditoriaRepositorio
+namespace Repositorios
 {
-    
+    public interface IAuditoriaRepositorio
+    {
+        void Agregar(LogAuditoria log);
+    }
 }

@@ -1,6 +1,14 @@
-namespace Repositorios;
+using Dominio.Entidades;
 
-public class AuditoriaRepositorio
+namespace Repositorios
 {
-    
+    public class AuditoriaRepositorio : IAuditoriaRepositorio
+    {
+        private List<LogAuditoria> _logs = new List<LogAuditoria>();
+
+        public void Agregar(LogAuditoria log)
+        {
+            _logs.Add(log);
+        }
+    }
 }
