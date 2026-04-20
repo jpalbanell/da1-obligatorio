@@ -35,5 +35,13 @@ namespace Tests.TestsRepositorios
 
             Assert.AreEqual(grupo, _grupoRepositorio.ObtenerPorEtiqueta("A"));
         }
+        
+        [TestMethod]
+        public void ObtenerPorEtiqueta_EtiquetaInexistente_RetornaNull()
+        {
+            var resultado = _grupoRepositorio.ObtenerPorEtiqueta("A");
+
+            Assert.IsNull(resultado);
+        }
     }
 }
