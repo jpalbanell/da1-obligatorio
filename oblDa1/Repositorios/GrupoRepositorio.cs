@@ -15,5 +15,10 @@ namespace Repositorios
         {
             return _grupos;
         }
+        
+        public Grupo ObtenerPorEtiqueta(string etiqueta)
+        {
+            return _grupos.FirstOrDefault(g => g.Etiqueta == etiqueta);
+        }
     }
 }

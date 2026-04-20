@@ -6,5 +6,6 @@ namespace Repositorios
     {
         void Agregar(Grupo grupo);
         List<Grupo> ObtenerTodos();
+        Grupo ObtenerPorEtiqueta(string etiqueta);
     }
 }
