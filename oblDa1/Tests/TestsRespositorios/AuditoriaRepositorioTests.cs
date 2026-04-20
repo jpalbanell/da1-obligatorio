@@ -31,5 +31,17 @@ namespace Tests.TestsRepositorios
 
             Assert.AreEqual(0, resultado.Count);
         }
+        [TestMethod]
+        public void Agregar_LogValido_ObtenerTodosRetornaUnLog()
+        {
+            var log = new LogAuditoria();
+            log.Timestamp = DateTime.Now;
+            log.Accion = "Alta de equipo";
+            log.Usuario = new Usuario();
+
+            _auditoriaRepositorio.Agregar(log);
+
+            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
     }
 }
