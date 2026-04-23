@@ -27,5 +27,15 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Registrar_AccionNula_LanzaExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+
+            _auditoriaServicio.Registrar(null, usuario);
+        }
     }
 }

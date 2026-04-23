@@ -14,6 +14,9 @@ namespace Servicios
 
         public void Registrar(string accion, Usuario usuario)
         {
+            if (string.IsNullOrEmpty(accion))
+                throw new ArgumentException("Accion no puede ser nula o vacía");
+
             var log = new LogAuditoria();
             log.Timestamp = DateTime.Now;
             log.Accion = accion;
