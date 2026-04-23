@@ -43,5 +43,20 @@ namespace Tests
 
             Assert.AreEqual(log, resultado);
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_ConLogsAgregados_DeberiaRetornarTodos()
+        {
+            var log1 = CrearLogValido("Alta de equipo: Uruguay");
+            log1.Id = 1;
+            var log2 = CrearLogValido("Alta de equipo: Argentina");
+            log2.Id = 2;
+
+            _repositorio.Agregar(log1);
+            _repositorio.Agregar(log2);
+            var resultado = _repositorio.ObtenerTodos();
+
+            Assert.AreEqual(2, resultado.Count);
+        }
     }
 }
