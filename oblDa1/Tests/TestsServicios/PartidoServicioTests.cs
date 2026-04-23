@@ -107,5 +107,18 @@ namespace Tests
             Assert.IsNull(resultado);
         }
         
+        [TestMethod]
+        public void ObtenerTodos_ConVariosPartidos_DeberiaRetornarTodos()
+        {
+            var partido1 = CrearPartidoValido();
+            var partido2 = CrearPartidoValido();
+            _servicio.AgregarPartido(partido1);
+            _servicio.AgregarPartido(partido2);
+
+            var resultado = _servicio.ObtenerTodos();
+
+            Assert.AreEqual(2, resultado.Count);
+        }
+        
     }
 }
