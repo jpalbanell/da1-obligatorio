@@ -75,5 +75,18 @@ namespace Tests
 
             Assert.AreEqual(1, partido.Id);
         }
+        
+        [TestMethod]
+        public void AgregarPartido_VariosPartidos_DeberiaAsignarIdsIncrementales()
+        {
+            var partido1 = CrearPartidoValido();
+            var partido2 = CrearPartidoValido();
+
+            _servicio.AgregarPartido(partido1);
+            _servicio.AgregarPartido(partido2);
+
+            Assert.AreEqual(1, partido1.Id);
+            Assert.AreEqual(2, partido2.Id);
+        }
     }
 }
