@@ -25,5 +25,10 @@ namespace Servicios
             log.Usuario = usuario;
             _auditoriaRepositorio.Agregar(log);
         }
+        
+        public List<LogAuditoria> ObtenerTodos()
+        {
+            return _auditoriaRepositorio.ObtenerTodos();
+        }
     }
 }

@@ -44,5 +44,13 @@ namespace Tests.TestsServicios
         {
             _auditoriaServicio.Registrar("Alta de equipo", null);
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_ListaVacia_RetornaListaVacia()
+        {
+            var resultado = _auditoriaServicio.ObtenerTodos();
+
+            Assert.AreEqual(0, resultado.Count);
+        }
     }
 }
