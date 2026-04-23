@@ -132,5 +132,19 @@ namespace Tests
             var resultado = _servicio.ObtenerPartido(partido.Id);
             Assert.AreEqual(new DateTime(2026, 6, 10), resultado.Fecha);
         }
+        
+        [TestMethod]
+        public void ModificarPartido_CambiarEstadio_DeberiaActualizar()
+        {
+            var partido = CrearPartidoValido();
+            _servicio.AgregarPartido(partido);
+
+            var nuevoEstadio = CrearEstadioValido("Maracaná");
+            partido.Estadio = nuevoEstadio;
+            _servicio.ModificarPartido(partido);
+
+            var resultado = _servicio.ObtenerPartido(partido.Id);
+            Assert.AreEqual("Maracaná", resultado.Estadio.Nombre);
+        }
     }
 }
