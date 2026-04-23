@@ -120,5 +120,17 @@ namespace Tests
             Assert.AreEqual(2, resultado.Count);
         }
         
+        [TestMethod]
+        public void ModificarPartido_CambiarFecha_DeberiaActualizar()
+        {
+            var partido = CrearPartidoValido();
+            _servicio.AgregarPartido(partido);
+
+            partido.Fecha = new DateTime(2026, 6, 10);
+            _servicio.ModificarPartido(partido);
+
+            var resultado = _servicio.ObtenerPartido(partido.Id);
+            Assert.AreEqual(new DateTime(2026, 6, 10), resultado.Fecha);
+        }
     }
 }

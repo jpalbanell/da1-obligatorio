@@ -28,5 +28,10 @@ namespace Servicios
         {
             return _repositorio.ObtenerPorId(id);
         }
+        
+        public void ModificarPartido(Partido partido)
+        {
+            _repositorio.Actualizar(partido);
+        }
     }
 }
