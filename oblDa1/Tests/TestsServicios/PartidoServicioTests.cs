@@ -178,5 +178,20 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
+        
+        [TestMethod]
+        public void ObtenerPorEstadio_ConEstadioExistente_DeberiaRetornarPartidos()
+        {
+            var partido1 = CrearPartidoValido();
+            var partido2 = CrearPartidoValido();
+            partido2.Estadio = CrearEstadioValido("Maracaná");
+
+            _servicio.AgregarPartido(partido1);
+            _servicio.AgregarPartido(partido2);
+
+            var resultado = _servicio.ObtenerPorEstadio("Centenario");
+
+            Assert.AreEqual(1, resultado.Count);
+        }
     }
 }

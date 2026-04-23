@@ -40,5 +40,12 @@ namespace Servicios
                 .Where(p => p.Fecha.Date == fecha.Date)
                 .ToList();
         }
+        
+        public List<Partido> ObtenerPorEstadio(string nombreEstadio)
+        {
+            return _repositorio.ObtenerTodos()
+                .Where(p => p.Estadio.Nombre.Equals(nombreEstadio, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
     }
 }
