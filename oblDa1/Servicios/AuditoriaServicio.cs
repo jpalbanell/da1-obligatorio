@@ -14,10 +14,8 @@ namespace Servicios
 
         public void Registrar(string accion, Usuario usuario)
         {
-            if (string.IsNullOrEmpty(accion))
-                throw new ArgumentException("Accion no puede ser nula o vacía");
-            if (usuario == null)
-                throw new ArgumentException("Usuario no puede ser nulo");
+            ValidarAccion(accion);
+            ValidarUsuario(usuario);
 
             var log = new LogAuditoria();
             log.Timestamp = DateTime.Now;
@@ -25,10 +23,22 @@ namespace Servicios
             log.Usuario = usuario;
             _auditoriaRepositorio.Agregar(log);
         }
-        
+
         public List<LogAuditoria> ObtenerTodos()
         {
             return _auditoriaRepositorio.ObtenerTodos();
+        }
+
+        private void ValidarAccion(string accion)
+        {
+            if (string.IsNullOrEmpty(accion))
+                throw new ArgumentException("Accion no puede ser nula o vacía");
+        }
+
+        private void ValidarUsuario(Usuario usuario)
+        {
+            if (usuario == null)
+                throw new ArgumentException("Usuario no puede ser nulo");
         }
     }
 }
