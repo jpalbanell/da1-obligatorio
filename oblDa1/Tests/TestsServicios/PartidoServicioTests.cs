@@ -223,5 +223,15 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarPartido_ConPartidoInexistente_DeberiaLanzarExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            partido.Id = 999;
+
+            _servicio.ModificarPartido(partido);
+        }
     }
 }
