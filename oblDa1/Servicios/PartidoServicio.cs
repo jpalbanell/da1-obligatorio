@@ -54,5 +54,12 @@ namespace Servicios
                 .Where(p => p.Grupo.Etiqueta == etiquetaGrupo)
                 .ToList();
         }
+        
+        public List<Partido> ObtenerPorFase(FaseTorneo fase)
+        {
+            return _repositorio.ObtenerTodos()
+                .Where(p => p.Fase == fase)
+                .ToList();
+        }
     }
 }

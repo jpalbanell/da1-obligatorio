@@ -11,6 +11,7 @@ namespace Servicios
         List<Partido> ObtenerPorFecha(DateTime fecha);
         List<Partido> ObtenerPorEstadio(string nombreEstadio);
         List<Partido> ObtenerPorGrupo(string etiquetaGrupo);
+        List<Partido> ObtenerPorFase(FaseTorneo fase);
     }
     
 }

@@ -208,5 +208,20 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
+        
+        [TestMethod]
+        public void ObtenerPorFase_ConFaseExistente_DeberiaRetornarPartidos()
+        {
+            var partido1 = CrearPartidoValido();
+            var partido2 = CrearPartidoValido();
+            partido2.Fase = FaseTorneo.Octavos;
+
+            _servicio.AgregarPartido(partido1);
+            _servicio.AgregarPartido(partido2);
+
+            var resultado = _servicio.ObtenerPorFase(FaseTorneo.FaseGrupos);
+
+            Assert.AreEqual(1, resultado.Count);
+        }
     }
 }
