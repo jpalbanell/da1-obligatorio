@@ -52,5 +52,16 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(0, resultado.Count);
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_ConLogs_RetornaListaCorrecta()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+
+            _auditoriaServicio.Registrar("Alta de equipo", usuario);
+
+            Assert.AreEqual(1, _auditoriaServicio.ObtenerTodos().Count);
+        }
     }
 }
