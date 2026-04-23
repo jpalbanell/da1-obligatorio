@@ -10,6 +10,7 @@ namespace Servicios
         void ModificarPartido(Partido partido);
         List<Partido> ObtenerPorFecha(DateTime fecha);
         List<Partido> ObtenerPorEstadio(string nombreEstadio);
+        List<Partido> ObtenerPorGrupo(string etiquetaGrupo);
     }
     
 }

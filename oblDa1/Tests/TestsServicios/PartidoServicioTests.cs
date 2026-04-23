@@ -193,5 +193,20 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
+        
+        [TestMethod]
+        public void ObtenerPorGrupo_ConGrupoExistente_DeberiaRetornarPartidos()
+        {
+            var partido1 = CrearPartidoValido();
+            var partido2 = CrearPartidoValido();
+            partido2.Grupo = CrearGrupoValido("B");
+
+            _servicio.AgregarPartido(partido1);
+            _servicio.AgregarPartido(partido2);
+
+            var resultado = _servicio.ObtenerPorGrupo("A");
+
+            Assert.AreEqual(1, resultado.Count);
+        }
     }
 }

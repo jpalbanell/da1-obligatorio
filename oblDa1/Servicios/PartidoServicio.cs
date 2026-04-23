@@ -47,5 +47,12 @@ namespace Servicios
                 .Where(p => p.Estadio.Nombre.Equals(nombreEstadio, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
+        
+        public List<Partido> ObtenerPorGrupo(string etiquetaGrupo)
+        {
+            return _repositorio.ObtenerTodos()
+                .Where(p => p.Grupo.Etiqueta == etiquetaGrupo)
+                .ToList();
+        }
     }
 }
