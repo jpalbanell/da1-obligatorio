@@ -8,6 +8,7 @@ namespace Servicios
         List<Partido> ObtenerTodos();
         Partido ObtenerPartido(int id);
         void ModificarPartido(Partido partido);
+        List<Partido> ObtenerPorFecha(DateTime fecha);
     }
     
 }

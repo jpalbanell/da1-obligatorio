@@ -164,5 +164,19 @@ namespace Tests
             Assert.AreEqual(partido.EquipoLocal, resultado.Vencedor);
         }
          
+        [TestMethod]
+        public void ObtenerPorFecha_ConFechaExistente_DeberiaRetornarPartidos()
+        {
+            var partido1 = CrearPartidoValido();
+            var partido2 = CrearPartidoValido();
+            partido2.Fecha = new DateTime(2026, 6, 4);
+
+            _servicio.AgregarPartido(partido1);
+            _servicio.AgregarPartido(partido2);
+
+            var resultado = _servicio.ObtenerPorFecha(new DateTime(2026, 6, 1));
+
+            Assert.AreEqual(1, resultado.Count);
+        }
     }
 }

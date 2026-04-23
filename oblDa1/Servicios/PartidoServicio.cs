@@ -33,5 +33,12 @@ namespace Servicios
         {
             _repositorio.Actualizar(partido);
         }
+        
+        public List<Partido> ObtenerPorFecha(DateTime fecha)
+        {
+            return _repositorio.ObtenerTodos()
+                .Where(p => p.Fecha.Date == fecha.Date)
+                .ToList();
+        }
     }
 }
