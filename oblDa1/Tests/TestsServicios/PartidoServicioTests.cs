@@ -88,5 +88,17 @@ namespace Tests
             Assert.AreEqual(1, partido1.Id);
             Assert.AreEqual(2, partido2.Id);
         }
+        
+        [TestMethod]
+        public void ObtenerPartido_ConIdExistente_DeberiaRetornarlo()
+        {
+            var partido = CrearPartidoValido();
+            _servicio.AgregarPartido(partido);
+
+            var resultado = _servicio.ObtenerPartido(partido.Id);
+
+            Assert.AreEqual("P001", resultado.Codigo);
+        }
+        
     }
 }

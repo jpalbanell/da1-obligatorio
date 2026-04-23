@@ -23,5 +23,10 @@ namespace Servicios
         {
             return _repositorio.ObtenerTodos();
         }
+        
+        public Partido ObtenerPartido(int id)
+        {
+            return _repositorio.ObtenerPorId(id);
+        }
     }
 }

@@ -6,5 +6,7 @@ namespace Servicios
     {
         void AgregarPartido(Partido partido);
         List<Partido> ObtenerTodos();
+        Partido ObtenerPartido(int id);
     }
+    
 }
