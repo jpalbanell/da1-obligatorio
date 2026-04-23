@@ -100,5 +100,12 @@ namespace Tests
             Assert.AreEqual("P001", resultado.Codigo);
         }
         
+        [TestMethod]
+        public void ObtenerPartido_ConIdInexistente_DeberiaRetornarNull()
+        {
+            var resultado = _servicio.ObtenerPartido(999);
+            Assert.IsNull(resultado);
+        }
+        
     }
 }
