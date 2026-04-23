@@ -1,6 +1,9 @@
-namespace Servicios;
+using Dominio.Entidades;
 
-public class IAuditoriaServicio
+namespace Servicios
 {
-    
+    public interface IAuditoriaServicio
+    {
+        void Registrar(string accion, Usuario usuario);
+    }
 }
