@@ -37,5 +37,12 @@ namespace Tests.TestsServicios
 
             _auditoriaServicio.Registrar(null, usuario);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Registrar_UsuarioNulo_LanzaExcepcion()
+        {
+            _auditoriaServicio.Registrar("Alta de equipo", null);
+        }
     }
 }

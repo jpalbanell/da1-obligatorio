@@ -16,6 +16,8 @@ namespace Servicios
         {
             if (string.IsNullOrEmpty(accion))
                 throw new ArgumentException("Accion no puede ser nula o vacía");
+            if (usuario == null)
+                throw new ArgumentException("Usuario no puede ser nulo");
 
             var log = new LogAuditoria();
             log.Timestamp = DateTime.Now;
