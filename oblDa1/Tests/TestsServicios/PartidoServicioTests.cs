@@ -146,5 +146,23 @@ namespace Tests
             var resultado = _servicio.ObtenerPartido(partido.Id);
             Assert.AreEqual("Maracaná", resultado.Estadio.Nombre);
         }
+        
+        [TestMethod]
+        public void ModificarPartido_CargarResultado_DeberiaActualizar()
+        {
+            var partido = CrearPartidoValido();
+            _servicio.AgregarPartido(partido);
+
+            partido.GolesLocal = 3;
+            partido.GolesVisitante = 1;
+            partido.Vencedor = partido.EquipoLocal;
+            _servicio.ModificarPartido(partido);
+
+            var resultado = _servicio.ObtenerPartido(partido.Id);
+            Assert.AreEqual(3, resultado.GolesLocal);
+            Assert.AreEqual(1, resultado.GolesVisitante);
+            Assert.AreEqual(partido.EquipoLocal, resultado.Vencedor);
+        }
+         
     }
 }
