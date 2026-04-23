@@ -58,5 +58,12 @@ namespace Tests
 
             Assert.AreEqual(2, resultado.Count);
         }
+        
+        [TestMethod]
+        public void ObtenerTodos_SinLogs_DeberiaRetornarListaVacia()
+        {
+            var resultado = _repositorio.ObtenerTodos();
+            Assert.AreEqual(0, resultado.Count);
+        }
     }
 }
