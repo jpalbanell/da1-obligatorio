@@ -15,6 +15,10 @@ namespace Servicios
         public void SimularPartido(int partidoId, int semillaSimulation)
         {
             var partido = _partidoRepositorio.ObtenerPorId(partidoId);
+    
+            if (partido == null)
+                throw new Exception("Partido no encontrado");
+
             var random = new Random(semillaSimulation);
 
             partido.GolesLocal = random.Next(0, 4);

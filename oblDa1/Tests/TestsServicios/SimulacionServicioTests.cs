@@ -77,5 +77,12 @@ namespace Tests.TestsServicios
             Assert.AreEqual(partido1.GolesLocal, partido2.GolesLocal);
             Assert.AreEqual(partido1.GolesVisitante, partido2.GolesVisitante);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void SimularPartido_PartidoInexistente_LanzaExcepcion()
+        {
+            _simulacionServicio.SimularPartido(999, 42);
+        }
     }
 }
