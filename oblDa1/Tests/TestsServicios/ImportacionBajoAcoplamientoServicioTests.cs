@@ -30,5 +30,16 @@ namespace Tests
             Assert.AreEqual(1, resultado.EquiposImportados);
             Assert.AreEqual(0, resultado.Errores.Count);
         }
+        
+        [TestMethod]
+        public void ImportarEquipos_ConVariosEquiposValidos_DeberiaImportarlos()
+        {
+            var csv = "Nombre,Confederación,RankingFIFA\nUruguay,CONMEBOL,1500\nArgentina,CONMEBOL,2000";
+
+            var resultado = _servicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(2, resultado.EquiposImportados);
+            Assert.AreEqual(0, resultado.Errores.Count);
+        }
     }
 }
