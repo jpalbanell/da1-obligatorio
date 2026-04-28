@@ -24,5 +24,17 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(usuario, _sesionServicio.ObtenerUsuarioActual());
         }
+        
+        [TestMethod]
+        public void CerrarSesion_UsuarioLogueado_ObtenerUsuarioActualRetornaNull()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
+
+            _sesionServicio.CerrarSesion();
+
+            Assert.IsNull(_sesionServicio.ObtenerUsuarioActual());
+        }
     }
 }

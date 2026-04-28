@@ -6,5 +6,6 @@ namespace Servicios
     {
         void IniciarSesion(Usuario usuario);
         Usuario ObtenerUsuarioActual();
+        void CerrarSesion();
     }
 }

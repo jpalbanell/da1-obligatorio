@@ -15,5 +15,10 @@ namespace Servicios
         {
             return _usuarioActual;
         }
+        
+        public void CerrarSesion()
+        {
+            _usuarioActual = null;
+        }
     }
 }
