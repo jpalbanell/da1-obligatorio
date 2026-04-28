@@ -72,6 +72,13 @@ namespace Tests
         }
         
         [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void CambiarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
+        {
+            _autenticacionServicio.CambiarContrasena(999, "NuevaPass@1");
+        }
+        
+        [TestMethod]
         public void ReiniciarContrasena_ConUsuarioExistente_DeberiaAsignarContrasenaPorDefecto()
         {
             var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
