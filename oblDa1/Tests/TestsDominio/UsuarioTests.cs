@@ -206,5 +206,20 @@ namespace Tests
             usuario.Id = 1;
             Assert.AreEqual(1, usuario.Id);
         }
+        
+        [TestMethod]
+        public void VerificarContrasena_ConContrasenaCorrecta_DeberiaRetornarTrue()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Juan";
+            usuario.Apellido = "Perez";
+            usuario.Email = "juan@test.com";
+            usuario.FechaNacimiento = new DateTime(2000, 1, 1);
+            usuario.Contrasena = "Password@1";
+
+            var resultado = usuario.VerificarContrasena("Password@1");
+
+            Assert.IsTrue(resultado);
+        }
     }
 }
