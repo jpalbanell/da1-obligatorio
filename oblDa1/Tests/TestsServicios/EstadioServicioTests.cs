@@ -122,6 +122,16 @@ namespace Tests
             estadio2.Nombre = "Centenario";
             _servicio.ModificarEstadio(estadio2);
         }
-        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarEstadio_EstadioInexistente_LanzaExcepcion()
+        {
+            var estadio = new Estadio();
+            estadio.Nombre = "NoExiste";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 60000;
+
+            _servicio.ModificarEstadio(estadio);
+        }
     }
 }
