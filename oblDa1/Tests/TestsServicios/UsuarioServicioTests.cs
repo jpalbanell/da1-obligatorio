@@ -126,5 +126,17 @@ namespace Tests
         {
             _servicio.EliminarUsuario(999);
         }
+        
+        [TestMethod]
+        public void Login_ConCredencialesValidas_DeberiaRetornarUsuario()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            var resultado = _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            Assert.IsNotNull(resultado);
+            Assert.AreEqual("Juan", resultado.Nombre);
+        }
     }
 }

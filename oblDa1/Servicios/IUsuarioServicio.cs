@@ -9,5 +9,6 @@ namespace Servicios
         List<Usuario> ObtenerTodos();
         void ModificarUsuario(Usuario usuario);
         void EliminarUsuario(int id);
+        Usuario Login(string email, string contrasena);
     }
 }
