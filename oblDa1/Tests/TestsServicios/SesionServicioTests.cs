@@ -42,5 +42,12 @@ namespace Tests.TestsServicios
         {
             Assert.IsNull(_sesionServicio.ObtenerUsuarioActual());
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void IniciarSesion_UsuarioNulo_LanzaExcepcion()
+        {
+            _sesionServicio.IniciarSesion(null);
+        }
     }
 }

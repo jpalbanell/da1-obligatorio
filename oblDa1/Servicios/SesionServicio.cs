@@ -8,6 +8,8 @@ namespace Servicios
 
         public void IniciarSesion(Usuario usuario)
         {
+            if (usuario == null)
+                throw new ArgumentException("Usuario no puede ser nulo");
             _usuarioActual = usuario;
         }
 
