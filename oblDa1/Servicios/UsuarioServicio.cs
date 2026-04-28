@@ -15,6 +15,7 @@ namespace Servicios
 
         public void AgregarUsuario(Usuario usuario)
         {
+            ValidarEmailUnico(usuario.Email);
             usuario.Id = _proximoId++;
             _repositorio.Agregar(usuario);
         }
@@ -38,5 +39,14 @@ namespace Servicios
         {
             _repositorio.Eliminar(id);
         }
+        
+        private void ValidarEmailUnico(string email)
+        {
+            var existente = _repositorio.ObtenerTodos()
+                .Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            if (existente)
+                throw new Exception("Ya existe un usuario con ese email.");
+        }
+        
     }
 }

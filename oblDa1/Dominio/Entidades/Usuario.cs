@@ -60,6 +60,11 @@ namespace Dominio.Entidades
                 _contrasena = CifrarContrasena(value);
             }
         }
+        
+        public bool VerificarContrasena(string contrasena)
+        {
+            return _contrasena == CifrarContrasena(contrasena);
+        }
 
         private void ValidarNombre(string nombre)
         {
