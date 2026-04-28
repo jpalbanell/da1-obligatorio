@@ -31,7 +31,14 @@ namespace Servicios
         
         public void ModificarPartido(Partido partido)
         {
+            ValidarPartidoNoBloqueado(partido);
             _repositorio.Actualizar(partido);
+        }
+
+        private void ValidarPartidoNoBloqueado(Partido partido)
+        {
+            if (partido.EstaBloqueado)
+                throw new Exception("No se puede editar un partido bloqueado");
         }
         
         public List<Partido> ObtenerPorFecha(DateTime fecha)
