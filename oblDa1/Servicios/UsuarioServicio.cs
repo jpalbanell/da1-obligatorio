@@ -15,10 +15,7 @@ namespace Servicios
 
         public void AgregarUsuario(Usuario usuario)
         {
-            var existente = _repositorio.ObtenerTodos()
-                .Any(u => u.Email.Equals(usuario.Email, StringComparison.OrdinalIgnoreCase));
-            if (existente)
-                throw new Exception("Ya existe un usuario con ese email.");
+            ValidarEmailUnico(usuario.Email);
             usuario.Id = _proximoId++;
             _repositorio.Agregar(usuario);
         }
@@ -52,6 +49,14 @@ namespace Servicios
             if (!usuario.VerificarContrasena(contrasena))
                 throw new Exception("Credenciales inválidas.");
             return usuario;
+        }
+        
+        private void ValidarEmailUnico(string email)
+        {
+            var existente = _repositorio.ObtenerTodos()
+                .Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            if (existente)
+                throw new Exception("Ya existe un usuario con ese email.");
         }
     }
 }
