@@ -58,5 +58,17 @@ namespace Tests
 
             _autenticacionServicio.Login("juan@ejemplo.com", "Incorrecta@1");
         }
+        
+        [TestMethod]
+        public void CambiarContrasena_ConContrasenaValida_DeberiaActualizar()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _usuarioServicio.AgregarUsuario(usuario);
+
+            _autenticacionServicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
+            var resultado = _autenticacionServicio.Login("juan@ejemplo.com", "NuevaPass@1");
+
+            Assert.IsNotNull(resultado);
+        }
     }
 }

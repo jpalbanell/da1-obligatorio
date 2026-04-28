@@ -40,12 +40,6 @@ namespace Servicios
             _repositorio.Eliminar(id);
         }
         
-        public void CambiarContrasena(int id, string nuevaContrasena)
-        {
-            var usuario = ObtenerUsuarioExistente(id);
-            usuario.Contrasena = nuevaContrasena;
-            _repositorio.Actualizar(usuario);
-        }
         
         public void ReiniciarContrasena(int id)
         {
