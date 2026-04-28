@@ -110,5 +110,28 @@ namespace Tests
         {
             _servicio.EliminarEstadio("NoExiste");
         }
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarEstadio_ConNombreDuplicadoDeOtroEstadio_LanzaExcepcion()
+        {
+            var estadio1 = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            var estadio2 = CrearEstadioValido("Maracana", "Rio de Janeiro", 78000);
+            _servicio.AgregarEstadio(estadio1);
+            _servicio.AgregarEstadio(estadio2);
+
+            estadio2.Nombre = "Centenario";
+            _servicio.ModificarEstadio(estadio2);
+        }
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarEstadio_EstadioInexistente_LanzaExcepcion()
+        {
+            var estadio = new Estadio();
+            estadio.Nombre = "NoExiste";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 60000;
+
+            _servicio.ModificarEstadio(estadio);
+        }
     }
 }

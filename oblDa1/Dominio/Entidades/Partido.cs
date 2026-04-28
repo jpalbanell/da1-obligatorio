@@ -15,6 +15,7 @@ namespace Dominio.Entidades
         public int Id { get; set; }
         public Partido OrigenLocal { get; set; }
         public Partido OrigenVisitante { get; set; }
+        public bool EstaBloqueado { get; set; }
 
         public string Codigo
         {

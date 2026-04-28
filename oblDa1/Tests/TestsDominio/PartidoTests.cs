@@ -217,5 +217,12 @@ namespace Tests
             partido.EquipoVisitante = equipoVisitante;
             partido.Vencedor = equipoAjeno;
         }
+        
+        [TestMethod]
+        public void CrearPartido_EstaBloqueadoPorDefecto_EsFalso()
+        {
+            var partido = new Partido(1);
+            Assert.IsFalse(partido.EstaBloqueado);
+        }
     }
 }

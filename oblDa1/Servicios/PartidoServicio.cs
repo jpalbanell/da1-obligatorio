@@ -31,7 +31,14 @@ namespace Servicios
         
         public void ModificarPartido(Partido partido)
         {
+            ValidarPartidoNoBloqueado(partido);
             _repositorio.Actualizar(partido);
+        }
+
+        private void ValidarPartidoNoBloqueado(Partido partido)
+        {
+            if (partido.EstaBloqueado)
+                throw new Exception("No se puede editar un partido bloqueado");
         }
         
         public List<Partido> ObtenerPorFecha(DateTime fecha)
@@ -44,14 +51,15 @@ namespace Servicios
         public List<Partido> ObtenerPorEstadio(string nombreEstadio)
         {
             return _repositorio.ObtenerTodos()
-                .Where(p => p.Estadio.Nombre.Equals(nombreEstadio, StringComparison.OrdinalIgnoreCase))
+                .Where(p => p.Estadio != null && 
+                            p.Estadio.Nombre.Equals(nombreEstadio, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
         
         public List<Partido> ObtenerPorGrupo(string etiquetaGrupo)
         {
             return _repositorio.ObtenerTodos()
-                .Where(p => p.Grupo.Etiqueta == etiquetaGrupo)
+                .Where(p => p.Grupo != null && p.Grupo.Etiqueta == etiquetaGrupo)
                 .ToList();
         }
         

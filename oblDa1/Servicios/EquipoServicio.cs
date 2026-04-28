@@ -27,8 +27,10 @@ namespace Servicios
 
         public void EliminarEquipo(string nombre)
         {
+            ValidarEquipoExistente(nombre);
             _equipoRepositorio.Eliminar(nombre);
         }
+        
         
         public List<Equipo> ObtenerTodos()
         {
@@ -74,6 +76,12 @@ namespace Servicios
                 .Count(e => e.Confederacion == confederacion);
             if (cantActual >= cupo)
                 throw new Exception("Cupo de confederación completo");
+        }
+        
+        private void ValidarEquipoExistente(string nombre)
+        {
+            if (_equipoRepositorio.ObtenerPorNombre(nombre) == null)
+                throw new Exception("No existe un equipo con ese nombre");
         }
         
         

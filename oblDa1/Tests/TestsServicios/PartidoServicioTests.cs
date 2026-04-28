@@ -233,5 +233,37 @@ namespace Tests
 
             _servicio.ModificarPartido(partido);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarPartido_PartidoBloqueado_LanzaExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.EstaBloqueado = true;
+            _repositorio.Agregar(partido);
+
+            _servicio.ModificarPartido(partido);
+        }
+        
+        [TestMethod]
+        public void ObtenerPorEstadio_PartidoSinEstadio_NoLanzaExcepcion()
+        {
+            var partido = new Partido(1);
+            _repositorio.Agregar(partido);
+
+            var resultado = _servicio.ObtenerPorEstadio("Centenario");
+
+            Assert.AreEqual(0, resultado.Count);
+        }
+        [TestMethod]
+        public void ObtenerPorGrupo_PartidoSinGrupo_NoLanzaExcepcion()
+        {
+            var partido = new Partido(1);
+            _repositorio.Agregar(partido);
+
+            var resultado = _servicio.ObtenerPorGrupo("A");
+
+            Assert.AreEqual(0, resultado.Count);
+        }
     }
 }
