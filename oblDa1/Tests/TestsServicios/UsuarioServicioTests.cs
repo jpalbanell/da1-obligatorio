@@ -190,5 +190,12 @@ namespace Tests
 
             Assert.IsNotNull(resultado);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ReiniciarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.ReiniciarContrasena(999);
+        }
     }
 }
