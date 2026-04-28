@@ -38,7 +38,7 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
-        
+
         [TestMethod]
         public void AgregarUsuario_DeberiaAsignarIdAutomaticamente()
         {
@@ -48,7 +48,7 @@ namespace Tests
 
             Assert.AreEqual(1, usuario.Id);
         }
-        
+
         [TestMethod]
         public void AgregarUsuario_VariosUsuarios_DeberiaAsignarIdsIncrementales()
         {
@@ -61,7 +61,7 @@ namespace Tests
             Assert.AreEqual(1, usuario1.Id);
             Assert.AreEqual(2, usuario2.Id);
         }
-        
+
         [TestMethod]
         public void ObtenerUsuario_ConIdExistente_DeberiaRetornarlo()
         {
@@ -72,14 +72,14 @@ namespace Tests
 
             Assert.AreEqual("Juan", resultado.Nombre);
         }
-        
+
         [TestMethod]
         public void ObtenerUsuario_ConIdInexistente_DeberiaRetornarNull()
         {
             var resultado = _servicio.ObtenerUsuario(999);
             Assert.IsNull(resultado);
         }
-        
+
         [TestMethod]
         public void ObtenerTodos_ConVariosUsuarios_DeberiaRetornarTodos()
         {
@@ -92,7 +92,7 @@ namespace Tests
 
             Assert.AreEqual(2, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ModificarUsuario_ConDatosValidos_DeberiaActualizar()
         {
@@ -107,7 +107,7 @@ namespace Tests
             Assert.AreEqual("Juan Pablo", resultado.Nombre);
             Assert.AreEqual("González", resultado.Apellido);
         }
-        
+
         [TestMethod]
         public void EliminarUsuario_ConIdExistente_DeberiaEliminarlo()
         {
@@ -119,15 +119,14 @@ namespace Tests
 
             Assert.AreEqual(0, resultado.Count);
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(Exception))]
         public void EliminarUsuario_ConIdInexistente_DeberiaLanzarExcepcion()
         {
             _servicio.EliminarUsuario(999);
         }
-        
-        
+
         [TestMethod]
         [ExpectedException(typeof(Exception))]
         public void AgregarUsuario_ConEmailDuplicado_DeberiaLanzarExcepcion()
@@ -137,26 +136,6 @@ namespace Tests
 
             _servicio.AgregarUsuario(usuario1);
             _servicio.AgregarUsuario(usuario2);
-        }
-        
-        
-        [TestMethod]
-        public void ReiniciarContrasena_ConUsuarioExistente_DeberiaAsignarContrasenaPorDefecto()
-        {
-            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
-            _servicio.AgregarUsuario(usuario);
-
-            _servicio.ReiniciarContrasena(usuario.Id);
-            var resultado = _servicio.Login("juan@ejemplo.com", "Password@1");
-
-            Assert.IsNotNull(resultado);
-        }
-        
-        [TestMethod]
-        [ExpectedException(typeof(Exception))]
-        public void ReiniciarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
-        {
-            _servicio.ReiniciarContrasena(999);
         }
     }
 }

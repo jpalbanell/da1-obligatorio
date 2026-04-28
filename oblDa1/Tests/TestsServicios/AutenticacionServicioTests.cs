@@ -70,5 +70,24 @@ namespace Tests
 
             Assert.IsNotNull(resultado);
         }
+        
+        [TestMethod]
+        public void ReiniciarContrasena_ConUsuarioExistente_DeberiaAsignarContrasenaPorDefecto()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _usuarioServicio.AgregarUsuario(usuario);
+
+            _autenticacionServicio.ReiniciarContrasena(usuario.Id);
+            var resultado = _autenticacionServicio.Login("juan@ejemplo.com", "Password@1");
+
+            Assert.IsNotNull(resultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ReiniciarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
+        {
+            _autenticacionServicio.ReiniciarContrasena(999);
+        }
     }
 }

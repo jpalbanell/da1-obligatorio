@@ -40,28 +40,12 @@ namespace Servicios
             _repositorio.Eliminar(id);
         }
         
-        
-        public void ReiniciarContrasena(int id)
-        {
-            var usuario = ObtenerUsuarioExistente(id);
-            usuario.Contrasena = "Password@1";
-            _repositorio.Actualizar(usuario);
-        }
-        
         private void ValidarEmailUnico(string email)
         {
             var existente = _repositorio.ObtenerTodos()
                 .Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             if (existente)
                 throw new Exception("Ya existe un usuario con ese email.");
-        }
-        
-        private Usuario ObtenerUsuarioExistente(int id)
-        {
-            var usuario = _repositorio.ObtenerPorId(id);
-            if (usuario == null)
-                throw new Exception("Usuario no encontrado.");
-            return usuario;
         }
         
     }

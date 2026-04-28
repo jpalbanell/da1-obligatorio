@@ -31,5 +31,14 @@ namespace Servicios
             usuario.Contrasena = nuevaContrasena;
             _repositorio.Actualizar(usuario);
         }
+        
+        public void ReiniciarContrasena(int id)
+        {
+            var usuario = _repositorio.ObtenerPorId(id);
+            if (usuario == null)
+                throw new Exception("Usuario no encontrado.");
+            usuario.Contrasena = "Password@1";
+            _repositorio.Actualizar(usuario);
+        }
     }
 }
