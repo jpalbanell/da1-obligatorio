@@ -53,9 +53,7 @@ namespace Servicios
         
         public void CambiarContrasena(int id, string nuevaContrasena)
         {
-            var usuario = _repositorio.ObtenerPorId(id);
-            if (usuario == null)
-                throw new Exception("Usuario no encontrado.");
+            var usuario = ObtenerUsuarioExistente(id);
             usuario.Contrasena = nuevaContrasena;
             _repositorio.Actualizar(usuario);
         }
@@ -66,6 +64,14 @@ namespace Servicios
                 .Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             if (existente)
                 throw new Exception("Ya existe un usuario con ese email.");
+        }
+        
+        private Usuario ObtenerUsuarioExistente(int id)
+        {
+            var usuario = _repositorio.ObtenerPorId(id);
+            if (usuario == null)
+                throw new Exception("Usuario no encontrado.");
+            return usuario;
         }
     }
 }
