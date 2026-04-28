@@ -71,5 +71,16 @@ namespace Tests.TestsServicios
             Assert.AreEqual(1, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
+        
+        [TestMethod]
+        public void ImportarEquipos_ConFilaInvalidaEntreValidas_DeberiaImportarLasValidas()
+        {
+            var csv = "Nombre,Confederación,RankingFIFA\nUruguay,CONMEBOL,1500\nMalo,INVALIDA,1500\nArgentina,CONMEBOL,2000";
+
+            var resultado = _servicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(2, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
     }
 }
