@@ -166,5 +166,17 @@ namespace Tests
             _servicio.AgregarUsuario(usuario1);
             _servicio.AgregarUsuario(usuario2);
         }
+        
+        [TestMethod]
+        public void CambiarContrasena_ConContrasenaValida_DeberiaActualizar()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
+            var resultado = _servicio.Login("juan@ejemplo.com", "NuevaPass@1");
+
+            Assert.IsNotNull(resultado);
+        }
     }
 }

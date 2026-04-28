@@ -51,6 +51,15 @@ namespace Servicios
             return usuario;
         }
         
+        public void CambiarContrasena(int id, string nuevaContrasena)
+        {
+            var usuario = _repositorio.ObtenerPorId(id);
+            if (usuario == null)
+                throw new Exception("Usuario no encontrado.");
+            usuario.Contrasena = nuevaContrasena;
+            _repositorio.Actualizar(usuario);
+        }
+        
         private void ValidarEmailUnico(string email)
         {
             var existente = _repositorio.ObtenerTodos()
