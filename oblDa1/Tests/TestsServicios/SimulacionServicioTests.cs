@@ -112,5 +112,22 @@ namespace Tests.TestsServicios
             else
                 Assert.IsNull(partido.Vencedor);
         }
+        
+        [TestMethod]
+        public void SimularFase_ConPartidosEnFaseGrupos_SimulaTodos()
+        {
+            var partido1 = CrearPartidoConEquipos(1500, 1200);
+            partido1.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido1);
+
+            var partido2 = CrearPartidoConEquipos(1800, 1400);
+            partido2.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido2);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.IsNotNull(partido1.Vencedor);
+            Assert.IsNotNull(partido2.Vencedor);
+        }
     }
 }

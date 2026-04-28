@@ -31,5 +31,16 @@ namespace Servicios
 
             _partidoRepositorio.Actualizar(partido);
         }
+        
+        public void SimularFase(FaseTorneo fase, int semillaSimulation)
+        {
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == fase)
+                .ToList();
+
+            foreach (var partido in partidos)
+                SimularPartido(partido.Id, semillaSimulation);
+        }
+        
     }
 }
