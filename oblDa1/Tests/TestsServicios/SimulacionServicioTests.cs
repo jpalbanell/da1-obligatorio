@@ -59,5 +59,23 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
         }
+        
+        [TestMethod]
+        public void SimularPartido_ConMismasemilla_MismoResultado()
+        {
+            var partido1 = CrearPartidoConEquipos(1500, 1500);
+            partido1.Id = 1;
+            _partidoRepositorio.Agregar(partido1);
+
+            var partido2 = CrearPartidoConEquipos(1500, 1500);
+            partido2.Id = 2;
+            _partidoRepositorio.Agregar(partido2);
+
+            _simulacionServicio.SimularPartido(1, 42);
+            _simulacionServicio.SimularPartido(2, 42);
+
+            Assert.AreEqual(partido1.GolesLocal, partido2.GolesLocal);
+            Assert.AreEqual(partido1.GolesVisitante, partido2.GolesVisitante);
+        }
     }
 }
