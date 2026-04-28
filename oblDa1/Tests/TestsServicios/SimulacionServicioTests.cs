@@ -39,25 +39,17 @@ namespace Tests.TestsServicios
         }
 
         [TestMethod]
-        public void SimularPartido_EquipoLocalMasFuerte_GanaLocal()
+        public void SimularPartido_EquipoConRankingMaximo_TieneMasGolesMaximosQueRankingMinimo()
         {
-            var partido = CrearPartidoConEquipos(2500, 300);
-            _partidoRepositorio.Agregar(partido);
+            var partidoFuerte = CrearPartidoConEquipos(2500, 300);
+            var partidoDebil = CrearPartidoConEquipos(300, 2500);
+            _partidoRepositorio.Agregar(partidoFuerte);
+            _partidoRepositorio.Agregar(partidoDebil);
 
-            _simulacionServicio.SimularPartido(partido.Id, 42);
+            _simulacionServicio.SimularPartido(partidoFuerte.Id, 42);
+            _simulacionServicio.SimularPartido(partidoDebil.Id, 42);
 
-            Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
-        }
-        
-        [TestMethod]
-        public void SimularPartido_EquipoVisitanteMasFuerte_GanaVisitante()
-        {
-            var partido = CrearPartidoConEquipos(300, 2500);
-            _partidoRepositorio.Agregar(partido);
-
-            _simulacionServicio.SimularPartido(partido.Id, 42);
-
-            Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+            Assert.IsTrue(partidoFuerte.GolesLocal >= partidoDebil.GolesLocal);
         }
         
         [TestMethod]
@@ -114,20 +106,21 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        public void SimularFase_ConPartidosEnFaseGrupos_SimulaTodos()
+        public void SimularFase_ConPartidosEnFaseGrupos_SimulaTodosLosPartidos()
         {
             var partido1 = CrearPartidoConEquipos(1500, 1200);
             partido1.Fase = FaseTorneo.FaseGrupos;
             _partidoRepositorio.Agregar(partido1);
 
-            var partido2 = CrearPartidoConEquipos(1800, 1400);
-            partido2.Fase = FaseTorneo.FaseGrupos;
-            _partidoRepositorio.Agregar(partido2);
+            var partidoOtraFase = CrearPartidoConEquipos(1800, 1400);
+            partidoOtraFase.Fase = FaseTorneo.Octavos;
+            _partidoRepositorio.Agregar(partidoOtraFase);
 
             _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
 
-            Assert.IsNotNull(partido1.Vencedor);
-            Assert.IsNotNull(partido2.Vencedor);
+            Assert.IsTrue(partido1.GolesLocal + partido1.GolesVisitante > 0 || 
+                          partido1.Vencedor != null);
+            Assert.AreEqual(0, partidoOtraFase.GolesLocal + partidoOtraFase.GolesVisitante);
         }
         
         [TestMethod]

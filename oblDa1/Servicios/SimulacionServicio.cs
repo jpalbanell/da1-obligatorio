@@ -6,6 +6,9 @@ namespace Servicios
     public class SimulacionServicio : ISimulacionServicio
     {
         private IPartidoRepositorio _partidoRepositorio;
+        private const double RankingMaximo = 2500.0;
+        private const int MaxGolesBase = 5;
+        private const int MinGolesMaximos = 1;
 
         public SimulacionServicio(IPartidoRepositorio partidoRepositorio)
         {
@@ -15,23 +18,18 @@ namespace Servicios
         public void SimularPartido(int partidoId, int semillaSimulation)
         {
             var partido = _partidoRepositorio.ObtenerPorId(partidoId);
-    
-            if (partido == null)
-                throw new Exception("Partido no encontrado");
+            ValidarPartidoExistente(partido);
 
             var random = new Random(semillaSimulation);
 
-            partido.GolesLocal = random.Next(0, 4);
-            partido.GolesVisitante = random.Next(0, 4);
+            partido.GolesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
+            partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
 
-            if (partido.EquipoVisitante.RankingFifa > partido.EquipoLocal.RankingFifa)
-                partido.Vencedor = partido.EquipoVisitante;
-            else
-                partido.Vencedor = partido.EquipoLocal;
+            AsignarVencedor(partido);
 
             _partidoRepositorio.Actualizar(partido);
         }
-        
+
         public void SimularFase(FaseTorneo fase, int semillaSimulation)
         {
             var partidos = _partidoRepositorio.ObtenerTodos()
@@ -41,6 +39,26 @@ namespace Servicios
             foreach (var partido in partidos)
                 SimularPartido(partido.Id, semillaSimulation);
         }
-        
+
+        private int GenerarGoles(int rankingFifa, Random random)
+        {
+            double fuerza = rankingFifa / RankingMaximo;
+            int maxGoles = Math.Max(MinGolesMaximos, (int)(fuerza * MaxGolesBase));
+            return random.Next(0, maxGoles + 1);
+        }
+
+        private void AsignarVencedor(Partido partido)
+        {
+            if (partido.GolesLocal > partido.GolesVisitante)
+                partido.Vencedor = partido.EquipoLocal;
+            else if (partido.GolesVisitante > partido.GolesLocal)
+                partido.Vencedor = partido.EquipoVisitante;
+        }
+
+        private void ValidarPartidoExistente(Partido partido)
+        {
+            if (partido == null)
+                throw new Exception("Partido no encontrado");
+        }
     }
 }
