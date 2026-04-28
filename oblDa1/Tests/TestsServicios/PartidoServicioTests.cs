@@ -255,5 +255,15 @@ namespace Tests
 
             Assert.AreEqual(0, resultado.Count);
         }
+        [TestMethod]
+        public void ObtenerPorGrupo_PartidoSinGrupo_NoLanzaExcepcion()
+        {
+            var partido = new Partido(1);
+            _repositorio.Agregar(partido);
+
+            var resultado = _servicio.ObtenerPorGrupo("A");
+
+            Assert.AreEqual(0, resultado.Count);
+        }
     }
 }

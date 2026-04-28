@@ -59,7 +59,7 @@ namespace Servicios
         public List<Partido> ObtenerPorGrupo(string etiquetaGrupo)
         {
             return _repositorio.ObtenerTodos()
-                .Where(p => p.Grupo.Etiqueta == etiquetaGrupo)
+                .Where(p => p.Grupo != null && p.Grupo.Etiqueta == etiquetaGrupo)
                 .ToList();
         }
         
