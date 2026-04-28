@@ -84,5 +84,17 @@ namespace Tests.TestsServicios
         {
             _simulacionServicio.SimularPartido(999, 42);
         }
+        
+        [TestMethod]
+        public void SimularPartido_GolesResultantes_NoSonNegativos()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1500);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(partido.GolesLocal >= 0);
+            Assert.IsTrue(partido.GolesVisitante >= 0);
+        }
     }
 }
