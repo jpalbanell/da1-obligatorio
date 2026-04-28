@@ -30,7 +30,15 @@ namespace Servicios
 
         public void ModificarEstadio(Estadio estadio)
         {
+            ValidarNombreUnicoEnEdicion(estadio);
             _repositorio.Actualizar(estadio);
+        }
+
+        private void ValidarNombreUnicoEnEdicion(Estadio estadio)
+        {
+            var existente = _repositorio.ObtenerPorNombre(estadio.Nombre);
+            if (existente != null && existente != estadio)
+                throw new Exception("Ya existe un estadio con ese nombre.");
         }
 
         public void EliminarEstadio(string nombre)
