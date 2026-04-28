@@ -48,5 +48,16 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
         }
+        
+        [TestMethod]
+        public void SimularPartido_EquipoVisitanteMasFuerte_GanaVisitante()
+        {
+            var partido = CrearPartidoConEquipos(300, 2500);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+        }
     }
 }

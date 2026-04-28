@@ -15,9 +15,12 @@ namespace Servicios
         public void SimularPartido(int partidoId, int semillaSimulation)
         {
             var partido = _partidoRepositorio.ObtenerPorId(partidoId);
-    
-            partido.Vencedor = partido.EquipoLocal;
-    
+
+            if (partido.EquipoVisitante.RankingFifa > partido.EquipoLocal.RankingFifa)
+                partido.Vencedor = partido.EquipoVisitante;
+            else
+                partido.Vencedor = partido.EquipoLocal;
+
             _partidoRepositorio.Actualizar(partido);
         }
     }
