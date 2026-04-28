@@ -244,5 +244,16 @@ namespace Tests
 
             _servicio.ModificarPartido(partido);
         }
+        
+        [TestMethod]
+        public void ObtenerPorEstadio_PartidoSinEstadio_NoLanzaExcepcion()
+        {
+            var partido = new Partido(1);
+            _repositorio.Agregar(partido);
+
+            var resultado = _servicio.ObtenerPorEstadio("Centenario");
+
+            Assert.AreEqual(0, resultado.Count);
+        }
     }
 }
