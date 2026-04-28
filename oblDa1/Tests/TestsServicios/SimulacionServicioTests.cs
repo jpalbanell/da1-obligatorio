@@ -96,5 +96,21 @@ namespace Tests.TestsServicios
             Assert.IsTrue(partido.GolesLocal >= 0);
             Assert.IsTrue(partido.GolesVisitante >= 0);
         }
+        
+        [TestMethod]
+        public void SimularPartido_AsignaVencedorSegunGoles()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1500);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            if (partido.GolesLocal > partido.GolesVisitante)
+                Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
+            else if (partido.GolesVisitante > partido.GolesLocal)
+                Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+            else
+                Assert.IsNull(partido.Vencedor);
+        }
     }
 }
