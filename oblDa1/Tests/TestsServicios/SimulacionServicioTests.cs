@@ -129,5 +129,11 @@ namespace Tests.TestsServicios
             Assert.IsNotNull(partido1.Vencedor);
             Assert.IsNotNull(partido2.Vencedor);
         }
+        
+        [TestMethod]
+        public void SimularFase_SinPartidosEnFase_NoLanzaExcepcion()
+        {
+            _simulacionServicio.SimularFase(FaseTorneo.Final, 42);
+        }
     }
 }
