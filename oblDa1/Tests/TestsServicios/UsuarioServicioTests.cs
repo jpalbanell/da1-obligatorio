@@ -145,5 +145,15 @@ namespace Tests
         {
             _servicio.Login("noexiste@ejemplo.com", "Abcdef1@");
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void Login_ConContrasenaIncorrecta_DeberiaLanzarExcepcion()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.Login("juan@ejemplo.com", "Incorrecta@1");
+        }
     }
 }
