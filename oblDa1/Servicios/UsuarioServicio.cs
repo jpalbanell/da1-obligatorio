@@ -58,6 +58,13 @@ namespace Servicios
             _repositorio.Actualizar(usuario);
         }
         
+        public void ReiniciarContrasena(int id)
+        {
+            var usuario = ObtenerUsuarioExistente(id);
+            usuario.Contrasena = "Password@1";
+            _repositorio.Actualizar(usuario);
+        }
+        
         private void ValidarEmailUnico(string email)
         {
             var existente = _repositorio.ObtenerTodos()
@@ -73,5 +80,6 @@ namespace Servicios
                 throw new Exception("Usuario no encontrado.");
             return usuario;
         }
+        
     }
 }
