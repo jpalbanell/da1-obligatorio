@@ -1,6 +1,10 @@
-namespace Servicios;
+using Dominio.Entidades;
 
-public class ISesionServicio
+namespace Servicios
 {
-    
+    public interface ISesionServicio
+    {
+        void IniciarSesion(Usuario usuario);
+        Usuario ObtenerUsuarioActual();
+    }
 }
