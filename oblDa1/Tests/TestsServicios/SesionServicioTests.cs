@@ -36,5 +36,11 @@ namespace Tests.TestsServicios
 
             Assert.IsNull(_sesionServicio.ObtenerUsuarioActual());
         }
+        
+        [TestMethod]
+        public void ObtenerUsuarioActual_SinSesionIniciada_RetornaNull()
+        {
+            Assert.IsNull(_sesionServicio.ObtenerUsuarioActual());
+        }
     }
 }
