@@ -155,5 +155,16 @@ namespace Tests
 
             _servicio.Login("juan@ejemplo.com", "Incorrecta@1");
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarUsuario_ConEmailDuplicado_DeberiaLanzarExcepcion()
+        {
+            var usuario1 = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            var usuario2 = CrearUsuarioValido("Pedro", "García", "juan@ejemplo.com");
+
+            _servicio.AgregarUsuario(usuario1);
+            _servicio.AgregarUsuario(usuario2);
+        }
     }
 }

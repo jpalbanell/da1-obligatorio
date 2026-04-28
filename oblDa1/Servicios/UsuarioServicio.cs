@@ -15,6 +15,10 @@ namespace Servicios
 
         public void AgregarUsuario(Usuario usuario)
         {
+            var existente = _repositorio.ObtenerTodos()
+                .Any(u => u.Email.Equals(usuario.Email, StringComparison.OrdinalIgnoreCase));
+            if (existente)
+                throw new Exception("Ya existe un usuario con ese email.");
             usuario.Id = _proximoId++;
             _repositorio.Agregar(usuario);
         }
