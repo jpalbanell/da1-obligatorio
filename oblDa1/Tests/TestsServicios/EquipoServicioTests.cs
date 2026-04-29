@@ -312,6 +312,18 @@ namespace Tests.TestsServicios
             Assert.AreEqual(48, _equipoRepositorio.ObtenerTodos().Count);
         }
         
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_RespetaCuposPorConfederacion()
+        {
+            _equipoServicio.CompletarEquiposAutomaticamente(42);
+
+            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.UEFA) <= 16);
+            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.CONMEBOL) <= 7);
+            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.CONCACAF) <= 7);
+            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.CAF) <= 9);
+            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.AFC) <= 8);
+            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.OFC) <= 1);
+        }
         
     }
 }
