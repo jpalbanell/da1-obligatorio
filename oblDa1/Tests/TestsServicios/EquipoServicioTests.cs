@@ -325,5 +325,16 @@ namespace Tests.TestsServicios
             Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.OFC) <= 1);
         }
         
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_GeneraNombresDeterministicos()
+        {
+            _equipoServicio.CompletarEquiposAutomaticamente(42);
+
+            var equipos = _equipoRepositorio.ObtenerTodos();
+            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("AFC_")));
+            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("CAF_")));
+            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("UEFA_")));
+        }
+        
     }
 }
