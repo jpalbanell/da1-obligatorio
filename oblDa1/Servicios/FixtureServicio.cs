@@ -30,6 +30,11 @@ namespace Servicios
 
         public void GenerarFixture(Fixture fixture)
         {
+            ValidarCantidadEquipos();
+        }
+
+        private void ValidarCantidadEquipos()
+        {
             var equipos = _equipoRepositorio.ObtenerTodos();
             if (equipos.Count != 48)
                 throw new Exception("Se necesitan exactamente 48 equipos para generar el fixture.");
