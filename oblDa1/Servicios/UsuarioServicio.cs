@@ -6,11 +6,17 @@ namespace Servicios
     public class UsuarioServicio : IUsuarioServicio
     {
         private readonly IUsuarioRepositorio _repositorio;
+        private readonly IAuditoriaServicio _auditoriaServicio;
+        private readonly ISesionServicio _sesionServicio;
         private int _proximoId = 1;
 
-        public UsuarioServicio(IUsuarioRepositorio repositorio)
+        public UsuarioServicio(IUsuarioRepositorio repositorio,
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _repositorio = repositorio;
+            _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
 
         public void AgregarUsuario(Usuario usuario)
@@ -18,6 +24,7 @@ namespace Servicios
             ValidarEmailUnico(usuario.Email);
             usuario.Id = _proximoId++;
             _repositorio.Agregar(usuario);
+            _auditoriaServicio.Registrar($"Alta de usuario: {usuario.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         public Usuario ObtenerUsuario(int id)
