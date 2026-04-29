@@ -1,0 +1,132 @@
+using Dominio.Entidades;
+using Repositorios;
+using Servicios;
+
+namespace Tests.TestsServicios
+{
+    [TestClass]
+    public class SimulacionServicioTests
+    {
+        private IPartidoRepositorio _partidoRepositorio;
+        private ISimulacionServicio _simulacionServicio;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _partidoRepositorio = new PartidoRepositorio();
+            _simulacionServicio = new SimulacionServicio(_partidoRepositorio);
+        }
+
+        private Partido CrearPartidoConEquipos(int rankingLocal, int rankingVisitante)
+        {
+            var local = new Equipo();
+            local.Nombre = "Local";
+            local.Confederacion = Confederacion.CONMEBOL;
+            local.RankingFifa = rankingLocal;
+
+            var visitante = new Equipo();
+            visitante.Nombre = "Visitante";
+            visitante.Confederacion = Confederacion.UEFA;
+            visitante.RankingFifa = rankingVisitante;
+
+            var partido = new Partido(1);
+            partido.Codigo = "P001";
+            partido.Fecha = new DateTime(2026, 6, 1);
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+
+            return partido;
+        }
+
+        [TestMethod]
+        public void SimularPartido_EquipoConRankingMaximo_TieneMasGolesMaximosQueRankingMinimo()
+        {
+            var partidoFuerte = CrearPartidoConEquipos(2500, 300);
+            var partidoDebil = CrearPartidoConEquipos(300, 2500);
+            _partidoRepositorio.Agregar(partidoFuerte);
+            _partidoRepositorio.Agregar(partidoDebil);
+
+            _simulacionServicio.SimularPartido(partidoFuerte.Id, 42);
+            _simulacionServicio.SimularPartido(partidoDebil.Id, 42);
+
+            Assert.IsTrue(partidoFuerte.GolesLocal >= partidoDebil.GolesLocal);
+        }
+        
+        [TestMethod]
+        public void SimularPartido_ConMismasemilla_MismoResultado()
+        {
+            var partido1 = CrearPartidoConEquipos(1500, 1500);
+            partido1.Id = 1;
+            _partidoRepositorio.Agregar(partido1);
+
+            var partido2 = CrearPartidoConEquipos(1500, 1500);
+            partido2.Id = 2;
+            _partidoRepositorio.Agregar(partido2);
+
+            _simulacionServicio.SimularPartido(1, 42);
+            _simulacionServicio.SimularPartido(2, 42);
+
+            Assert.AreEqual(partido1.GolesLocal, partido2.GolesLocal);
+            Assert.AreEqual(partido1.GolesVisitante, partido2.GolesVisitante);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void SimularPartido_PartidoInexistente_LanzaExcepcion()
+        {
+            _simulacionServicio.SimularPartido(999, 42);
+        }
+        
+        [TestMethod]
+        public void SimularPartido_GolesResultantes_NoSonNegativos()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1500);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(partido.GolesLocal >= 0);
+            Assert.IsTrue(partido.GolesVisitante >= 0);
+        }
+        
+        [TestMethod]
+        public void SimularPartido_AsignaVencedorSegunGoles()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1500);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            if (partido.GolesLocal > partido.GolesVisitante)
+                Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
+            else if (partido.GolesVisitante > partido.GolesLocal)
+                Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+            else
+                Assert.IsNull(partido.Vencedor);
+        }
+        
+        [TestMethod]
+        public void SimularFase_ConPartidosEnFaseGrupos_SimulaTodosLosPartidos()
+        {
+            var partido1 = CrearPartidoConEquipos(1500, 1200);
+            partido1.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido1);
+
+            var partidoOtraFase = CrearPartidoConEquipos(1800, 1400);
+            partidoOtraFase.Fase = FaseTorneo.Octavos;
+            _partidoRepositorio.Agregar(partidoOtraFase);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.IsTrue(partido1.GolesLocal + partido1.GolesVisitante > 0 || 
+                          partido1.Vencedor != null);
+            Assert.AreEqual(0, partidoOtraFase.GolesLocal + partidoOtraFase.GolesVisitante);
+        }
+        
+        [TestMethod]
+        public void SimularFase_SinPartidosEnFase_NoLanzaExcepcion()
+        {
+            _simulacionServicio.SimularFase(FaseTorneo.Final, 42);
+        }
+    }
+}
