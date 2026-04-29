@@ -37,6 +37,7 @@ namespace Servicios
         {
             ValidarEquipoExistente(nombre);
             _equipoRepositorio.Eliminar(nombre);
+            _auditoriaServicio.Registrar($"Eliminación de equipo: {nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
         
         
