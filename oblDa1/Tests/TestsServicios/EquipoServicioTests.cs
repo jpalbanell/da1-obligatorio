@@ -398,6 +398,13 @@ namespace Tests.TestsServicios
 
             CollectionAssert.AreEqual(rankings1, rankings2);
         }
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_RegistraLogDeAuditoria()
+        {
+            _equipoServicio.CompletarEquiposAutomaticamente(42);
+
+            Assert.IsTrue(_auditoriaRepositorio.ObtenerTodos().Count > 0);
+        }
         
     }
 }

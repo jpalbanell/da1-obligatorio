@@ -114,6 +114,8 @@ namespace Servicios
                     contador++;
                 }
             }
+            _auditoriaServicio.Registrar($"Generación automática de equipos con semilla: {semillaCompletar}", _sesionServicio.ObtenerUsuarioActual());
+
         }
         
         
