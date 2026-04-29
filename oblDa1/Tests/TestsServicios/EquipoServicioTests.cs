@@ -406,5 +406,16 @@ namespace Tests.TestsServicios
             Assert.IsTrue(_auditoriaRepositorio.ObtenerTodos().Count > 0);
         }
         
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_RegistraLogConDetallePorConfederacion()
+        {
+            _equipoServicio.CompletarEquiposAutomaticamente(42);
+
+            var log = _auditoriaRepositorio.ObtenerTodos().First();
+            Assert.IsTrue(log.Accion.Contains("UEFA"));
+            Assert.IsTrue(log.Accion.Contains("CONMEBOL"));
+            Assert.IsTrue(log.Accion.Contains("42"));
+        }
+        
     }
 }
