@@ -55,6 +55,7 @@ namespace Servicios
         public void EliminarEstadio(string nombre)
         {
             _repositorio.Eliminar(nombre);
+            _auditoriaServicio.Registrar($"Eliminación de estadio: {nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         private void ValidarNombreUnico(string nombre)
