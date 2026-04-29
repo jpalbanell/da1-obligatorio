@@ -12,5 +12,12 @@ namespace Tests
             fixture.SemillaFixture = 42;
             Assert.AreEqual(42, fixture.SemillaFixture);
         }
+        
+        [TestMethod]
+        public void CrearFixture_SinAsignarFecha_DeberiaSerPrimerDeJunio2026()
+        {
+            var fixture = new Fixture();
+            Assert.AreEqual(new DateTime(2026, 6, 1), fixture.FechaInicioTorneo);
+        }
     }
 }
