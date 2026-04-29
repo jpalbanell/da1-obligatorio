@@ -6,16 +6,24 @@ namespace Servicios
     public class EstadioServicio : IEstadioServicio
     {
         private readonly IEstadioRepositorio _repositorio;
+        private readonly IAuditoriaServicio _auditoriaServicio;
+        private readonly ISesionServicio _sesionServicio;
 
-        public EstadioServicio(IEstadioRepositorio repositorio)
+        public EstadioServicio(IEstadioRepositorio repositorio, 
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _repositorio = repositorio;
+            _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
 
         public void AgregarEstadio(Estadio estadio)
         {
             ValidarNombreUnico(estadio.Nombre);
             _repositorio.Agregar(estadio);
+            _auditoriaServicio.Registrar($"Alta de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+
         }
 
         public Estadio ObtenerEstadio(string nombre)
