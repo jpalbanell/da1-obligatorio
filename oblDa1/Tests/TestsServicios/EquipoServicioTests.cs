@@ -9,12 +9,22 @@ namespace Tests.TestsServicios
     {
         private IEquipoServicio _equipoServicio;
         private IEquipoRepositorio _equipoRepositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private IAuditoriaRepositorio _auditoriaRepositorio;
+        private ISesionServicio _sesionServicio;
 
         [TestInitialize]
         public void Setup()
         {
             _equipoRepositorio = new EquipoRepositorio();
-            _equipoServicio = new EquipoServicio(_equipoRepositorio);
+            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+            _sesionServicio = new SesionServicio();
+            _equipoServicio = new EquipoServicio(_equipoRepositorio, _auditoriaServicio, _sesionServicio);
+            
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
         }
         
         [TestMethod]
@@ -278,6 +288,23 @@ namespace Tests.TestsServicios
             var resultado = _equipoServicio.ObtenerPorNombre("Uruguay");
 
             Assert.IsNull(resultado);
+        }
+        
+        [TestMethod]
+        public void AgregarEquipo_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
+
+            _equipoServicio.AgregarEquipo(equipo);
+
+            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
         }
         
         
