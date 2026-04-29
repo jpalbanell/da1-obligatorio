@@ -19,5 +19,12 @@ namespace Tests
             var fixture = new Fixture();
             Assert.AreEqual(new DateTime(2026, 6, 1), fixture.FechaInicioTorneo);
         }
+        
+        [TestMethod]
+        public void CrearFixture_SinAsignarMaxPartidos_DeberiaSerTres()
+        {
+            var fixture = new Fixture();
+            Assert.AreEqual(3, fixture.MaxPartidosPorDia);
+        }
     }
 }
