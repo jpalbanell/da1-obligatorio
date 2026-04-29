@@ -7,14 +7,24 @@ namespace Tests
     [TestClass]
     public class EstadioServicioTests
     {
-        private IEstadioRepositorio _repositorio;
         private IEstadioServicio _servicio;
+        private IEstadioRepositorio _repositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private IAuditoriaRepositorio _auditoriaRepositorio;
+        private ISesionServicio _sesionServicio;
 
         [TestInitialize]
         public void Setup()
         {
             _repositorio = new EstadioRepositorio();
-            _servicio = new EstadioServicio(_repositorio);
+            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+            _sesionServicio = new SesionServicio();
+            _servicio = new EstadioServicio(_repositorio, _auditoriaServicio, _sesionServicio);
+
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
         }
 
         private Estadio CrearEstadioValido(string nombre, string ciudad, int capacidad)
@@ -132,6 +142,33 @@ namespace Tests
             estadio.Capacidad = 60000;
 
             _servicio.ModificarEstadio(estadio);
+        }
+        
+        [TestMethod]
+        public void AgregarEstadio_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        
+        [TestMethod]
+        public void ModificarEstadio_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+            estadio.Capacidad = 65000;
+            _servicio.ModificarEstadio(estadio);
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        
+        [TestMethod]
+        public void EliminarEstadio_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+            _servicio.EliminarEstadio("Centenario");
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
     }
 }

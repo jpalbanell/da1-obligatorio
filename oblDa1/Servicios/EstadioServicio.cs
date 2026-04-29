@@ -6,16 +6,24 @@ namespace Servicios
     public class EstadioServicio : IEstadioServicio
     {
         private readonly IEstadioRepositorio _repositorio;
+        private readonly IAuditoriaServicio _auditoriaServicio;
+        private readonly ISesionServicio _sesionServicio;
 
-        public EstadioServicio(IEstadioRepositorio repositorio)
+        public EstadioServicio(IEstadioRepositorio repositorio, 
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _repositorio = repositorio;
+            _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
 
         public void AgregarEstadio(Estadio estadio)
         {
             ValidarNombreUnico(estadio.Nombre);
             _repositorio.Agregar(estadio);
+            _auditoriaServicio.Registrar($"Alta de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+
         }
 
         public Estadio ObtenerEstadio(string nombre)
@@ -33,6 +41,8 @@ namespace Servicios
             ValidarEstadioExistente(estadio.Nombre);
             ValidarNombreUnicoEnEdicion(estadio);
             _repositorio.Actualizar(estadio);
+            _auditoriaServicio.Registrar($"Edición de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+
         }
 
         private void ValidarNombreUnicoEnEdicion(Estadio estadio)
@@ -45,6 +55,7 @@ namespace Servicios
         public void EliminarEstadio(string nombre)
         {
             _repositorio.Eliminar(nombre);
+            _auditoriaServicio.Registrar($"Eliminación de estadio: {nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         private void ValidarNombreUnico(string nombre)

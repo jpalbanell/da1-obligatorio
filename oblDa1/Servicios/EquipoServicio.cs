@@ -6,10 +6,16 @@ namespace Servicios
     public class EquipoServicio : IEquipoServicio
     {
         private IEquipoRepositorio _equipoRepositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private ISesionServicio _sesionServicio;
 
-        public EquipoServicio(IEquipoRepositorio equipoRepositorio)
+        public EquipoServicio(IEquipoRepositorio equipoRepositorio, 
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _equipoRepositorio = equipoRepositorio;
+            _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
         
         public void AgregarEquipo(Equipo equipo)
@@ -17,18 +23,21 @@ namespace Servicios
             ValidarNombreUnico(equipo.Nombre);
             ValidarCupoConfederacion(equipo.Confederacion);
             _equipoRepositorio.Agregar(equipo);
+            _auditoriaServicio.Registrar($"Alta de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         public void EditarEquipo(Equipo equipo)
         {
             ValidarNombreUnicoEnEdicion(equipo);
             _equipoRepositorio.Actualizar(equipo);
+            _auditoriaServicio.Registrar($"Edición de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         public void EliminarEquipo(string nombre)
         {
             ValidarEquipoExistente(nombre);
             _equipoRepositorio.Eliminar(nombre);
+            _auditoriaServicio.Registrar($"Eliminación de equipo: {nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
         
         

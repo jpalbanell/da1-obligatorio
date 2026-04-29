@@ -7,16 +7,26 @@ namespace Tests
     [TestClass]
     public class AutenticacionServicioTests
     {
-        private IUsuarioRepositorio _repositorio;
         private IUsuarioServicio _usuarioServicio;
+        private IUsuarioRepositorio _repositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private IAuditoriaRepositorio _auditoriaRepositorio;
+        private ISesionServicio _sesionServicio;
         private IAutenticacionServicio _autenticacionServicio;
 
         [TestInitialize]
         public void Setup()
         {
             _repositorio = new UsuarioRepositorio();
-            _usuarioServicio = new UsuarioServicio(_repositorio);
+            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+            _sesionServicio = new SesionServicio();
+            _usuarioServicio = new UsuarioServicio(_repositorio, _auditoriaServicio, _sesionServicio);
             _autenticacionServicio = new AutenticacionServicio(_repositorio);
+
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
         }
 
         private Usuario CrearUsuarioValido(string nombre, string apellido, string email)

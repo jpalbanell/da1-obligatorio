@@ -7,14 +7,24 @@ namespace Tests
     [TestClass]
     public class UsuarioServicioTests
     {
-        private IUsuarioRepositorio _repositorio;
         private IUsuarioServicio _servicio;
+        private IUsuarioRepositorio _repositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private IAuditoriaRepositorio _auditoriaRepositorio;
+        private ISesionServicio _sesionServicio;
 
         [TestInitialize]
         public void Setup()
         {
             _repositorio = new UsuarioRepositorio();
-            _servicio = new UsuarioServicio(_repositorio);
+            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+            _sesionServicio = new SesionServicio();
+            _servicio = new UsuarioServicio(_repositorio, _auditoriaServicio, _sesionServicio);
+
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
         }
 
         private Usuario CrearUsuarioValido(string nombre, string apellido, string email)
@@ -136,6 +146,36 @@ namespace Tests
 
             _servicio.AgregarUsuario(usuario1);
             _servicio.AgregarUsuario(usuario2);
+        }
+        
+        [TestMethod]
+        public void AgregarUsuario_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        
+        [TestMethod]
+        public void ModificarUsuario_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            usuario.Nombre = "Juan Pablo";
+            _servicio.ModificarUsuario(usuario);
+
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        [TestMethod]
+        public void EliminarUsuario_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.EliminarUsuario(usuario.Id);
+
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
     }
 }

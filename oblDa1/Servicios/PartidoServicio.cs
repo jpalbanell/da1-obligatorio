@@ -6,11 +6,17 @@ namespace Servicios
     public class PartidoServicio : IPartidoServicio
     {
         private readonly IPartidoRepositorio _repositorio;
+        private readonly IAuditoriaServicio _auditoriaServicio;
+        private readonly ISesionServicio _sesionServicio;
         private int _proximoId = 1;
 
-        public PartidoServicio(IPartidoRepositorio repositorio)
+        public PartidoServicio(IPartidoRepositorio repositorio,
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _repositorio = repositorio;
+            _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
 
         public void AgregarPartido(Partido partido)
@@ -33,6 +39,8 @@ namespace Servicios
         {
             ValidarPartidoNoBloqueado(partido);
             _repositorio.Actualizar(partido);
+            _auditoriaServicio.Registrar($"Modificación de partido: {partido.Id}", _sesionServicio.ObtenerUsuarioActual());
+
         }
 
         private void ValidarPartidoNoBloqueado(Partido partido)
