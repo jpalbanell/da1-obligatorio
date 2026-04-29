@@ -40,6 +40,7 @@ namespace Servicios
         public void ModificarUsuario(Usuario usuario)
         {
             _repositorio.Actualizar(usuario);
+            _auditoriaServicio.Registrar($"Edición de usuario: {usuario.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         public void EliminarUsuario(int id)
