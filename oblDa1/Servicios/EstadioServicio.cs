@@ -41,6 +41,8 @@ namespace Servicios
             ValidarEstadioExistente(estadio.Nombre);
             ValidarNombreUnicoEnEdicion(estadio);
             _repositorio.Actualizar(estadio);
+            _auditoriaServicio.Registrar($"Edición de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+
         }
 
         private void ValidarNombreUnicoEnEdicion(Estadio estadio)

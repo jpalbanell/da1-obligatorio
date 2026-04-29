@@ -151,5 +151,15 @@ namespace Tests
             _servicio.AgregarEstadio(estadio);
             Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
         }
+        
+        [TestMethod]
+        public void ModificarEstadio_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+            estadio.Capacidad = 65000;
+            _servicio.ModificarEstadio(estadio);
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
     }
 }
