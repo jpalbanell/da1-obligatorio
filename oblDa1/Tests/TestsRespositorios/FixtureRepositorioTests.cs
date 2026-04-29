@@ -26,5 +26,12 @@ namespace Tests
             Assert.IsNotNull(resultado);
             Assert.AreEqual(42, resultado.SemillaFixture);
         }
+        
+        [TestMethod]
+        public void Obtener_SinHaberGuardado_DeberiaRetornarNull()
+        {
+            var resultado = _repositorio.Obtener();
+            Assert.IsNull(resultado);
+        }
     }
 }
