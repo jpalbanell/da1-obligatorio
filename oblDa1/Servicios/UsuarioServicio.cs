@@ -46,6 +46,7 @@ namespace Servicios
         public void EliminarUsuario(int id)
         {
             _repositorio.Eliminar(id);
+            _auditoriaServicio.Registrar($"Eliminación de usuario: {id}", _sesionServicio.ObtenerUsuarioActual());
         }
         
         private void ValidarEmailUnico(string email)

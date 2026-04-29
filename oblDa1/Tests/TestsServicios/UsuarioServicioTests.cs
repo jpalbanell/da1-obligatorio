@@ -167,5 +167,15 @@ namespace Tests
 
             Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
+        [TestMethod]
+        public void EliminarUsuario_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.EliminarUsuario(usuario.Id);
+
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
     }
 }
