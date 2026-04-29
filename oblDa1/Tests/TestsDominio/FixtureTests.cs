@@ -33,5 +33,12 @@ namespace Tests
             var fixture = new Fixture();
             Assert.AreEqual(3, fixture.SeparacionEntreFechas);
         }
+        
+        [TestMethod]
+        public void CrearFixture_SinGenerar_EstaGeneradoDeberiaSerFalse()
+        {
+            var fixture = new Fixture();
+            Assert.IsFalse(fixture.EstaGenerado);
+        }
     }
 }
