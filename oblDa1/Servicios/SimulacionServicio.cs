@@ -46,6 +46,9 @@ namespace Servicios
 
             foreach (var partido in partidos)
                 SimularPartido(partido.Id, semillaSimulation);
+            
+            _auditoriaServicio.Registrar($"Simulación de fase: {fase}", _sesionServicio.ObtenerUsuarioActual());
+
         }
 
         private int GenerarGoles(int rankingFifa, Random random)

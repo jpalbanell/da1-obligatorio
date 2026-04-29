@@ -149,5 +149,16 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
         }
+        [TestMethod]
+        public void SimularFase_ConPartidos_RegistraLogDeAuditoria()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1200);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
     }
 }
