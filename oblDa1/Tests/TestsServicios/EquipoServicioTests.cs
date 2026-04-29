@@ -288,6 +288,20 @@ namespace Tests.TestsServicios
             Assert.AreEqual(48, _equipoRepositorio.ObtenerTodos().Count);
         }
         
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_ConAlgunosEquipos_CompletaHasta48()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo);
+
+            _equipoServicio.CompletarEquiposAutomaticamente(42);
+
+            Assert.AreEqual(48, _equipoRepositorio.ObtenerTodos().Count);
+        }
+        
         
     }
 }

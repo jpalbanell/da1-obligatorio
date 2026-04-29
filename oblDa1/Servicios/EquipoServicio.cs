@@ -92,7 +92,10 @@ namespace Servicios
             foreach (Confederacion confederacion in Enum.GetValues(typeof(Confederacion)))
             {
                 int cupo = ObtenerCupoConfederacion(confederacion);
-                for (int i = 1; i <= cupo; i++)
+                int cantActual = _equipoRepositorio.ObtenerTodos()
+                    .Count(e => e.Confederacion == confederacion);
+
+                for (int i = cantActual + 1; i <= cupo; i++)
                 {
                     var equipo = new Equipo();
                     equipo.Nombre = $"{confederacion}_{contador:D2}";
