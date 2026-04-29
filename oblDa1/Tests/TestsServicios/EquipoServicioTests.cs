@@ -302,6 +302,16 @@ namespace Tests.TestsServicios
             Assert.AreEqual(48, _equipoRepositorio.ObtenerTodos().Count);
         }
         
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_Con48Equipos_NoAgregaNinguno()
+        {
+            _equipoServicio.CompletarEquiposAutomaticamente(42);
+    
+            _equipoServicio.CompletarEquiposAutomaticamente(42);
+
+            Assert.AreEqual(48, _equipoRepositorio.ObtenerTodos().Count);
+        }
+        
         
     }
 }
