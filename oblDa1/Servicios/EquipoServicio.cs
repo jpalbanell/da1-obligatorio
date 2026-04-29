@@ -84,6 +84,26 @@ namespace Servicios
                 throw new Exception("No existe un equipo con ese nombre");
         }
         
+        public void CompletarEquiposAutomaticamente(int semillaCompletar)
+        {
+            var random = new Random(semillaCompletar);
+            int contador = 1;
+
+            foreach (Confederacion confederacion in Enum.GetValues(typeof(Confederacion)))
+            {
+                int cupo = ObtenerCupoConfederacion(confederacion);
+                for (int i = 1; i <= cupo; i++)
+                {
+                    var equipo = new Equipo();
+                    equipo.Nombre = $"{confederacion}_{contador:D2}";
+                    equipo.Confederacion = confederacion;
+                    equipo.RankingFifa = random.Next(300, 2501);
+                    _equipoRepositorio.Agregar(equipo);
+                    contador++;
+                }
+            }
+        }
+        
         
     }
 }
