@@ -26,5 +26,12 @@ namespace Tests
             var fixture = new Fixture();
             Assert.AreEqual(3, fixture.MaxPartidosPorDia);
         }
+        
+        [TestMethod]
+        public void CrearFixture_SinAsignarSeparacion_DeberiaSerTres()
+        {
+            var fixture = new Fixture();
+            Assert.AreEqual(3, fixture.SeparacionEntreFechas);
+        }
     }
 }
