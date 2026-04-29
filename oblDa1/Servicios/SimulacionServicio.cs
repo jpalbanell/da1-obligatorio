@@ -6,13 +6,19 @@ namespace Servicios
     public class SimulacionServicio : ISimulacionServicio
     {
         private IPartidoRepositorio _partidoRepositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private ISesionServicio _sesionServicio;
         private const double RankingMaximo = 2500.0;
         private const int MaxGolesBase = 5;
         private const int MinGolesMaximos = 1;
 
-        public SimulacionServicio(IPartidoRepositorio partidoRepositorio)
+        public SimulacionServicio(IPartidoRepositorio partidoRepositorio,
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _partidoRepositorio = partidoRepositorio;
+            _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
 
         public void SimularPartido(int partidoId, int semillaSimulation)
@@ -28,6 +34,8 @@ namespace Servicios
             AsignarVencedor(partido);
 
             _partidoRepositorio.Actualizar(partido);
+            _auditoriaServicio.Registrar($"Simulación de partido: {partidoId}", _sesionServicio.ObtenerUsuarioActual());
+
         }
 
         public void SimularFase(FaseTorneo fase, int semillaSimulation)

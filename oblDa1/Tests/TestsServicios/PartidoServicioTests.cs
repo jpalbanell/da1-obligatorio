@@ -7,14 +7,24 @@ namespace Tests
     [TestClass]
     public class PartidoServicioTests
     {
-        private IPartidoRepositorio _repositorio;
         private IPartidoServicio _servicio;
+        private IPartidoRepositorio _repositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private IAuditoriaRepositorio _auditoriaRepositorio;
+        private ISesionServicio _sesionServicio;
 
         [TestInitialize]
         public void Setup()
         {
             _repositorio = new PartidoRepositorio();
-            _servicio = new PartidoServicio(_repositorio);
+            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+            _sesionServicio = new SesionServicio();
+            _servicio = new PartidoServicio(_repositorio, _auditoriaServicio, _sesionServicio);
+
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
         }
 
         private Equipo CrearEquipoValido(string nombre)
@@ -264,6 +274,18 @@ namespace Tests
             var resultado = _servicio.ObtenerPorGrupo("A");
 
             Assert.AreEqual(0, resultado.Count);
+        }
+        
+        [TestMethod]
+        public void ModificarPartido_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var partido = CrearPartidoValido();
+            _servicio.AgregarPartido(partido);
+
+            partido.Fecha = new DateTime(2026, 6, 10);
+            _servicio.ModificarPartido(partido);
+
+            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
         }
     }
 }
