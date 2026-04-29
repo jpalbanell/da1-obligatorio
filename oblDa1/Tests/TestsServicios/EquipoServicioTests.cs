@@ -307,6 +307,21 @@ namespace Tests.TestsServicios
             Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
         }
         
+        [TestMethod]
+        public void EditarEquipo_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo);
+
+            equipo.RankingFifa = 1800;
+            _equipoServicio.EditarEquipo(equipo);
+
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        
         
     }
 }

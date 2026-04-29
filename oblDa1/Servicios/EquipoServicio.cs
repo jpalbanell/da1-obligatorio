@@ -30,6 +30,7 @@ namespace Servicios
         {
             ValidarNombreUnicoEnEdicion(equipo);
             _equipoRepositorio.Actualizar(equipo);
+            _auditoriaServicio.Registrar($"Edición de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         public void EliminarEquipo(string nombre)
