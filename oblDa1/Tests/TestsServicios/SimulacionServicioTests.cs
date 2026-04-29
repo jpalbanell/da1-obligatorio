@@ -7,14 +7,24 @@ namespace Tests.TestsServicios
     [TestClass]
     public class SimulacionServicioTests
     {
-        private IPartidoRepositorio _partidoRepositorio;
         private ISimulacionServicio _simulacionServicio;
+        private IPartidoRepositorio _partidoRepositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private IAuditoriaRepositorio _auditoriaRepositorio;
+        private ISesionServicio _sesionServicio;
 
         [TestInitialize]
         public void Setup()
         {
             _partidoRepositorio = new PartidoRepositorio();
-            _simulacionServicio = new SimulacionServicio(_partidoRepositorio);
+            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+            _sesionServicio = new SesionServicio();
+            _simulacionServicio = new SimulacionServicio(_partidoRepositorio, _auditoriaServicio, _sesionServicio);
+
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
         }
 
         private Partido CrearPartidoConEquipos(int rankingLocal, int rankingVisitante)
@@ -127,6 +137,28 @@ namespace Tests.TestsServicios
         public void SimularFase_SinPartidosEnFase_NoLanzaExcepcion()
         {
             _simulacionServicio.SimularFase(FaseTorneo.Final, 42);
+        }
+        
+        [TestMethod]
+        public void SimularPartido_ConDatosValidos_RegistraLogDeAuditoria()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1200);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        [TestMethod]
+        public void SimularFase_ConPartidos_RegistraLogDeAuditoria()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1200);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
     }
 }

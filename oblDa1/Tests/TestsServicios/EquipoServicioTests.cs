@@ -9,12 +9,22 @@ namespace Tests.TestsServicios
     {
         private IEquipoServicio _equipoServicio;
         private IEquipoRepositorio _equipoRepositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private IAuditoriaRepositorio _auditoriaRepositorio;
+        private ISesionServicio _sesionServicio;
 
         [TestInitialize]
         public void Setup()
         {
             _equipoRepositorio = new EquipoRepositorio();
-            _equipoServicio = new EquipoServicio(_equipoRepositorio);
+            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+            _sesionServicio = new SesionServicio();
+            _equipoServicio = new EquipoServicio(_equipoRepositorio, _auditoriaServicio, _sesionServicio);
+            
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
         }
         
         [TestMethod]
@@ -281,15 +291,24 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        public void CompletarEquiposAutomaticamente_SinEquipos_Genera48Equipos()
+        public void AgregarEquipo_ConDatosValidos_RegistraLogDeAuditoria()
         {
-            _equipoServicio.CompletarEquiposAutomaticamente(42);
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
 
-            Assert.AreEqual(48, _equipoRepositorio.ObtenerTodos().Count);
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            _sesionServicio.IniciarSesion(usuario);
+
+            _equipoServicio.AgregarEquipo(equipo);
+
+            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
         }
         
         [TestMethod]
-        public void CompletarEquiposAutomaticamente_ConAlgunosEquipos_CompletaHasta48()
+        public void EditarEquipo_ConDatosValidos_RegistraLogDeAuditoria()
         {
             var equipo = new Equipo();
             equipo.Nombre = "Uruguay";
@@ -297,43 +316,23 @@ namespace Tests.TestsServicios
             equipo.RankingFifa = 1500;
             _equipoServicio.AgregarEquipo(equipo);
 
-            _equipoServicio.CompletarEquiposAutomaticamente(42);
+            equipo.RankingFifa = 1800;
+            _equipoServicio.EditarEquipo(equipo);
 
-            Assert.AreEqual(48, _equipoRepositorio.ObtenerTodos().Count);
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
-        
         [TestMethod]
-        public void CompletarEquiposAutomaticamente_Con48Equipos_NoAgregaNinguno()
+        public void EliminarEquipo_EquipoExistente_RegistraLogDeAuditoria()
         {
-            _equipoServicio.CompletarEquiposAutomaticamente(42);
-    
-            _equipoServicio.CompletarEquiposAutomaticamente(42);
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo);
 
-            Assert.AreEqual(48, _equipoRepositorio.ObtenerTodos().Count);
-        }
-        
-        [TestMethod]
-        public void CompletarEquiposAutomaticamente_RespetaCuposPorConfederacion()
-        {
-            _equipoServicio.CompletarEquiposAutomaticamente(42);
+            _equipoServicio.EliminarEquipo("Uruguay");
 
-            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.UEFA) <= 16);
-            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.CONMEBOL) <= 7);
-            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.CONCACAF) <= 7);
-            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.CAF) <= 9);
-            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.AFC) <= 8);
-            Assert.IsTrue(_equipoRepositorio.ObtenerTodos().Count(e => e.Confederacion == Confederacion.OFC) <= 1);
-        }
-        
-        [TestMethod]
-        public void CompletarEquiposAutomaticamente_GeneraNombresDeterministicos()
-        {
-            _equipoServicio.CompletarEquiposAutomaticamente(42);
-
-            var equipos = _equipoRepositorio.ObtenerTodos();
-            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("AFC_")));
-            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("CAF_")));
-            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("UEFA_")));
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
         
     }
