@@ -33,14 +33,7 @@ namespace Servicios
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
             ValidarFixtureNoGenerado(fixture);
-
-            string[] etiquetas = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
-            foreach (var etiqueta in etiquetas)
-            {
-                var grupo = new Grupo();
-                grupo.Etiqueta = etiqueta;
-                _grupoRepositorio.Agregar(grupo);
-            }
+            CrearGrupos();
         }
         
         private void ValidarCantidadEquipos()
@@ -61,6 +54,17 @@ namespace Servicios
         {
             if (fixture.EstaGenerado)
                 throw new Exception("El fixture ya fue generado.");
+        }
+        
+        private void CrearGrupos()
+        {
+            string[] etiquetas = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+            foreach (var etiqueta in etiquetas)
+            {
+                var grupo = new Grupo();
+                grupo.Etiqueta = etiqueta;
+                _grupoRepositorio.Agregar(grupo);
+            }
         }
     }
 }
