@@ -142,5 +142,32 @@ namespace Tests
                 Assert.AreEqual(4, grupo.ListaPosiciones.Count);
             }
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_NoDeberiaRepetirConfederacionExceptoUefa()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture);
+
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            foreach (var grupo in grupos)
+            {
+                var equipos = grupo.ListaPosiciones.Select(p => p.Equipo).ToList();
+
+                int cantidadUefa = equipos.Count(e => e.Confederacion == Confederacion.UEFA);
+                Assert.IsTrue(cantidadUefa <= 2, $"Grupo {grupo.Etiqueta} tiene {cantidadUefa} equipos UEFA");
+
+                var noUefa = equipos.Where(e => e.Confederacion != Confederacion.UEFA).ToList();
+                var confederacionesRepetidas = noUefa
+                    .GroupBy(e => e.Confederacion)
+                    .Any(g => g.Count() > 1);
+                Assert.IsFalse(confederacionesRepetidas, $"Grupo {grupo.Etiqueta} tiene confederación no-UEFA repetida");
+            }
+        }
     }
 }
