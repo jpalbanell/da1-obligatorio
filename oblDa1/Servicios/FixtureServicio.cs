@@ -32,7 +32,10 @@ namespace Servicios
         {
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
+            if (fixture.EstaGenerado)
+                throw new Exception("El fixture ya fue generado.");
         }
+
 
         private void ValidarCantidadEstadios()
         {
