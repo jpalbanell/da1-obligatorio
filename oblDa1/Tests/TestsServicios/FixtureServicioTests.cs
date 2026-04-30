@@ -109,5 +109,20 @@ namespace Tests
 
             _servicio.GenerarFixture(fixture);
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_DeberiaCrear12Grupos()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture);
+
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            Assert.AreEqual(12, grupos.Count);
+        }
     }
 }
