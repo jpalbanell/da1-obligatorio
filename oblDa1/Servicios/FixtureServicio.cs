@@ -31,7 +31,11 @@ namespace Servicios
         public void GenerarFixture(Fixture fixture)
         {
             ValidarCantidadEquipos();
+            var estadios = _estadioRepositorio.ObtenerTodos();
+            if (estadios.Count < 4)
+                throw new Exception("Se necesitan al menos 4 estadios para generar el fixture.");
         }
+
 
         private void ValidarCantidadEquipos()
         {
