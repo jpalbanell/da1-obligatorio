@@ -124,5 +124,23 @@ namespace Tests
             var grupos = _grupoRepositorio.ObtenerTodos();
             Assert.AreEqual(12, grupos.Count);
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_CadaGrupoDeberiaTener4Equipos()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture);
+
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            foreach (var grupo in grupos)
+            {
+                Assert.AreEqual(4, grupo.ListaPosiciones.Count);
+            }
+        }
     }
 }
