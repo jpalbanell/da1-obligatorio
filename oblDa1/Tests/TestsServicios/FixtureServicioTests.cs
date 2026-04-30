@@ -169,5 +169,20 @@ namespace Tests
                 Assert.IsFalse(confederacionesRepetidas, $"Grupo {grupo.Etiqueta} tiene confederación no-UEFA repetida");
             }
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_DeberiaCrear72Partidos()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture);
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            Assert.AreEqual(72, partidos.Count);
+        }
     }
 }
