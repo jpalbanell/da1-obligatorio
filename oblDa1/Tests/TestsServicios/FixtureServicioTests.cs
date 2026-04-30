@@ -33,11 +33,51 @@ namespace Tests
                 _auditoriaServicio
             );
         }
+        
+        private void CargarEquipos(int cantidad)
+        {
+            Confederacion[] confederaciones = {
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.OFC
+            };
 
+            for (int i = 0; i < cantidad; i++)
+            {
+                var equipo = new Equipo();
+                equipo.Nombre = $"Equipo_{i + 1}";
+                equipo.Confederacion = confederaciones[i];
+                equipo.RankingFifa = 2500 - (i * 45);
+                _equipoRepositorio.Agregar(equipo);
+            }
+        }
+        
         [TestMethod]
         [ExpectedException(typeof(Exception))]
         public void GenerarFixture_SinEquipos_DeberiaLanzarExcepcion()
         {
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void GenerarFixture_Sin4Estadios_DeberiaLanzarExcepcion()
+        {
+            CargarEquipos(48);
+
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
