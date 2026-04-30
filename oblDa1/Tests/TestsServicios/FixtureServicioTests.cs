@@ -184,5 +184,29 @@ namespace Tests
             var partidos = _partidoRepositorio.ObtenerTodos();
             Assert.AreEqual(72, partidos.Count);
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_DeberiaAsignarFechasCorrectamente()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture);
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            var primerGrupo = partidos.Where(p => p.Grupo.Etiqueta == "A").ToList();
+
+            var fechaInicio = new DateTime(2026, 6, 1, 14, 0, 0);
+
+            Assert.AreEqual(fechaInicio, primerGrupo[0].Fecha);
+            Assert.AreEqual(fechaInicio, primerGrupo[1].Fecha);
+            Assert.AreEqual(fechaInicio.AddDays(3), primerGrupo[2].Fecha);
+            Assert.AreEqual(fechaInicio.AddDays(3), primerGrupo[3].Fecha);
+            Assert.AreEqual(fechaInicio.AddDays(6), primerGrupo[4].Fecha);
+            Assert.AreEqual(fechaInicio.AddDays(6), primerGrupo[5].Fecha);
+        }
     }
 }
