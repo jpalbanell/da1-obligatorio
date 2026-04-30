@@ -62,6 +62,18 @@ namespace Tests
             }
         }
         
+        private void CargarEstadios(int cantidad)
+        {
+            for (int i = 0; i < cantidad; i++)
+            {
+                var estadio = new Estadio();
+                estadio.Nombre = $"Estadio_{i + 1}";
+                estadio.Ciudad = $"Ciudad_{i + 1}";
+                estadio.Capacidad = 40000;
+                _estadioRepositorio.Agregar(estadio);
+            }
+        }
+        
         [TestMethod]
         [ExpectedException(typeof(Exception))]
         public void GenerarFixture_SinEquipos_DeberiaLanzarExcepcion()
@@ -80,6 +92,20 @@ namespace Tests
 
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void GenerarFixture_YaGenerado_DeberiaLanzarExcepcion()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+            fixture.EstaGenerado = true;
 
             _servicio.GenerarFixture(fixture);
         }
