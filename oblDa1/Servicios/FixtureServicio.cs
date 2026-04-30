@@ -37,7 +37,7 @@ namespace Servicios
 
             var equiposOrdenados = OrdenarEquiposPorRanking(fixture.SemillaFixture);
             DistribuirEquiposEnGrupos(equiposOrdenados);
-            GenerarPartidosPorGrupo();
+            GenerarPartidosPorGrupo(fixture);
         }
         
         private void ValidarCantidadEquipos()
@@ -92,7 +92,7 @@ namespace Servicios
             }
         }
         
-        private void GenerarPartidosPorGrupo()
+        private void GenerarPartidosPorGrupo(Fixture fixture)
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
             foreach (var grupo in grupos)
@@ -106,13 +106,21 @@ namespace Servicios
                     (0, 1), (2, 3)
                 };
 
-                foreach (var (local, visitante) in cruces)
+                for (int i = 0; i < cruces.Length; i++)
                 {
+                    var (local, visitante) = cruces[i];
+                    int jornada = i / 2;
+                    var fechaPartido = fixture.FechaInicioTorneo
+                        .AddDays(jornada * fixture.SeparacionEntreFechas)
+                        .Date
+                        .AddHours(14);
+
                     var partido = new Partido();
                     partido.EquipoLocal = equipos[local];
                     partido.EquipoVisitante = equipos[visitante];
                     partido.Grupo = grupo;
                     partido.Fase = FaseTorneo.FaseGrupos;
+                    partido.Fecha = fechaPartido;
                     _partidoRepositorio.Agregar(partido);
                 }
             }
