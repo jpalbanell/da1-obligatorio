@@ -208,5 +208,30 @@ namespace Tests
             Assert.AreEqual(fechaInicio.AddDays(6), primerGrupo[4].Fecha);
             Assert.AreEqual(fechaInicio.AddDays(6), primerGrupo[5].Fecha);
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_DeberiaAsignarEstadiosPorRotacion()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture);
+
+            var estadiosOrdenados = _estadioRepositorio.ObtenerTodos()
+                .OrderBy(e => e.Nombre)
+                .ToList();
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+
+            for (int i = 0; i < partidos.Count; i++)
+            {
+                var estadioEsperado = estadiosOrdenados[i % estadiosOrdenados.Count];
+                Assert.AreEqual(estadioEsperado.Nombre, partidos[i].Estadio.Nombre,
+                    $"Partido {i + 1} debería tener estadio {estadioEsperado.Nombre}");
+            }
+        }
     }
 }
