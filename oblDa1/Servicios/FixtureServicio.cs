@@ -34,6 +34,9 @@ namespace Servicios
             ValidarCantidadEstadios();
             ValidarFixtureNoGenerado(fixture);
             CrearGrupos();
+
+            var equiposOrdenados = OrdenarEquiposPorRanking(fixture.SemillaFixture);
+            DistribuirEquiposEnGrupos(equiposOrdenados);
         }
         
         private void ValidarCantidadEquipos()
@@ -64,6 +67,27 @@ namespace Servicios
                 var grupo = new Grupo();
                 grupo.Etiqueta = etiqueta;
                 _grupoRepositorio.Agregar(grupo);
+            }
+        }
+        
+        private List<Equipo> OrdenarEquiposPorRanking(int semilla)
+        {
+            var equipos = _equipoRepositorio.ObtenerTodos()
+                .OrderByDescending(e => e.RankingFifa)
+                .ToList();
+            return equipos;
+        }
+        
+        private void DistribuirEquiposEnGrupos(List<Equipo> equiposOrdenados)
+        {
+            var grupos = _grupoRepositorio.ObtenerTodos();
+
+            for (int i = 0; i < equiposOrdenados.Count; i++)
+            {
+                var grupo = grupos[i % 12];
+                var posicion = new PosicionesGrupo();
+                posicion.Equipo = equiposOrdenados[i];
+                grupo.ListaPosiciones.Add(posicion);
             }
         }
     }
