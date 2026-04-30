@@ -32,16 +32,7 @@ namespace Servicios
         {
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
-            if (fixture.EstaGenerado)
-                throw new Exception("El fixture ya fue generado.");
-        }
-
-
-        private void ValidarCantidadEstadios()
-        {
-            var estadios = _estadioRepositorio.ObtenerTodos();
-            if (estadios.Count < 4)
-                throw new Exception("Se necesitan al menos 4 estadios para generar el fixture.");
+            ValidarFixtureNoGenerado(fixture);
         }
         
         private void ValidarCantidadEquipos()
@@ -49,6 +40,19 @@ namespace Servicios
             var equipos = _equipoRepositorio.ObtenerTodos();
             if (equipos.Count != 48)
                 throw new Exception("Se necesitan exactamente 48 equipos para generar el fixture.");
+        }
+        
+        private void ValidarCantidadEstadios()
+        {
+            var estadios = _estadioRepositorio.ObtenerTodos();
+            if (estadios.Count < 4)
+                throw new Exception("Se necesitan al menos 4 estadios para generar el fixture.");
+        }
+        
+        private void ValidarFixtureNoGenerado(Fixture fixture)
+        {
+            if (fixture.EstaGenerado)
+                throw new Exception("El fixture ya fue generado.");
         }
     }
 }
