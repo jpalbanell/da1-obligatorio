@@ -33,6 +33,14 @@ namespace Servicios
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
             ValidarFixtureNoGenerado(fixture);
+
+            string[] etiquetas = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+            foreach (var etiqueta in etiquetas)
+            {
+                var grupo = new Grupo();
+                grupo.Etiqueta = etiqueta;
+                _grupoRepositorio.Agregar(grupo);
+            }
         }
         
         private void ValidarCantidadEquipos()
