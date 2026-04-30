@@ -37,6 +37,29 @@ namespace Servicios
 
             var equiposOrdenados = OrdenarEquiposPorRanking(fixture.SemillaFixture);
             DistribuirEquiposEnGrupos(equiposOrdenados);
+
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            foreach (var grupo in grupos)
+            {
+                var equipos = grupo.ListaPosiciones.Select(p => p.Equipo).ToList();
+
+                var cruces = new (int, int)[]
+                {
+                    (0, 3), (1, 2),
+                    (0, 2), (1, 3),
+                    (0, 1), (2, 3)
+                };
+
+                foreach (var (local, visitante) in cruces)
+                {
+                    var partido = new Partido();
+                    partido.EquipoLocal = equipos[local];
+                    partido.EquipoVisitante = equipos[visitante];
+                    partido.Grupo = grupo;
+                    partido.Fase = FaseTorneo.FaseGrupos;
+                    _partidoRepositorio.Agregar(partido);
+                }
+            }
         }
         
         private void ValidarCantidadEquipos()
