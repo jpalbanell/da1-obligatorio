@@ -71,7 +71,8 @@
                 _posicionFinal = value;
             }
         }
-
+        
+        public PosicionesGrupo() { }
         public PosicionesGrupo(int id)
         {
             Id = id;
