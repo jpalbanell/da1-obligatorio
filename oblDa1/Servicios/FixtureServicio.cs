@@ -42,6 +42,7 @@ namespace Servicios
             
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
+            _auditoriaServicio.Registrar("Generación de fixture", usuario);
         }
         
         private void ValidarCantidadEquipos()
