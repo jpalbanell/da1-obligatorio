@@ -122,6 +122,8 @@ namespace Servicios
         private void GenerarPartidosPorGrupo(Fixture fixture)
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
+            var todosLosPartidos = new List<List<Partido>>();
+
             foreach (var grupo in grupos)
             {
                 var equipos = grupo.ListaPosiciones.Select(p => p.Equipo).ToList();
@@ -133,22 +135,70 @@ namespace Servicios
                     (0, 1), (2, 3)
                 };
 
+                var partidosDelGrupo = new List<Partido>();
+
                 for (int i = 0; i < cruces.Length; i++)
                 {
                     var (local, visitante) = cruces[i];
-                    int jornada = i / 2;
-                    var fechaPartido = fixture.FechaInicioTorneo
-                        .AddDays(jornada * fixture.SeparacionEntreFechas)
-                        .Date
-                        .AddHours(14);
-
                     var partido = new Partido();
                     partido.EquipoLocal = equipos[local];
                     partido.EquipoVisitante = equipos[visitante];
                     partido.Grupo = grupo;
                     partido.Fase = FaseTorneo.FaseGrupos;
-                    partido.Fecha = fechaPartido;
+                    partido.Codigo = $"{grupo.Etiqueta}{i + 1}";
+                    partidosDelGrupo.Add(partido);
+                }
+
+                todosLosPartidos.Add(partidosDelGrupo);
+            }
+
+            AsignarFechas(todosLosPartidos, fixture);
+
+            foreach (var partidosGrupo in todosLosPartidos)
+            {
+                foreach (var partido in partidosGrupo)
+                {
                     _partidoRepositorio.Agregar(partido);
+                }
+            }
+        }
+        
+        private void AsignarFechas(List<List<Partido>> todosLosPartidos, Fixture fixture)
+        {
+            var partidosPorDia = new Dictionary<DateTime, int>();
+
+            for (int jornada = 0; jornada < 3; jornada++)
+            {
+                var fechaJornada = fixture.FechaInicioTorneo.Date
+                    .AddDays(jornada * fixture.SeparacionEntreFechas);
+
+                var partidosDeJornada = new List<Partido>();
+
+                foreach (var partidosGrupo in todosLosPartidos)
+                {
+                    int inicioJornada = jornada * 2;
+                    partidosDeJornada.Add(partidosGrupo[inicioJornada]);
+                    partidosDeJornada.Add(partidosGrupo[inicioJornada + 1]);
+                }
+
+                var fechaActual = fechaJornada;
+
+                foreach (var partido in partidosDeJornada)
+                {
+                    while (true)
+                    {
+                        if (!partidosPorDia.ContainsKey(fechaActual))
+                            partidosPorDia[fechaActual] = 0;
+
+                        if (partidosPorDia[fechaActual] < fixture.MaxPartidosPorDia)
+                            break;
+
+                        fechaActual = fechaActual.AddDays(1);
+                    }
+
+                    int turno = partidosPorDia[fechaActual];
+                    partido.Fecha = fechaActual.AddHours(14 + (turno * 4));
+                    partidosPorDia[fechaActual]++;
                 }
             }
         }

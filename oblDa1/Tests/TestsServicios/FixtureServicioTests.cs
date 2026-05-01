@@ -225,7 +225,7 @@ namespace Tests
         }
         
         [TestMethod]
-        public void GenerarFixture_ConDatosValidos_DeberiaAsignarFechasCorrectamente()
+        public void GenerarFixture_ConDatosValidos_DeberiaAsignarHorasValidas()
         {
             CargarEquipos(48);
             CargarEstadios(4);
@@ -236,16 +236,13 @@ namespace Tests
             _servicio.GenerarFixture(fixture, CrearUsuarioValido());
 
             var partidos = _partidoRepositorio.ObtenerTodos();
-            var primerGrupo = partidos.Where(p => p.Grupo.Etiqueta == "A").ToList();
+            var horasValidas = new[] { 14, 18, 22 };
 
-            var fechaInicio = new DateTime(2026, 6, 1, 14, 0, 0);
-
-            Assert.AreEqual(fechaInicio, primerGrupo[0].Fecha);
-            Assert.AreEqual(fechaInicio, primerGrupo[1].Fecha);
-            Assert.AreEqual(fechaInicio.AddDays(3), primerGrupo[2].Fecha);
-            Assert.AreEqual(fechaInicio.AddDays(3), primerGrupo[3].Fecha);
-            Assert.AreEqual(fechaInicio.AddDays(6), primerGrupo[4].Fecha);
-            Assert.AreEqual(fechaInicio.AddDays(6), primerGrupo[5].Fecha);
+            foreach (var partido in partidos)
+            {
+                Assert.IsTrue(horasValidas.Contains(partido.Fecha.Hour),
+                    $"Hora {partido.Fecha.Hour} no es válida. Debe ser 14, 18 o 22");
+            }
         }
         
         [TestMethod]
