@@ -81,6 +81,28 @@ namespace Servicios
             var equipos = _equipoRepositorio.ObtenerTodos()
                 .OrderByDescending(e => e.RankingFifa)
                 .ToList();
+
+            var random = new Random(semilla);
+            var empates = equipos.GroupBy(e => e.RankingFifa)
+                .Where(g => g.Count() > 1);
+
+            foreach (var grupo in empates)
+            {
+                var indices = equipos
+                    .Select((e, i) => new { Equipo = e, Indice = i })
+                    .Where(x => x.Equipo.RankingFifa == grupo.Key)
+                    .Select(x => x.Indice)
+                    .ToList();
+
+                for (int i = indices.Count - 1; i > 0; i--)
+                {
+                    int j = random.Next(0, i + 1);
+                    var temp = equipos[indices[i]];
+                    equipos[indices[i]] = equipos[indices[j]];
+                    equipos[indices[j]] = temp;
+                }
+            }
+
             return equipos;
         }
         
