@@ -259,5 +259,21 @@ namespace Tests
             var resultado = _fixtureRepositorio.Obtener();
             Assert.IsTrue(resultado.EstaGenerado);
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_DeberiaRegistrarAuditoria()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+            var usuario = CrearUsuarioValido();
+
+            _servicio.GenerarFixture(fixture, usuario);
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Count > 0);
+        }
     }
 }
