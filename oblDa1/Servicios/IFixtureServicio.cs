@@ -4,6 +4,6 @@ namespace Servicios
 {
     public interface IFixtureServicio
     {
-        void GenerarFixture(Fixture fixture);
+        void GenerarFixture(Fixture fixture, Usuario usuario);
     }
 }

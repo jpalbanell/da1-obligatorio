@@ -28,7 +28,7 @@ namespace Servicios
             _auditoriaServicio = auditoriaServicio;
         }
 
-        public void GenerarFixture(Fixture fixture)
+        public void GenerarFixture(Fixture fixture, Usuario usuario)
         {
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();

@@ -74,6 +74,17 @@ namespace Tests
             }
         }
         
+        private Usuario CrearUsuarioValido()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Leonardo";
+            usuario.Apellido = "Fernandez";
+            usuario.Email = "leo@test.com";
+            usuario.FechaNacimiento = new DateTime(1990, 1, 1);
+            usuario.Contrasena = "Password@1";
+            return usuario;
+        }
+        
         [TestMethod]
         [ExpectedException(typeof(Exception))]
         public void GenerarFixture_SinEquipos_DeberiaLanzarExcepcion()
@@ -81,7 +92,7 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
         }
         
         [TestMethod]
@@ -93,7 +104,7 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
         }
         
         [TestMethod]
@@ -107,7 +118,7 @@ namespace Tests
             fixture.SemillaFixture = 42;
             fixture.EstaGenerado = true;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
         }
         
         [TestMethod]
@@ -119,7 +130,7 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
 
             var grupos = _grupoRepositorio.ObtenerTodos();
             Assert.AreEqual(12, grupos.Count);
@@ -134,7 +145,7 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
 
             var grupos = _grupoRepositorio.ObtenerTodos();
             foreach (var grupo in grupos)
@@ -152,7 +163,7 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
 
             var grupos = _grupoRepositorio.ObtenerTodos();
             foreach (var grupo in grupos)
@@ -179,7 +190,7 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
 
             var partidos = _partidoRepositorio.ObtenerTodos();
             Assert.AreEqual(72, partidos.Count);
@@ -194,7 +205,7 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
 
             var partidos = _partidoRepositorio.ObtenerTodos();
             var primerGrupo = partidos.Where(p => p.Grupo.Etiqueta == "A").ToList();
@@ -218,7 +229,7 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
 
             var estadiosOrdenados = _estadioRepositorio.ObtenerTodos()
                 .OrderBy(e => e.Nombre)
@@ -243,7 +254,7 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture);
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
 
             var resultado = _fixtureRepositorio.Obtener();
             Assert.IsTrue(resultado.EstaGenerado);
