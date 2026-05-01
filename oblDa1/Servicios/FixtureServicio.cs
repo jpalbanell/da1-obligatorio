@@ -39,6 +39,9 @@ namespace Servicios
             DistribuirEquiposEnGrupos(equiposOrdenados);
             GenerarPartidosPorGrupo(fixture);
             AsignarEstadios();
+            
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
         }
         
         private void ValidarCantidadEquipos()
