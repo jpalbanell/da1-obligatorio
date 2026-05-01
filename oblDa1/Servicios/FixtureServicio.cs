@@ -38,17 +38,7 @@ namespace Servicios
             var equiposOrdenados = OrdenarEquiposPorRanking(fixture.SemillaFixture);
             DistribuirEquiposEnGrupos(equiposOrdenados);
             GenerarPartidosPorGrupo(fixture);
-
-            var estadios = _estadioRepositorio.ObtenerTodos()
-                .OrderBy(e => e.Nombre)
-                .ToList();
-
-            var partidos = _partidoRepositorio.ObtenerTodos();
-
-            for (int i = 0; i < partidos.Count; i++)
-            {
-                partidos[i].Estadio = estadios[i % estadios.Count];
-            }
+            AsignarEstadios();
         }
         
         private void ValidarCantidadEquipos()
@@ -134,6 +124,20 @@ namespace Servicios
                     partido.Fecha = fechaPartido;
                     _partidoRepositorio.Agregar(partido);
                 }
+            }
+        }
+        
+        private void AsignarEstadios()
+        {
+            var estadios = _estadioRepositorio.ObtenerTodos()
+                .OrderBy(e => e.Nombre)
+                .ToList();
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+
+            for (int i = 0; i < partidos.Count; i++)
+            {
+                partidos[i].Estadio = estadios[i % estadios.Count];
             }
         }
     }

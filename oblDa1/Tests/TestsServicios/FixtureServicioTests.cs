@@ -233,5 +233,20 @@ namespace Tests
                     $"Partido {i + 1} debería tener estadio {estadioEsperado.Nombre}");
             }
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_DeberiaMarcarComoGenerado()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture);
+
+            var resultado = _fixtureRepositorio.Obtener();
+            Assert.IsTrue(resultado.EstaGenerado);
+        }
     }
 }
