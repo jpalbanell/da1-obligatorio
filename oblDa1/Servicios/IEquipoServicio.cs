@@ -9,6 +9,7 @@ namespace Servicios
         void EliminarEquipo(string nombre);
         List<Equipo> ObtenerTodos();
         Equipo ObtenerPorNombre(string nombre);
+        void CompletarEquiposAutomaticamente(int semillaCompletar);
 
     }
 }
