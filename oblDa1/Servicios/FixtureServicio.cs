@@ -38,6 +38,17 @@ namespace Servicios
             var equiposOrdenados = OrdenarEquiposPorRanking(fixture.SemillaFixture);
             DistribuirEquiposEnGrupos(equiposOrdenados);
             GenerarPartidosPorGrupo(fixture);
+
+            var estadios = _estadioRepositorio.ObtenerTodos()
+                .OrderBy(e => e.Nombre)
+                .ToList();
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+
+            for (int i = 0; i < partidos.Count; i++)
+            {
+                partidos[i].Estadio = estadios[i % estadios.Count];
+            }
         }
         
         private void ValidarCantidadEquipos()
