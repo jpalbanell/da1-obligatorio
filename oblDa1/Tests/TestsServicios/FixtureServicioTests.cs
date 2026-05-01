@@ -331,5 +331,26 @@ namespace Tests
 
             Assert.AreEqual(primerEquipoGrupoA1, primerEquipoGrupoA2);
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_MaximoTresPartidosPorDia()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            var partidosPorDia = partidos.GroupBy(p => p.Fecha.Date);
+
+            foreach (var dia in partidosPorDia)
+            {
+                Assert.IsTrue(dia.Count() <= 3, 
+                    $"El día {dia.Key.ToShortDateString()} tiene {dia.Count()} partidos");
+            }
+        }
     }
 }
