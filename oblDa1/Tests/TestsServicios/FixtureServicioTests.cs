@@ -62,6 +62,34 @@ namespace Tests
             }
         }
         
+        private void CargarEquiposConEmpate()
+        {
+            Confederacion[] confederaciones = {
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.OFC
+            };
+
+            for (int i = 0; i < 48; i++)
+            {
+                var equipo = new Equipo();
+                equipo.Nombre = $"Equipo_{i + 1}";
+                equipo.Confederacion = confederaciones[i];
+                equipo.RankingFifa = 1500;
+                _equipoRepositorio.Agregar(equipo);
+            }
+        }
+        
         private void CargarEstadios(int cantidad)
         {
             for (int i = 0; i < cantidad; i++)
@@ -274,6 +302,34 @@ namespace Tests
 
             var logs = _auditoriaServicio.ObtenerTodos();
             Assert.IsTrue(logs.Count > 0);
+        }
+        
+        [TestMethod]
+        public void GenerarFixture_ConEmpatesDeRanking_MismaSemillaDeberiaGenerarMismoOrden()
+        {
+            CargarEquiposConEmpate();
+            CargarEstadios(4);
+
+            var fixture1 = new Fixture();
+            fixture1.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture1, CrearUsuarioValido());
+            var grupos1 = _grupoRepositorio.ObtenerTodos();
+            var primerEquipoGrupoA1 = grupos1[0].ListaPosiciones[0].Equipo.Nombre;
+
+            Setup();
+
+            CargarEquiposConEmpate();
+            CargarEstadios(4);
+
+            var fixture2 = new Fixture();
+            fixture2.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture2, CrearUsuarioValido());
+            var grupos2 = _grupoRepositorio.ObtenerTodos();
+            var primerEquipoGrupoA2 = grupos2[0].ListaPosiciones[0].Equipo.Nombre;
+
+            Assert.AreEqual(primerEquipoGrupoA1, primerEquipoGrupoA2);
         }
     }
 }
