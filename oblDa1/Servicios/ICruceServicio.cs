@@ -4,7 +4,7 @@ namespace Servicios
 {
     public interface ICruceServicio
     {
-        void GenerarCruces(int semillaCrucesFase, Usuario usuario);
+        void GenerarCruces(int semillaCrucesFase);
         List<PosicionesGrupo> CalcularPosicionesGrupo(Grupo grupo);
         List<PosicionesGrupo> ObtenerClasificados();
         (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados();

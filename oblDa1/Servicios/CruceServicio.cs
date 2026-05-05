@@ -25,7 +25,7 @@ namespace Servicios
             _sesionServicio = sesionServicio;
         }
 
-        public void GenerarCruces(int semillaCrucesFase, Usuario usuario)
+        public void GenerarCruces(int semillaCrucesFase)
         {
             var fixture = _fixtureRepositorio.Obtener();
             ValidarFixtureGenerado(fixture);
@@ -39,7 +39,7 @@ namespace Servicios
             fixture.CrucesGenerados = true;
             _fixtureRepositorio.Guardar(fixture);
 
-            _auditoriaServicio.Registrar("Generación de cruces para segunda fase", usuario);
+            _auditoriaServicio.Registrar($"Generación de cruces con SemillaCrucesFase: {semillaCrucesFase}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         private void BloquearPartidosDeFaseGrupos()

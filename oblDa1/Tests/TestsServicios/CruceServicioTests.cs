@@ -40,7 +40,7 @@ namespace Tests.TestsServicios
             _fixtureRepositorio.Guardar(fixture);
 
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+            _servicio.GenerarCruces(42);
         }
 
         private Usuario CrearUsuarioValido()
@@ -64,7 +64,7 @@ namespace Tests.TestsServicios
             _fixtureRepositorio.Guardar(fixture);
 
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+            _servicio.GenerarCruces(42);
         }
         
         [TestMethod]
@@ -79,7 +79,7 @@ namespace Tests.TestsServicios
             _grupoRepositorio.Agregar(grupo);
 
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+            _servicio.GenerarCruces(42);
         }
 
         private Grupo CrearGrupoConPartidosSinResultado()
@@ -388,7 +388,7 @@ namespace Tests.TestsServicios
             CargarDoceGruposCompletos();
 
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+            _servicio.GenerarCruces(42);
 
             var grupos = _grupoRepositorio.ObtenerTodos();
             var todosLosPartidos = grupos.SelectMany(g => g.ListaPartidos).ToList();
@@ -406,7 +406,7 @@ namespace Tests.TestsServicios
             CargarDoceGruposCompletos();
 
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+            _servicio.GenerarCruces(42);
 
             var logs = _auditoriaServicio.ObtenerTodos();
             Assert.AreEqual(1, logs.Count);
@@ -423,7 +423,7 @@ namespace Tests.TestsServicios
             CargarDoceGruposCompletos();
 
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+            _servicio.GenerarCruces(42);
 
             var fixtureActualizado = _fixtureRepositorio.Obtener();
             Assert.IsTrue(fixtureActualizado.CrucesGenerados);
