@@ -122,5 +122,43 @@ namespace Tests.TestsServicios
             estadio.Capacidad = 60000;
             return estadio;
         }
+        [TestMethod]
+        public void CalcularPosiciones_ConPartidosConResultado_DeberiaCalcularCorrectamente()
+        {
+            var equipo1 = CrearEquipo("Uruguay", Confederacion.CONMEBOL, 2000);
+            var equipo2 = CrearEquipo("Argentina", Confederacion.CONMEBOL, 1900);
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var estadio = CrearEstadio("Centenario");
+
+            var partido = new Partido(1);
+            partido.Codigo = "GA1";
+            partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.EquipoLocal = equipo1;
+            partido.EquipoVisitante = equipo2;
+            partido.Estadio = estadio;
+            partido.Grupo = grupo;
+            partido.GolesLocal = 2;
+            partido.GolesVisitante = 0;
+            partido.Vencedor = equipo1;
+            partido.TieneResultado = true;
+            grupo.ListaPartidos.Add(partido);
+
+            var posiciones = _servicio.CalcularPosicionesGrupo(grupo);
+
+            var posUruguay = posiciones.First(p => p.Equipo == equipo1);
+            var posArgentina = posiciones.First(p => p.Equipo == equipo2);
+
+            Assert.AreEqual(3, posUruguay.Puntos);
+            Assert.AreEqual(2, posUruguay.GolesFavor);
+            Assert.AreEqual(0, posUruguay.GolesContra);
+            Assert.AreEqual(2, posUruguay.DiferenciaGoles);
+
+            Assert.AreEqual(0, posArgentina.Puntos);
+            Assert.AreEqual(0, posArgentina.GolesFavor);
+            Assert.AreEqual(2, posArgentina.GolesContra);
+            Assert.AreEqual(-2, posArgentina.DiferenciaGoles);
+        }
     }
 }

@@ -5,5 +5,6 @@ namespace Servicios
     public interface ICruceServicio
     {
         void GenerarCruces(int semillaCrucesFase, Usuario usuario);
+        List<PosicionesGrupo> CalcularPosicionesGrupo(Grupo grupo);
     }
 }

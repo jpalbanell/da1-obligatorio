@@ -57,5 +57,46 @@ namespace Servicios
                 }
             }
         }
+        
+        public List<PosicionesGrupo> CalcularPosicionesGrupo(Grupo grupo)
+        {
+            var posiciones = new Dictionary<Equipo, PosicionesGrupo>();
+
+            foreach (var partido in grupo.ListaPartidos)
+            {
+                if (!posiciones.ContainsKey(partido.EquipoLocal))
+                    posiciones[partido.EquipoLocal] = CrearPosicionVacia(partido.EquipoLocal, grupo);
+                if (!posiciones.ContainsKey(partido.EquipoVisitante))
+                    posiciones[partido.EquipoVisitante] = CrearPosicionVacia(partido.EquipoVisitante, grupo);
+
+                ActualizarPosicion(posiciones[partido.EquipoLocal], partido.GolesLocal, partido.GolesVisitante);
+                ActualizarPosicion(posiciones[partido.EquipoVisitante], partido.GolesVisitante, partido.GolesLocal);
+            }
+
+            return posiciones.Values.ToList();
+        }
+
+        private PosicionesGrupo CrearPosicionVacia(Equipo equipo, Grupo grupo)
+        {
+            var posicion = new PosicionesGrupo();
+            posicion.Equipo = equipo;
+            posicion.Grupo = grupo;
+            return posicion;
+        }
+
+        private void ActualizarPosicion(PosicionesGrupo posicion, int golesFavor, int golesContra)
+        {
+            posicion.GolesFavor += golesFavor;
+            posicion.GolesContra += golesContra;
+            posicion.DiferenciaGoles = posicion.GolesFavor - posicion.GolesContra;
+            posicion.Puntos += CalcularPuntos(golesFavor, golesContra);
+        }
+
+        private int CalcularPuntos(int golesFavor, int golesContra)
+        {
+            if (golesFavor > golesContra) return 3;
+            if (golesFavor == golesContra) return 1;
+            return 0;
+        }
     }
 }
