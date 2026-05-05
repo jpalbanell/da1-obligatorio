@@ -7,11 +7,16 @@ namespace Servicios
     {
         private readonly IUsuarioRepositorio _repositorio;
         private readonly ISesionServicio _sesionServicio;
+        private readonly IAuditoriaServicio _auditoriaServicio;
 
-        public AutenticacionServicio(IUsuarioRepositorio repositorio, ISesionServicio sesionServicio)
+        public AutenticacionServicio(
+            IUsuarioRepositorio repositorio,
+            ISesionServicio sesionServicio,
+            IAuditoriaServicio auditoriaServicio)
         {
             _repositorio = repositorio;
             _sesionServicio = sesionServicio;
+            _auditoriaServicio = auditoriaServicio;
         }
 
         public Usuario Login(string email, string contrasena)
@@ -19,6 +24,7 @@ namespace Servicios
             var usuario = ObtenerUsuarioPorEmail(email);
             ValidarContrasena(usuario, contrasena);
             _sesionServicio.IniciarSesion(usuario);
+            _auditoriaServicio.Registrar($"Login exitoso: {usuario.Email}", usuario);
             return usuario;
         }
         

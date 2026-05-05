@@ -22,8 +22,7 @@ namespace Tests
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
             _usuarioServicio = new UsuarioServicio(_repositorio, _auditoriaServicio, _sesionServicio);
-            _autenticacionServicio = new AutenticacionServicio(_repositorio, _sesionServicio);
-
+            _autenticacionServicio = new AutenticacionServicio(_repositorio, _sesionServicio, _auditoriaServicio);
             var usuario = new Usuario();
             usuario.Nombre = "Santiago";
             _sesionServicio.IniciarSesion(usuario);
@@ -116,6 +115,18 @@ namespace Tests
             _autenticacionServicio.Login("juan@ejemplo.com", "Abcdef1@");
 
             Assert.AreEqual("Juan", _sesionServicio.ObtenerUsuarioActual().Nombre);
+        }
+        
+        [TestMethod]
+        public void Login_ConCredencialesValidas_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _usuarioServicio.AgregarUsuario(usuario);
+
+            _autenticacionServicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("juan@ejemplo.com")));
         }
     }
 }
