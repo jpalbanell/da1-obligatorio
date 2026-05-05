@@ -38,9 +38,15 @@ namespace Servicios
         public void ModificarPartido(Partido partido)
         {
             ValidarPartidoNoBloqueado(partido);
+            MarcarResultadoSiCorresponde(partido);
             _repositorio.Actualizar(partido);
             _auditoriaServicio.Registrar($"Modificación de partido: {partido.Id}", _sesionServicio.ObtenerUsuarioActual());
+        }
 
+        private void MarcarResultadoSiCorresponde(Partido partido)
+        {
+            if (partido.GolesLocal >= 0 && partido.GolesVisitante >= 0 && partido.Vencedor != null)
+                partido.TieneResultado = true;
         }
 
         private void ValidarPartidoNoBloqueado(Partido partido)

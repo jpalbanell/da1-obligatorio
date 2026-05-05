@@ -296,7 +296,6 @@ namespace Tests
             partido.GolesLocal = 2;
             partido.GolesVisitante = 1;
             partido.Vencedor = partido.EquipoLocal;
-            partido.TieneResultado = true;
             _servicio.ModificarPartido(partido);
 
             var resultado = _servicio.ObtenerPartido(partido.Id);
