@@ -31,8 +31,28 @@ namespace Servicios
             ValidarFixtureGenerado(fixture);
             ValidarCrucesNoGenerados(fixture);
             ValidarTodosLosPartidosTienenResultado();
+
+            var emparejamientos = GenerarEmparejamientos(semillaCrucesFase);
+            GenerarPartidosEliminatorios(emparejamientos);
+            BloquearPartidosDeFaseGrupos();
+
+            fixture.CrucesGenerados = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            _auditoriaServicio.Registrar("Generación de cruces para segunda fase", usuario);
         }
 
+        private void BloquearPartidosDeFaseGrupos()
+        {
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            foreach (var grupo in grupos)
+            {
+                foreach (var partido in grupo.ListaPartidos)
+                {
+                    partido.EstaBloqueado = true;
+                }
+            }
+        }
         private void ValidarFixtureGenerado(Fixture fixture)
         {
             if (fixture == null || !fixture.EstaGenerado)

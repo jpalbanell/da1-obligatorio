@@ -377,6 +377,57 @@ namespace Tests.TestsServicios
             Assert.IsTrue(partidos.Any(p => p.Codigo == "B1"));
             Assert.IsTrue(partidos.Any(p => p.Codigo == "B8"));
         }
+        
+        [TestMethod]
+        public void GenerarCruces_DeberiaBloquearPartidosDeFaseGrupos()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            var todosLosPartidos = grupos.SelectMany(g => g.ListaPartidos).ToList();
+
+            Assert.IsTrue(todosLosPartidos.All(p => p.EstaBloqueado));
+        }
+
+        [TestMethod]
+        public void GenerarCruces_DeberiaRegistrarAuditoria()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.AreEqual(1, logs.Count);
+            Assert.IsTrue(logs[0].Accion.Contains("cruces"));
+        }
+
+        [TestMethod]
+        public void GenerarCruces_DeberiaMarcarCrucesComoGenerados()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+
+            var fixtureActualizado = _fixtureRepositorio.Obtener();
+            Assert.IsTrue(fixtureActualizado.CrucesGenerados);
+        }
     }
     
 }
