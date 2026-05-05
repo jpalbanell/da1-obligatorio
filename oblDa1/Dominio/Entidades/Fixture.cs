@@ -7,5 +7,6 @@
         public int MaxPartidosPorDia { get; set; } = 3;
         public int SeparacionEntreFechas { get; set; } = 3;
         public bool EstaGenerado { get; set; } = false;
+        public bool CrucesGenerados { get; set; } = false;
     }
 }
