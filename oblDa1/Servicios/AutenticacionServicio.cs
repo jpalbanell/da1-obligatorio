@@ -41,6 +41,7 @@ namespace Servicios
             var usuario = ObtenerUsuarioExistente(id);
             usuario.Contrasena = "Password@1";
             _repositorio.Actualizar(usuario);
+            _auditoriaServicio.Registrar($"Reinicio de contraseña: {usuario.Email}", _sesionServicio.ObtenerUsuarioActual());
         }
         
         private Usuario ObtenerUsuarioExistente(int id)
