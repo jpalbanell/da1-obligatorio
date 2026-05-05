@@ -146,5 +146,101 @@ namespace Servicios
 
             return (primeros, segundos, mejoresTerceros);
         }
+        
+        public List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> GenerarEmparejamientos(int semilla)
+        {
+            var (primeros, segundos, mejoresTerceros) = SeleccionarClasificados();
+
+            var primerosOrdenados = primeros
+                .OrderByDescending(p => p.Puntos)
+                .ThenByDescending(p => p.DiferenciaGoles)
+                .ThenByDescending(p => p.GolesFavor)
+                .ToList();
+
+            var ochoMejoresPrimeros = primerosOrdenados.Take(8).ToList();
+            var cuatroRestantesPrimeros = primerosOrdenados.Skip(8).ToList();
+
+            var segundosOrdenados = segundos
+                .OrderByDescending(p => p.Puntos)
+                .ThenByDescending(p => p.DiferenciaGoles)
+                .ThenByDescending(p => p.GolesFavor)
+                .ToList();
+
+            var cuatroSegundosMenorPuntaje = segundosOrdenados.Skip(8).ToList();
+            var ochoSegundosRestantes = segundosOrdenados.Take(8).ToList();
+
+            AplicarFisherYates(ochoMejoresPrimeros, semilla);
+            AplicarFisherYates(mejoresTerceros, semilla);
+            AplicarFisherYates(cuatroRestantesPrimeros, semilla);
+            AplicarFisherYates(cuatroSegundosMenorPuntaje, semilla);
+            AplicarFisherYates(ochoSegundosRestantes, semilla);
+
+            var emparejamientos = new List<(PosicionesGrupo, PosicionesGrupo, string)>();
+
+            emparejamientos.AddRange(EmparejarListas(ochoMejoresPrimeros, mejoresTerceros, "A"));
+            emparejamientos.AddRange(EmparejarListas(cuatroRestantesPrimeros, cuatroSegundosMenorPuntaje, "B"));
+            emparejamientos.AddRange(EmparejarEntreSi(ochoSegundosRestantes, "B", 5));
+
+            return emparejamientos;
+        }
+
+        private void AplicarFisherYates<T>(List<T> lista, int semilla)
+        {
+            var random = new Random(semilla);
+            for (int i = lista.Count - 1; i > 0; i--)
+            {
+                int j = random.Next(0, i + 1);
+                (lista[i], lista[j]) = (lista[j], lista[i]);
+            }
+        }
+
+        private List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> EmparejarListas(
+            List<PosicionesGrupo> locals, List<PosicionesGrupo> visitantes, string prefijo)
+        {
+            var resultado = new List<(PosicionesGrupo, PosicionesGrupo, string)>();
+            var visitantesDisponibles = new List<PosicionesGrupo>(visitantes);
+
+            for (int i = 0; i < locals.Count; i++)
+            {
+                var local = locals[i];
+                var visitante = visitantesDisponibles
+                    .FirstOrDefault(v => v.Grupo.Etiqueta != local.Grupo.Etiqueta);
+
+                if (visitante == null)
+                    visitante = visitantesDisponibles.First();
+
+                visitantesDisponibles.Remove(visitante);
+                resultado.Add((local, visitante, $"{prefijo}{i + 1}"));
+            }
+
+            return resultado;
+        }
+
+        private List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> EmparejarEntreSi(
+            List<PosicionesGrupo> equipos, string prefijo, int numeroInicio)
+        {
+            var resultado = new List<(PosicionesGrupo, PosicionesGrupo, string)>();
+            var disponibles = new List<PosicionesGrupo>(equipos);
+
+            int numero = numeroInicio;
+            while (disponibles.Count >= 2)
+            {
+                var local = disponibles[0];
+                disponibles.RemoveAt(0);
+
+                var visitante = disponibles
+                    .FirstOrDefault(v => v.Grupo.Etiqueta != local.Grupo.Etiqueta);
+
+                if (visitante == null)
+                    visitante = disponibles.First();
+
+                disponibles.Remove(visitante);
+                resultado.Add((local, visitante, $"{prefijo}{numero++}"));
+            }
+
+            return resultado;
+        }
+        
+        
     }
 }

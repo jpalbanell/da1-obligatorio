@@ -252,6 +252,71 @@ namespace Tests.TestsServicios
                 _grupoRepositorio.Agregar(grupo);
             }
         }
+        [TestMethod]
+        public void GenerarEmparejamientos_MismaSemilla_DeberiaGenerarMismoResultado()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            var emparejamientos1 = _servicio.GenerarEmparejamientos(42);
+    
+            _grupoRepositorio = new GrupoRepositorio();
+            _fixtureRepositorio = new FixtureRepositorio();
+            fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            _servicio = new CruceServicio(
+                _grupoRepositorio,
+                _partidoRepositorio,
+                _fixtureRepositorio,
+                _auditoriaServicio,
+                _sesionServicio
+            );
+            CargarDoceGruposCompletos();
+
+            var emparejamientos2 = _servicio.GenerarEmparejamientos(42);
+
+            Assert.AreEqual(emparejamientos1.Count, emparejamientos2.Count);
+            for (int i = 0; i < emparejamientos1.Count; i++)
+            {
+                Assert.AreEqual(emparejamientos1[i].local.Equipo.Nombre, emparejamientos2[i].local.Equipo.Nombre);
+                Assert.AreEqual(emparejamientos1[i].visitante.Equipo.Nombre, emparejamientos2[i].visitante.Equipo.Nombre);
+            }
+        }
+
+        [TestMethod]
+        public void GenerarEmparejamientos_DeberiaGenerar16Emparejamientos()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            var emparejamientos = _servicio.GenerarEmparejamientos(42);
+
+            Assert.AreEqual(16, emparejamientos.Count);
+        }
+
+        [TestMethod]
+        public void GenerarEmparejamientos_NingunaPareja_DeberiaSerDelMismoGrupo()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            var emparejamientos = _servicio.GenerarEmparejamientos(42);
+
+            foreach (var (local, visitante, _) in emparejamientos)
+            {
+                Assert.AreNotEqual(local.Grupo.Etiqueta, visitante.Grupo.Etiqueta);
+            }
+        }
     }
     
 }
