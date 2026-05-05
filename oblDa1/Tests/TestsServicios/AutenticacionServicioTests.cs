@@ -72,6 +72,7 @@ namespace Tests
         {
             var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
             _usuarioServicio.AgregarUsuario(usuario);
+            _autenticacionServicio.Login("juan@ejemplo.com", "Abcdef1@");
 
             _autenticacionServicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
             var resultado = _autenticacionServicio.Login("juan@ejemplo.com", "NuevaPass@1");
