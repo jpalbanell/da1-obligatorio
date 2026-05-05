@@ -241,6 +241,37 @@ namespace Servicios
             return resultado;
         }
         
-        
+        public void GenerarPartidosEliminatorios(
+            List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos)
+        {
+            foreach (var (local, visitante, codigo) in emparejamientos)
+            {
+                var partido = new Partido(_proximoIdPartido++);
+                partido.Codigo = codigo;
+                partido.Fase = FaseTorneo.Dieciseisavos;
+                partido.EquipoLocal = local.Equipo;
+                partido.EquipoVisitante = visitante.Equipo;
+                partido.Fecha = new DateTime(2026, 7, 1, 14, 0, 0);
+                partido.Estadio = ObtenerPrimerEstadioDisponible();
+                partido.Grupo = ObtenerGrupoPorEtiqueta(local.Grupo.Etiqueta);
+                _partidoRepositorio.Agregar(partido);
+            }
+        }
+
+        private int _proximoIdPartido = 1000;
+
+        private Estadio ObtenerPrimerEstadioDisponible()
+        {
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            return grupos
+                .SelectMany(g => g.ListaPartidos)
+                .First()
+                .Estadio;
+        }
+
+        private Grupo ObtenerGrupoPorEtiqueta(string etiqueta)
+        {
+            return _grupoRepositorio.ObtenerPorEtiqueta(etiqueta);
+        }
     }
 }

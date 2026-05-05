@@ -9,5 +9,6 @@ namespace Servicios
         List<PosicionesGrupo> ObtenerClasificados();
         (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados();
         List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> GenerarEmparejamientos(int semilla);
+        void GenerarPartidosEliminatorios(List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos);
     }
 }

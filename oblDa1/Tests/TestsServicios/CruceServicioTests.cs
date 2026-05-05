@@ -317,6 +317,66 @@ namespace Tests.TestsServicios
                 Assert.AreNotEqual(local.Grupo.Etiqueta, visitante.Grupo.Etiqueta);
             }
         }
+        
+        [TestMethod]
+        public void GenerarPartidosEliminatorios_Con16Emparejamientos_DeberiaCrear16Partidos()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            var emparejamientos = _servicio.GenerarEmparejamientos(42);
+            _servicio.GenerarPartidosEliminatorios(emparejamientos);
+
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                .ToList();
+
+            Assert.AreEqual(16, partidos.Count);
+        }
+
+        [TestMethod]
+        public void GenerarPartidosEliminatorios_DeberiaAsignarFaseCorrecta()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            var emparejamientos = _servicio.GenerarEmparejamientos(42);
+            _servicio.GenerarPartidosEliminatorios(emparejamientos);
+
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                .ToList();
+
+            Assert.IsTrue(partidos.All(p => p.Fase == FaseTorneo.Dieciseisavos));
+        }
+
+        [TestMethod]
+        public void GenerarPartidosEliminatorios_DeberiaAsignarCodigosCorrecto()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            var emparejamientos = _servicio.GenerarEmparejamientos(42);
+            _servicio.GenerarPartidosEliminatorios(emparejamientos);
+
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                .ToList();
+
+            Assert.IsTrue(partidos.Any(p => p.Codigo == "A1"));
+            Assert.IsTrue(partidos.Any(p => p.Codigo == "A8"));
+            Assert.IsTrue(partidos.Any(p => p.Codigo == "B1"));
+            Assert.IsTrue(partidos.Any(p => p.Codigo == "B8"));
+        }
     }
     
 }
