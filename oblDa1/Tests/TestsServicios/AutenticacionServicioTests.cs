@@ -22,8 +22,7 @@ namespace Tests
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
             _usuarioServicio = new UsuarioServicio(_repositorio, _auditoriaServicio, _sesionServicio);
-            _autenticacionServicio = new AutenticacionServicio(_repositorio, _sesionServicio, _auditoriaServicio);
-            var usuario = new Usuario();
+            _autenticacionServicio = new AutenticacionServicio(_repositorio, _auditoriaServicio, _sesionServicio);            var usuario = new Usuario();
             usuario.Nombre = "Santiago";
             _sesionServicio.IniciarSesion(usuario);
         }

@@ -11,12 +11,12 @@ namespace Servicios
 
         public AutenticacionServicio(
             IUsuarioRepositorio repositorio,
-            ISesionServicio sesionServicio,
-            IAuditoriaServicio auditoriaServicio)
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _repositorio = repositorio;
-            _sesionServicio = sesionServicio;
             _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
 
         public Usuario Login(string email, string contrasena)
