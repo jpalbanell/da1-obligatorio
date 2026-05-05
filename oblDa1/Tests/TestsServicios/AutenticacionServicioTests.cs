@@ -128,5 +128,18 @@ namespace Tests
             var logs = _auditoriaServicio.ObtenerTodos();
             Assert.IsTrue(logs.Any(l => l.Accion.Contains("juan@ejemplo.com")));
         }
+        
+        [TestMethod]
+        public void CambiarContrasena_ConUsuarioExistente_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _usuarioServicio.AgregarUsuario(usuario);
+            _autenticacionServicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            _autenticacionServicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("contraseña") && l.Accion.Contains("juan@ejemplo.com")));
+        }
     }
 }

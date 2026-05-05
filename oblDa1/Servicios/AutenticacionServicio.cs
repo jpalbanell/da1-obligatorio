@@ -33,6 +33,7 @@ namespace Servicios
             var usuario = ObtenerUsuarioExistente(id);
             usuario.Contrasena = nuevaContrasena;
             _repositorio.Actualizar(usuario);
+            _auditoriaServicio.Registrar($"Cambio de contraseña: {usuario.Email}",_sesionServicio.ObtenerUsuarioActual());
         }
 
         public void ReiniciarContrasena(int id)
