@@ -29,12 +29,19 @@ namespace Servicios
         {
             var fixture = _fixtureRepositorio.Obtener();
             ValidarFixtureGenerado(fixture);
+            ValidarCrucesNoGenerados(fixture);
         }
 
         private void ValidarFixtureGenerado(Fixture fixture)
         {
             if (fixture == null || !fixture.EstaGenerado)
                 throw new Exception("No se puede generar cruces si el fixture no fue generado.");
+        }
+        
+        private void ValidarCrucesNoGenerados(Fixture fixture)
+        {
+            if (fixture.CrucesGenerados)
+                throw new Exception("Los cruces ya fueron generados.");
         }
     }
 }

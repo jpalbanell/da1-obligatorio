@@ -53,5 +53,18 @@ namespace Tests.TestsServicios
             usuario.Contrasena = "Abcdef1@";
             return usuario;
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void GenerarCruces_CrucesYaGenerados_DeberiaLanzarExcepcion()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            fixture.CrucesGenerados = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42, _sesionServicio.ObtenerUsuarioActual());
+        }
     }
 }
