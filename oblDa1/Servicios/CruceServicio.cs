@@ -122,5 +122,29 @@ namespace Servicios
                 .ThenByDescending(p => p.GolesFavor)
                 .ToList();
         }
+        public (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados()
+        {
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            var primeros = new List<PosicionesGrupo>();
+            var segundos = new List<PosicionesGrupo>();
+            var terceros = new List<PosicionesGrupo>();
+
+            foreach (var grupo in grupos)
+            {
+                var posicionesOrdenadas = OrdenarPosiciones(CalcularPosicionesGrupo(grupo));
+                primeros.Add(posicionesOrdenadas[0]);
+                segundos.Add(posicionesOrdenadas[1]);
+                terceros.Add(posicionesOrdenadas[2]);
+            }
+
+            var mejoresTerceros = terceros
+                .OrderByDescending(p => p.Puntos)
+                .ThenByDescending(p => p.DiferenciaGoles)
+                .ThenByDescending(p => p.GolesFavor)
+                .Take(8)
+                .ToList();
+
+            return (primeros, segundos, mejoresTerceros);
+        }
     }
 }

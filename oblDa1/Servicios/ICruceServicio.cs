@@ -7,5 +7,6 @@ namespace Servicios
         void GenerarCruces(int semillaCrucesFase, Usuario usuario);
         List<PosicionesGrupo> CalcularPosicionesGrupo(Grupo grupo);
         List<PosicionesGrupo> ObtenerClasificados();
+        (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados();
     }
 }

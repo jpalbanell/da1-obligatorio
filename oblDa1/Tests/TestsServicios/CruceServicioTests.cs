@@ -210,5 +210,48 @@ namespace Tests.TestsServicios
             partido.TieneResultado = true;
             grupo.ListaPartidos.Add(partido);
         }
+        [TestMethod]
+        public void SeleccionarClasificados_Con12Grupos_DeberiaRetornar12Primeros12SegundosY8MejoresTerceros()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            CargarDoceGruposCompletos();
+
+            var (primeros, segundos, mejoresTerceros) = _servicio.SeleccionarClasificados();
+
+            Assert.AreEqual(12, primeros.Count);
+            Assert.AreEqual(12, segundos.Count);
+            Assert.AreEqual(8, mejoresTerceros.Count);
+        }
+
+        private void CargarDoceGruposCompletos()
+        {
+            var etiquetas = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+            var idPartido = 1;
+
+            foreach (var etiqueta in etiquetas)
+            {
+                var grupo = new Grupo();
+                grupo.Etiqueta = etiqueta;
+                var estadio = CrearEstadio("Estadio " + etiqueta);
+
+                var e1 = CrearEquipo(etiqueta + "_1", Confederacion.UEFA, 2000);
+                var e2 = CrearEquipo(etiqueta + "_2", Confederacion.UEFA, 1900);
+                var e3 = CrearEquipo(etiqueta + "_3", Confederacion.UEFA, 1800);
+                var e4 = CrearEquipo(etiqueta + "_4", Confederacion.UEFA, 1700);
+
+                AgregarPartidoConResultado(grupo, e1, e2, 3, 0, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e3, e4, 2, 1, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e1, e3, 1, 0, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e2, e4, 2, 0, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e1, e4, 1, 0, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e2, e3, 1, 1, estadio, idPartido++);
+
+                _grupoRepositorio.Agregar(grupo);
+            }
+        }
     }
+    
 }
