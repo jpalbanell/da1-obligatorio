@@ -22,9 +22,7 @@ namespace Tests
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
             _usuarioServicio = new UsuarioServicio(_repositorio, _auditoriaServicio, _sesionServicio);
-            _autenticacionServicio = new AutenticacionServicio(_repositorio);
-
-            var usuario = new Usuario();
+            _autenticacionServicio = new AutenticacionServicio(_repositorio, _auditoriaServicio, _sesionServicio);            var usuario = new Usuario();
             usuario.Nombre = "Santiago";
             _sesionServicio.IniciarSesion(usuario);
         }
@@ -74,6 +72,7 @@ namespace Tests
         {
             var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
             _usuarioServicio.AgregarUsuario(usuario);
+            _autenticacionServicio.Login("juan@ejemplo.com", "Abcdef1@");
 
             _autenticacionServicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
             var resultado = _autenticacionServicio.Login("juan@ejemplo.com", "NuevaPass@1");
@@ -106,5 +105,55 @@ namespace Tests
         {
             _autenticacionServicio.ReiniciarContrasena(999);
         }
+        
+        [TestMethod]
+        public void Login_ConCredencialesValidas_DeberiaIniciarSesion()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _usuarioServicio.AgregarUsuario(usuario);
+
+            _autenticacionServicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            Assert.AreEqual("Juan", _sesionServicio.ObtenerUsuarioActual().Nombre);
+        }
+        
+        [TestMethod]
+        public void Login_ConCredencialesValidas_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _usuarioServicio.AgregarUsuario(usuario);
+
+            _autenticacionServicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("juan@ejemplo.com")));
+        }
+        
+        [TestMethod]
+        public void CambiarContrasena_ConUsuarioExistente_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _usuarioServicio.AgregarUsuario(usuario);
+            _autenticacionServicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            _autenticacionServicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("contraseña") && l.Accion.Contains("juan@ejemplo.com")));
+        }
+        
+        [TestMethod]
+        public void ReiniciarContrasena_ConUsuarioExistente_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _usuarioServicio.AgregarUsuario(usuario);
+            _autenticacionServicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            _autenticacionServicio.ReiniciarContrasena(usuario.Id);
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => 
+                l.Accion.Contains("reinicio", StringComparison.OrdinalIgnoreCase) && 
+                l.Accion.Contains("juan@ejemplo.com")));        }
     }
 }
