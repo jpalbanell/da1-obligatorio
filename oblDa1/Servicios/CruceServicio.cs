@@ -98,5 +98,29 @@ namespace Servicios
             if (golesFavor == golesContra) return 1;
             return 0;
         }
+        
+        public List<PosicionesGrupo> ObtenerClasificados()
+        {
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            var todasLasPosiciones = new List<PosicionesGrupo>();
+
+            foreach (var grupo in grupos)
+            {
+                var posicionesGrupo = CalcularPosicionesGrupo(grupo);
+                var ordenadas = OrdenarPosiciones(posicionesGrupo);
+                todasLasPosiciones.AddRange(ordenadas);
+            }
+
+            return todasLasPosiciones;
+        }
+
+        private List<PosicionesGrupo> OrdenarPosiciones(List<PosicionesGrupo> posiciones)
+        {
+            return posiciones
+                .OrderByDescending(p => p.Puntos)
+                .ThenByDescending(p => p.DiferenciaGoles)
+                .ThenByDescending(p => p.GolesFavor)
+                .ToList();
+        }
     }
 }

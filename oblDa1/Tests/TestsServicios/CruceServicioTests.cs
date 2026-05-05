@@ -160,5 +160,55 @@ namespace Tests.TestsServicios
             Assert.AreEqual(2, posArgentina.GolesContra);
             Assert.AreEqual(-2, posArgentina.DiferenciaGoles);
         }
+        
+        [TestMethod]
+        public void ObtenerClasificados_DeberiaOrdenarPorPuntosYDiferencia()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+
+            var equipo1 = CrearEquipo("Uruguay", Confederacion.CONMEBOL, 2000);
+            var equipo2 = CrearEquipo("Argentina", Confederacion.CONMEBOL, 1900);
+            var equipo3 = CrearEquipo("Brasil", Confederacion.CONMEBOL, 1800);
+            var equipo4 = CrearEquipo("Chile", Confederacion.CONMEBOL, 1700);
+            var estadio = CrearEstadio("Centenario");
+
+            AgregarPartidoConResultado(grupo, equipo1, equipo2, 3, 0, estadio, 1);
+            AgregarPartidoConResultado(grupo, equipo3, equipo4, 2, 1, estadio, 2);
+            AgregarPartidoConResultado(grupo, equipo1, equipo3, 1, 0, estadio, 3);
+            AgregarPartidoConResultado(grupo, equipo2, equipo4, 2, 0, estadio, 4);
+            AgregarPartidoConResultado(grupo, equipo1, equipo4, 1, 0, estadio, 5);
+            AgregarPartidoConResultado(grupo, equipo2, equipo3, 1, 1, estadio, 6);
+
+            _grupoRepositorio.Agregar(grupo);
+
+            var posiciones = _servicio.ObtenerClasificados();
+
+            Assert.AreEqual(4, posiciones.Count);
+            Assert.AreEqual(equipo1, posiciones[0].Equipo);
+        }
+
+        private void AgregarPartidoConResultado(Grupo grupo, Equipo local, Equipo visitante,
+            int golesLocal, int golesVisitante, Estadio estadio, int id)
+        {
+            var partido = new Partido(id);
+            partido.Codigo = $"G{id}";
+            partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            partido.Estadio = estadio;
+            partido.Grupo = grupo;
+            partido.GolesLocal = golesLocal;
+            partido.GolesVisitante = golesVisitante;
+            partido.Vencedor = golesLocal > golesVisitante ? local : 
+                golesVisitante > golesLocal ? visitante : null;
+            partido.TieneResultado = true;
+            grupo.ListaPartidos.Add(partido);
+        }
     }
 }
