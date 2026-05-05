@@ -6,16 +6,19 @@ namespace Servicios
     public class AutenticacionServicio : IAutenticacionServicio
     {
         private readonly IUsuarioRepositorio _repositorio;
+        private readonly ISesionServicio _sesionServicio;
 
-        public AutenticacionServicio(IUsuarioRepositorio repositorio)
+        public AutenticacionServicio(IUsuarioRepositorio repositorio, ISesionServicio sesionServicio)
         {
             _repositorio = repositorio;
+            _sesionServicio = sesionServicio;
         }
 
         public Usuario Login(string email, string contrasena)
         {
             var usuario = ObtenerUsuarioPorEmail(email);
             ValidarContrasena(usuario, contrasena);
+            _sesionServicio.IniciarSesion(usuario);
             return usuario;
         }
         
