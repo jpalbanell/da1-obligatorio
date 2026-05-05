@@ -30,6 +30,7 @@ namespace Servicios
             var fixture = _fixtureRepositorio.Obtener();
             ValidarFixtureGenerado(fixture);
             ValidarCrucesNoGenerados(fixture);
+            ValidarTodosLosPartidosTienenResultado();
         }
 
         private void ValidarFixtureGenerado(Fixture fixture)
@@ -42,6 +43,19 @@ namespace Servicios
         {
             if (fixture.CrucesGenerados)
                 throw new Exception("Los cruces ya fueron generados.");
+        }
+        
+        private void ValidarTodosLosPartidosTienenResultado()
+        {
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            foreach (var grupo in grupos)
+            {
+                foreach (var partido in grupo.ListaPartidos)
+                {
+                    if (!partido.TieneResultado)
+                        throw new Exception($"El partido {partido.Codigo} del grupo {grupo.Etiqueta} no tiene resultado cargado.");
+                }
+            }
         }
     }
 }
