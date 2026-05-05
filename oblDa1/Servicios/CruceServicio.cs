@@ -189,11 +189,12 @@ namespace Servicios
             var cuatroSegundosMenorPuntaje = segundosOrdenados.Skip(8).ToList();
             var ochoSegundosRestantes = segundosOrdenados.Take(8).ToList();
 
-            AplicarFisherYates(ochoMejoresPrimeros, semilla);
-            AplicarFisherYates(mejoresTerceros, semilla);
-            AplicarFisherYates(cuatroRestantesPrimeros, semilla);
-            AplicarFisherYates(cuatroSegundosMenorPuntaje, semilla);
-            AplicarFisherYates(ochoSegundosRestantes, semilla);
+            var random = new Random(semilla);
+            AplicarFisherYates(ochoMejoresPrimeros, random);
+            AplicarFisherYates(mejoresTerceros, random);
+            AplicarFisherYates(cuatroRestantesPrimeros, random);
+            AplicarFisherYates(cuatroSegundosMenorPuntaje, random);
+            AplicarFisherYates(ochoSegundosRestantes, random);
 
             var emparejamientos = new List<(PosicionesGrupo, PosicionesGrupo, string)>();
 
@@ -204,9 +205,8 @@ namespace Servicios
             return emparejamientos;
         }
 
-        private void AplicarFisherYates<T>(List<T> lista, int semilla)
+        private void AplicarFisherYates<T>(List<T> lista, Random random)
         {
-            var random = new Random(semilla);
             for (int i = lista.Count - 1; i > 0; i--)
             {
                 int j = random.Next(0, i + 1);
