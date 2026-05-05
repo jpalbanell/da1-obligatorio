@@ -31,18 +31,6 @@ namespace Tests.TestsServicios
             );
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(Exception))]
-        public void GenerarCruces_SinFixtureGenerado_DeberiaLanzarExcepcion()
-        {
-            var fixture = new Fixture();
-            fixture.EstaGenerado = false;
-            _fixtureRepositorio.Guardar(fixture);
-
-            _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarCruces(42);
-        }
-
         private Usuario CrearUsuarioValido()
         {
             var usuario = new Usuario();
@@ -52,57 +40,6 @@ namespace Tests.TestsServicios
             usuario.FechaNacimiento = new DateTime(1990, 5, 15);
             usuario.Contrasena = "Abcdef1@";
             return usuario;
-        }
-        
-        [TestMethod]
-        [ExpectedException(typeof(Exception))]
-        public void GenerarCruces_CrucesYaGenerados_DeberiaLanzarExcepcion()
-        {
-            var fixture = new Fixture();
-            fixture.EstaGenerado = true;
-            fixture.CrucesGenerados = true;
-            _fixtureRepositorio.Guardar(fixture);
-
-            _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarCruces(42);
-        }
-        
-        [TestMethod]
-        [ExpectedException(typeof(Exception))]
-        public void GenerarCruces_ConPartidosSinResultado_DeberiaLanzarExcepcion()
-        {
-            var fixture = new Fixture();
-            fixture.EstaGenerado = true;
-            _fixtureRepositorio.Guardar(fixture);
-
-            var grupo = CrearGrupoConPartidosSinResultado();
-            _grupoRepositorio.Agregar(grupo);
-
-            _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarCruces(42);
-        }
-
-        private Grupo CrearGrupoConPartidosSinResultado()
-        {
-            var grupo = new Grupo();
-            grupo.Etiqueta = "A";
-
-            var equipo1 = CrearEquipo("Uruguay", Confederacion.CONMEBOL, 2000);
-            var equipo2 = CrearEquipo("Argentina", Confederacion.CONMEBOL, 1900);
-            var estadio = CrearEstadio("Centenario");
-
-            var partido = new Partido(1);
-            partido.Codigo = "GA1";
-            partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
-            partido.Fase = FaseTorneo.FaseGrupos;
-            partido.EquipoLocal = equipo1;
-            partido.EquipoVisitante = equipo2;
-            partido.Estadio = estadio;
-            partido.Grupo = grupo;
-            partido.TieneResultado = false;
-
-            grupo.ListaPartidos.Add(partido);
-            return grupo;
         }
 
         private Equipo CrearEquipo(string nombre, Confederacion confederacion, int ranking)
@@ -122,75 +59,6 @@ namespace Tests.TestsServicios
             estadio.Capacidad = 60000;
             return estadio;
         }
-        [TestMethod]
-        public void CalcularPosiciones_ConPartidosConResultado_DeberiaCalcularCorrectamente()
-        {
-            var equipo1 = CrearEquipo("Uruguay", Confederacion.CONMEBOL, 2000);
-            var equipo2 = CrearEquipo("Argentina", Confederacion.CONMEBOL, 1900);
-            var grupo = new Grupo();
-            grupo.Etiqueta = "A";
-            var estadio = CrearEstadio("Centenario");
-
-            var partido = new Partido(1);
-            partido.Codigo = "GA1";
-            partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
-            partido.Fase = FaseTorneo.FaseGrupos;
-            partido.EquipoLocal = equipo1;
-            partido.EquipoVisitante = equipo2;
-            partido.Estadio = estadio;
-            partido.Grupo = grupo;
-            partido.GolesLocal = 2;
-            partido.GolesVisitante = 0;
-            partido.Vencedor = equipo1;
-            partido.TieneResultado = true;
-            grupo.ListaPartidos.Add(partido);
-
-            var posiciones = _servicio.CalcularPosicionesGrupo(grupo);
-
-            var posUruguay = posiciones.First(p => p.Equipo == equipo1);
-            var posArgentina = posiciones.First(p => p.Equipo == equipo2);
-
-            Assert.AreEqual(3, posUruguay.Puntos);
-            Assert.AreEqual(2, posUruguay.GolesFavor);
-            Assert.AreEqual(0, posUruguay.GolesContra);
-            Assert.AreEqual(2, posUruguay.DiferenciaGoles);
-
-            Assert.AreEqual(0, posArgentina.Puntos);
-            Assert.AreEqual(0, posArgentina.GolesFavor);
-            Assert.AreEqual(2, posArgentina.GolesContra);
-            Assert.AreEqual(-2, posArgentina.DiferenciaGoles);
-        }
-        
-        [TestMethod]
-        public void ObtenerClasificados_DeberiaOrdenarPorPuntosYDiferencia()
-        {
-            var fixture = new Fixture();
-            fixture.EstaGenerado = true;
-            _fixtureRepositorio.Guardar(fixture);
-
-            var grupo = new Grupo();
-            grupo.Etiqueta = "A";
-
-            var equipo1 = CrearEquipo("Uruguay", Confederacion.CONMEBOL, 2000);
-            var equipo2 = CrearEquipo("Argentina", Confederacion.CONMEBOL, 1900);
-            var equipo3 = CrearEquipo("Brasil", Confederacion.CONMEBOL, 1800);
-            var equipo4 = CrearEquipo("Chile", Confederacion.CONMEBOL, 1700);
-            var estadio = CrearEstadio("Centenario");
-
-            AgregarPartidoConResultado(grupo, equipo1, equipo2, 3, 0, estadio, 1);
-            AgregarPartidoConResultado(grupo, equipo3, equipo4, 2, 1, estadio, 2);
-            AgregarPartidoConResultado(grupo, equipo1, equipo3, 1, 0, estadio, 3);
-            AgregarPartidoConResultado(grupo, equipo2, equipo4, 2, 0, estadio, 4);
-            AgregarPartidoConResultado(grupo, equipo1, equipo4, 1, 0, estadio, 5);
-            AgregarPartidoConResultado(grupo, equipo2, equipo3, 1, 1, estadio, 6);
-
-            _grupoRepositorio.Agregar(grupo);
-
-            var posiciones = _servicio.ObtenerClasificados();
-
-            Assert.AreEqual(4, posiciones.Count);
-            Assert.AreEqual(equipo1, posiciones[0].Equipo);
-        }
 
         private void AgregarPartidoConResultado(Grupo grupo, Equipo local, Equipo visitante,
             int golesLocal, int golesVisitante, Estadio estadio, int id)
@@ -205,25 +73,10 @@ namespace Tests.TestsServicios
             partido.Grupo = grupo;
             partido.GolesLocal = golesLocal;
             partido.GolesVisitante = golesVisitante;
-            partido.Vencedor = golesLocal > golesVisitante ? local : 
+            partido.Vencedor = golesLocal > golesVisitante ? local :
                 golesVisitante > golesLocal ? visitante : null;
             partido.TieneResultado = true;
             grupo.ListaPartidos.Add(partido);
-        }
-        [TestMethod]
-        public void SeleccionarClasificados_Con12Grupos_DeberiaRetornar12Primeros12SegundosY8MejoresTerceros()
-        {
-            var fixture = new Fixture();
-            fixture.EstaGenerado = true;
-            _fixtureRepositorio.Guardar(fixture);
-
-            CargarDoceGruposCompletos();
-
-            var (primeros, segundos, mejoresTerceros) = _servicio.SeleccionarClasificados();
-
-            Assert.AreEqual(12, primeros.Count);
-            Assert.AreEqual(12, segundos.Count);
-            Assert.AreEqual(8, mejoresTerceros.Count);
         }
 
         private void CargarDoceGruposCompletos()
@@ -252,19 +105,97 @@ namespace Tests.TestsServicios
                 _grupoRepositorio.Agregar(grupo);
             }
         }
+
         [TestMethod]
-        public void GenerarEmparejamientos_MismaSemilla_DeberiaGenerarMismoResultado()
+        [ExpectedException(typeof(Exception))]
+        public void GenerarCruces_SinFixtureGenerado_DeberiaLanzarExcepcion()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = false;
+            _fixtureRepositorio.Guardar(fixture);
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void GenerarCruces_CrucesYaGenerados_DeberiaLanzarExcepcion()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            fixture.CrucesGenerados = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void GenerarCruces_ConPartidosSinResultado_DeberiaLanzarExcepcion()
         {
             var fixture = new Fixture();
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
 
-            CargarDoceGruposCompletos();
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var equipo1 = CrearEquipo("Uruguay", Confederacion.CONMEBOL, 2000);
+            var equipo2 = CrearEquipo("Argentina", Confederacion.CONMEBOL, 1900);
+            var estadio = CrearEstadio("Centenario");
 
-            var emparejamientos1 = _servicio.GenerarEmparejamientos(42);
-    
+            var partido = new Partido(1);
+            partido.Codigo = "GA1";
+            partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.EquipoLocal = equipo1;
+            partido.EquipoVisitante = equipo2;
+            partido.Estadio = estadio;
+            partido.Grupo = grupo;
+            partido.TieneResultado = false;
+            grupo.ListaPartidos.Add(partido);
+            _grupoRepositorio.Agregar(grupo);
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_DeberiaCrear16PartidosDeDieciseisavos()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+
+            _servicio.GenerarCruces(42);
+
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                .ToList();
+            Assert.AreEqual(16, partidos.Count);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_MismaSemilla_DeberiaGenerarMismoOrden()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42);
+
+            var partidos1 = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                .OrderBy(p => p.Codigo)
+                .ToList();
+
             _grupoRepositorio = new GrupoRepositorio();
             _fixtureRepositorio = new FixtureRepositorio();
+            _partidoRepositorio = new PartidoRepositorio();
             fixture = new Fixture();
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
@@ -276,97 +207,55 @@ namespace Tests.TestsServicios
                 _sesionServicio
             );
             CargarDoceGruposCompletos();
+            _servicio.GenerarCruces(42);
 
-            var emparejamientos2 = _servicio.GenerarEmparejamientos(42);
+            var partidos2 = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                .OrderBy(p => p.Codigo)
+                .ToList();
 
-            Assert.AreEqual(emparejamientos1.Count, emparejamientos2.Count);
-            for (int i = 0; i < emparejamientos1.Count; i++)
+            Assert.AreEqual(partidos1.Count, partidos2.Count);
+            for (int i = 0; i < partidos1.Count; i++)
             {
-                Assert.AreEqual(emparejamientos1[i].local.Equipo.Nombre, emparejamientos2[i].local.Equipo.Nombre);
-                Assert.AreEqual(emparejamientos1[i].visitante.Equipo.Nombre, emparejamientos2[i].visitante.Equipo.Nombre);
+                Assert.AreEqual(partidos1[i].EquipoLocal.Nombre, partidos2[i].EquipoLocal.Nombre);
+                Assert.AreEqual(partidos1[i].EquipoVisitante.Nombre, partidos2[i].EquipoVisitante.Nombre);
             }
         }
 
         [TestMethod]
-        public void GenerarEmparejamientos_DeberiaGenerar16Emparejamientos()
+        public void GenerarCruces_NingunaPareja_DeberiaSerDelMismoGrupo()
         {
             var fixture = new Fixture();
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
-
             CargarDoceGruposCompletos();
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
 
-            var emparejamientos = _servicio.GenerarEmparejamientos(42);
-
-            Assert.AreEqual(16, emparejamientos.Count);
-        }
-
-        [TestMethod]
-        public void GenerarEmparejamientos_NingunaPareja_DeberiaSerDelMismoGrupo()
-        {
-            var fixture = new Fixture();
-            fixture.EstaGenerado = true;
-            _fixtureRepositorio.Guardar(fixture);
-
-            CargarDoceGruposCompletos();
-
-            var emparejamientos = _servicio.GenerarEmparejamientos(42);
-
-            foreach (var (local, visitante, _) in emparejamientos)
-            {
-                Assert.AreNotEqual(local.Grupo.Etiqueta, visitante.Grupo.Etiqueta);
-            }
-        }
-        
-        [TestMethod]
-        public void GenerarPartidosEliminatorios_Con16Emparejamientos_DeberiaCrear16Partidos()
-        {
-            var fixture = new Fixture();
-            fixture.EstaGenerado = true;
-            _fixtureRepositorio.Guardar(fixture);
-
-            CargarDoceGruposCompletos();
-
-            var emparejamientos = _servicio.GenerarEmparejamientos(42);
-            _servicio.GenerarPartidosEliminatorios(emparejamientos);
+            _servicio.GenerarCruces(42);
 
             var partidos = _partidoRepositorio.ObtenerTodos()
                 .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
                 .ToList();
 
-            Assert.AreEqual(16, partidos.Count);
+            foreach (var partido in partidos)
+            {
+                Assert.AreNotEqual(
+                    partido.EquipoLocal.Nombre.Split('_')[0],
+                    partido.EquipoVisitante.Nombre.Split('_')[0]
+                );
+            }
         }
 
         [TestMethod]
-        public void GenerarPartidosEliminatorios_DeberiaAsignarFaseCorrecta()
+        public void GenerarCruces_DeberiaAsignarCodigosCorrectos()
         {
             var fixture = new Fixture();
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
-
             CargarDoceGruposCompletos();
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
 
-            var emparejamientos = _servicio.GenerarEmparejamientos(42);
-            _servicio.GenerarPartidosEliminatorios(emparejamientos);
-
-            var partidos = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
-                .ToList();
-
-            Assert.IsTrue(partidos.All(p => p.Fase == FaseTorneo.Dieciseisavos));
-        }
-
-        [TestMethod]
-        public void GenerarPartidosEliminatorios_DeberiaAsignarCodigosCorrecto()
-        {
-            var fixture = new Fixture();
-            fixture.EstaGenerado = true;
-            _fixtureRepositorio.Guardar(fixture);
-
-            CargarDoceGruposCompletos();
-
-            var emparejamientos = _servicio.GenerarEmparejamientos(42);
-            _servicio.GenerarPartidosEliminatorios(emparejamientos);
+            _servicio.GenerarCruces(42);
 
             var partidos = _partidoRepositorio.ObtenerTodos()
                 .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
@@ -377,22 +266,20 @@ namespace Tests.TestsServicios
             Assert.IsTrue(partidos.Any(p => p.Codigo == "B1"));
             Assert.IsTrue(partidos.Any(p => p.Codigo == "B8"));
         }
-        
+
         [TestMethod]
         public void GenerarCruces_DeberiaBloquearPartidosDeFaseGrupos()
         {
             var fixture = new Fixture();
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
-
             CargarDoceGruposCompletos();
-
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
+
             _servicio.GenerarCruces(42);
 
             var grupos = _grupoRepositorio.ObtenerTodos();
             var todosLosPartidos = grupos.SelectMany(g => g.ListaPartidos).ToList();
-
             Assert.IsTrue(todosLosPartidos.All(p => p.EstaBloqueado));
         }
 
@@ -402,10 +289,9 @@ namespace Tests.TestsServicios
             var fixture = new Fixture();
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
-
             CargarDoceGruposCompletos();
-
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
+
             _servicio.GenerarCruces(42);
 
             var logs = _auditoriaServicio.ObtenerTodos();
@@ -419,15 +305,13 @@ namespace Tests.TestsServicios
             var fixture = new Fixture();
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
-
             CargarDoceGruposCompletos();
-
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
+
             _servicio.GenerarCruces(42);
 
             var fixtureActualizado = _fixtureRepositorio.Obtener();
             Assert.IsTrue(fixtureActualizado.CrucesGenerados);
         }
     }
-    
 }

@@ -78,7 +78,7 @@ namespace Servicios
             }
         }
         
-        public List<PosicionesGrupo> CalcularPosicionesGrupo(Grupo grupo)
+        private List<PosicionesGrupo> CalcularPosicionesGrupo(Grupo grupo)
         {
             var posiciones = new Dictionary<Equipo, PosicionesGrupo>();
 
@@ -119,7 +119,7 @@ namespace Servicios
             return 0;
         }
         
-        public List<PosicionesGrupo> ObtenerClasificados()
+        private List<PosicionesGrupo> ObtenerClasificados()
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
             var todasLasPosiciones = new List<PosicionesGrupo>();
@@ -142,7 +142,7 @@ namespace Servicios
                 .ThenByDescending(p => p.GolesFavor)
                 .ToList();
         }
-        public (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados()
+        private (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados()
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
             var primeros = new List<PosicionesGrupo>();
@@ -167,7 +167,7 @@ namespace Servicios
             return (primeros, segundos, mejoresTerceros);
         }
         
-        public List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> GenerarEmparejamientos(int semilla)
+        private List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> GenerarEmparejamientos(int semilla)
         {
             var (primeros, segundos, mejoresTerceros) = SeleccionarClasificados();
 
@@ -261,7 +261,7 @@ namespace Servicios
             return resultado;
         }
         
-        public void GenerarPartidosEliminatorios(
+        private void GenerarPartidosEliminatorios(
             List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos)
         {
             foreach (var (local, visitante, codigo) in emparejamientos)
