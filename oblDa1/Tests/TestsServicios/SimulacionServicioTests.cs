@@ -63,7 +63,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        public void SimularPartido_ConMismasemilla_MismoResultado()
+        public void SimularPartido_ConMismaSemilla_YDistintoId_DeberiaProducirResultadosDiferentes()
         {
             var partido1 = CrearPartidoConEquipos(1500, 1500);
             partido1.Id = 1;
@@ -76,8 +76,8 @@ namespace Tests.TestsServicios
             _simulacionServicio.SimularPartido(1, 42);
             _simulacionServicio.SimularPartido(2, 42);
 
-            Assert.AreEqual(partido1.GolesLocal, partido2.GolesLocal);
-            Assert.AreEqual(partido1.GolesVisitante, partido2.GolesVisitante);
+            Assert.IsFalse(partido1.GolesLocal == partido2.GolesLocal &&
+                           partido1.GolesVisitante == partido2.GolesVisitante);
         }
         
         [TestMethod]

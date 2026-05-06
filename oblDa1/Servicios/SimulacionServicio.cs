@@ -26,7 +26,7 @@ namespace Servicios
             var partido = _partidoRepositorio.ObtenerPorId(partidoId);
             ValidarPartidoExistente(partido);
 
-            var random = new Random(semillaSimulation);
+            var random = new Random(semillaSimulation + partidoId);
 
             partido.GolesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
@@ -35,7 +35,6 @@ namespace Servicios
 
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar($"Simulación de partido: {partidoId}", _sesionServicio.ObtenerUsuarioActual());
-
         }
 
         public void SimularFase(FaseTorneo fase, int semillaSimulation)
