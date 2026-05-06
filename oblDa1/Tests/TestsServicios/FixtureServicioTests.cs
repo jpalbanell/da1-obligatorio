@@ -349,5 +349,33 @@ namespace Tests
                     $"El día {dia.Key.ToShortDateString()} tiene {dia.Count()} partidos");
             }
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConEstadiosConTildesYMayusculas_DeberiaOrdenarPorNombreNormalizado()
+        {
+            CargarEquipos(48);
+
+            var nombres = new[] { "Tróccoli", "  CENTENARIO", "campeón del siglo", "Parque Viera" };
+            foreach (var nombre in nombres)
+            {
+                var estadio = new Estadio();
+                estadio.Nombre = nombre;
+                estadio.Ciudad = "Montevideo";
+                estadio.Capacidad = 40000;
+                _estadioRepositorio.Agregar(estadio);
+            }
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+
+            Assert.AreEqual("campeón del siglo", partidos[0].Estadio.Nombre);
+            Assert.AreEqual("  CENTENARIO", partidos[1].Estadio.Nombre);
+            Assert.AreEqual("Parque Viera", partidos[2].Estadio.Nombre);
+            Assert.AreEqual("Tróccoli", partidos[3].Estadio.Nombre);
+        }
     }
 }
