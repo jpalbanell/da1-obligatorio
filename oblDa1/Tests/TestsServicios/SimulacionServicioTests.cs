@@ -189,5 +189,18 @@ namespace Tests.TestsServicios
             var logs = _auditoriaRepositorio.ObtenerTodos();
             Assert.IsTrue(logs.Any(l => l.Accion.Contains("42")));
         }
+        
+        [TestMethod]
+        public void SimularFase_DeberiaRegistrarSemillaEnAuditoria()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1200);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            var logs = _auditoriaRepositorio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("FaseGrupos") && l.Accion.Contains("42")));
+        }
     }
 }
