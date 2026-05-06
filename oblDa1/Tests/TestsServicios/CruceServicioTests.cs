@@ -29,8 +29,16 @@ namespace Tests.TestsServicios
                 _auditoriaServicio,
                 _sesionServicio
             );
-        }
 
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            usuario.Apellido = "Garcia";
+            usuario.Email = "santiago@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuario);
+        }
         private Usuario CrearUsuarioValido()
         {
             var usuario = new Usuario();
@@ -39,6 +47,7 @@ namespace Tests.TestsServicios
             usuario.Email = "juan@ejemplo.com";
             usuario.FechaNacimiento = new DateTime(1990, 5, 15);
             usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Editor);
             return usuario;
         }
 
@@ -312,6 +321,26 @@ namespace Tests.TestsServicios
 
             var fixtureActualizado = _fixtureRepositorio.Obtener();
             Assert.IsTrue(fixtureActualizado.CrucesGenerados);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void GenerarCruces_SinRolEditor_DeberiaLanzarExcepcion()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+
+            var usuarioSinRol = new Usuario();
+            usuarioSinRol.Nombre = "Juan";
+            usuarioSinRol.Apellido = "Perez";
+            usuarioSinRol.Email = "juan@ejemplo.com";
+            usuarioSinRol.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioSinRol.Contrasena = "Abcdef1@";
+            _sesionServicio.IniciarSesion(usuarioSinRol);
+
+            _servicio.GenerarCruces(42);
         }
     }
 }
