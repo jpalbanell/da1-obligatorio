@@ -99,7 +99,6 @@ namespace Servicios
         public void CompletarEquiposAutomaticamente(int semillaCompletar)
         {
             var random = new Random(semillaCompletar);
-            int contador = 1;
             var resumen = new System.Text.StringBuilder();
             resumen.Append($"Generación automática de equipos con semilla: {semillaCompletar}. ");
 
@@ -109,6 +108,7 @@ namespace Servicios
                 int cantActual = _equipoRepositorio.ObtenerTodos()
                     .Count(e => e.Confederacion == confederacion);
                 int cantGenerada = 0;
+                int contador = cantActual + 1;
 
                 for (int i = cantActual + 1; i <= cupo; i++)
                 {
