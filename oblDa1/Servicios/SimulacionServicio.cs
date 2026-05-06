@@ -46,11 +46,20 @@ namespace Servicios
                 .ToList();
 
             foreach (var partido in partidos)
-                SimularPartido(partido.Id, semillaSimulation);
-            
+                SimularPartidoDeFase(partido, semillaSimulation);
+
             _auditoriaServicio.Registrar(
                 $"Simulación de fase: {fase} con SemillaSimulation: {semillaSimulation}",
                 _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        private void SimularPartidoDeFase(Partido partido, int semillaSimulation)
+        {
+            var random = new Random(semillaSimulation + partido.Id);
+            partido.GolesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
+            partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
+            AsignarVencedor(partido, random);
+            _partidoRepositorio.Actualizar(partido);
         }
 
         private int GenerarGoles(int rankingFifa, Random random)
