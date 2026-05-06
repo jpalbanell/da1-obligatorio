@@ -287,7 +287,7 @@ namespace Servicios
             var partidos = new List<Partido>();
             foreach (var (local, visitante, codigo) in emparejamientos)
             {
-                var partido = new Partido(_proximoIdPartido++);
+                var partido = new Partido(ObtenerProximoIdPartido());
                 partido.Codigo = codigo;
                 partido.Fase = FaseTorneo.Dieciseisavos;
                 partido.EquipoLocal = local.Equipo;
@@ -358,7 +358,7 @@ namespace Servicios
 
         private Partido CrearPartidoEliminatorio(string codigo, FaseTorneo fase, Partido origenLocal, Partido origenVisitante)
         {
-            var partido = new Partido(_proximoIdPartido++);
+            var partido = new Partido(ObtenerProximoIdPartido());
             partido.Codigo = codigo;
             partido.Fase = fase;
             partido.Fecha = new DateTime(2026, 7, 1, 14, 0, 0);
@@ -372,7 +372,12 @@ namespace Servicios
             return partido;
         }
 
-        private int _proximoIdPartido = 1000;
+        private int ObtenerProximoIdPartido()
+        {
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            if (partidos.Count == 0) return 1;
+            return partidos.Max(p => p.Id) + 1;
+        }
 
         private Estadio ObtenerPrimerEstadioDisponible()
         {

@@ -453,5 +453,22 @@ namespace Tests.TestsServicios
                 _grupoRepositorio.Agregar(grupo);
             }
         }
+        
+        [TestMethod]
+        public void GenerarCruces_DeberiaAsignarIdsQueNoChocanConPartidosExistentes()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+
+            _servicio.GenerarCruces(42);
+
+            var ids = _partidoRepositorio.ObtenerTodos().Select(p => p.Id).ToList();
+            var idsUnicos = ids.Distinct().ToList();
+
+            Assert.AreEqual(ids.Count, idsUnicos.Count, "No debe haber IDs duplicados entre partidos de fase de grupos y cruces");
+        }
     }
 }
