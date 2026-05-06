@@ -22,5 +22,14 @@ namespace Servicios
         {
             _usuarioActual = null;
         }
+        
+        public void ValidarRol(Rol rolRequerido)
+        {
+            var usuario = ObtenerUsuarioActual();
+            if (usuario == null)
+                throw new Exception("No hay una sesión activa.");
+            if (!usuario.TieneRol(rolRequerido))
+                throw new Exception("No tiene permisos para realizar esta acción.");
+        }
     }
 }

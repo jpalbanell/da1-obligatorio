@@ -49,5 +49,42 @@ namespace Tests.TestsServicios
         {
             _sesionServicio.IniciarSesion(null);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ValidarRol_SinSesionActiva_DeberiaLanzarExcepcion()
+        {
+            _sesionServicio.ValidarRol(Rol.Administrador);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ValidarRol_ConRolNoAsignado_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Juan";
+            usuario.Apellido = "Perez";
+            usuario.Email = "juan@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            _sesionServicio.IniciarSesion(usuario);
+
+            _sesionServicio.ValidarRol(Rol.Administrador);
+        }
+
+        [TestMethod]
+        public void ValidarRol_ConRolAsignado_NoDeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Juan";
+            usuario.Apellido = "Perez";
+            usuario.Email = "juan@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Administrador);
+            _sesionServicio.IniciarSesion(usuario);
+
+            _sesionServicio.ValidarRol(Rol.Administrador);
+        }
     }
 }
