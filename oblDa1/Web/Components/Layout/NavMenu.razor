@@ -1,6 +1,10 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject Servicios.ISesionServicio SesionServicio
+@inject NavigationManager Nav
+@implements IDisposable
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Web</a>
+        <a class="navbar-brand" href="">WorldCupPlanner</a>
     </div>
 </div>
 
@@ -8,10 +12,87 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+
+        @if (_usuarioActual == null)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Login
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <span class="nav-link text-white">@_usuarioActual.Nombre @_usuarioActual.Apellido</span>
+            </div>
+
+            @if (_usuarioActual.TieneRol(Dominio.Entidades.Rol.Administrador))
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="usuarios">Usuarios</NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="estadios">Estadios</NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="auditoria">Log de auditoría</NavLink>
+                </div>
+            }
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="equipos">Equipos</NavLink>
+            </div>
+
+            @if (_usuarioActual.TieneRol(Dominio.Entidades.Rol.Editor))
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="fixture">Fixture y cruces</NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="partidos">Partidos</NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="importar">Importar</NavLink>
+                </div>
+            }
+
+            <div class="nav-item px-3">
+                <button class="nav-link btn btn-link text-start" @onclick="CerrarSesion">Cerrar sesión</button>
+            </div>
+        }
+
     </nav>
 </div>
+
+@code {
+    private Dominio.Entidades.Usuario? _usuarioActual;
+
+    protected override void OnInitialized()
+    {
+        ActualizarUsuario();
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        ActualizarUsuario();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void ActualizarUsuario()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+    }
+
+    private void CerrarSesion()
+    {
+        SesionServicio.CerrarSesion();
+        Nav.NavigateTo("/login");
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
+    }
+}

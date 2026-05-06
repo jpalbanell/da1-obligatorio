@@ -32,6 +32,23 @@ builder.Services.AddScoped<ICruceServicio, CruceServicio>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var sesionServicio = scope.ServiceProvider.GetRequiredService<ISesionServicio>();
+    var usuarioRepositorio = scope.ServiceProvider.GetRequiredService<IUsuarioRepositorio>();
+
+    var admin = new Usuario();
+    admin.Id = 1;
+    admin.Nombre = "Admin";
+    admin.Apellido = "Sistema";
+    admin.Email = "admin@worldcup.com";
+    admin.FechaNacimiento = new DateTime(1990, 1, 1);
+    admin.Contrasena = "Admin@123";
+    admin.Roles.Add(Rol.Administrador);
+    admin.Roles.Add(Rol.Editor);
+    usuarioRepositorio.Agregar(admin);
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
