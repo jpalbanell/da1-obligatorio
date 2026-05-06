@@ -115,11 +115,41 @@ namespace Servicios
 
             for (int i = 0; i < equiposOrdenados.Count; i++)
             {
-                var grupo = grupos[i % 12];
+                var equipo = equiposOrdenados[i];
+                var grupoDestino = BuscarGrupoDisponible(grupos, equipo, i);
+
                 var posicion = new PosicionesGrupo();
-                posicion.Equipo = equiposOrdenados[i];
-                grupo.ListaPosiciones.Add(posicion);
+                posicion.Equipo = equipo;
+                grupoDestino.ListaPosiciones.Add(posicion);
             }
+        }
+        
+        private Grupo BuscarGrupoDisponible(List<Grupo> grupos, Equipo equipo, int indiceEquipo)
+        {
+            for (int salto = 0; salto < grupos.Count; salto++)
+            {
+                var indiceGrupo = (indiceEquipo + salto) % grupos.Count;
+                var grupoCandidato = grupos[indiceGrupo];
+
+                if (PuedeAgregarseAlGrupo(grupoCandidato, equipo))
+                    return grupoCandidato;
+            }
+
+            throw new Exception($"No se pudo asignar el equipo {equipo.Nombre} a ningún grupo respetando las reglas de confederación.");
+        }
+        
+        private bool PuedeAgregarseAlGrupo(Grupo grupo, Equipo equipo)
+        {
+            if (grupo.ListaPosiciones.Count >= 4)
+                return false;
+
+            var equiposEnGrupo = grupo.ListaPosiciones.Select(p => p.Equipo).ToList();
+            var cantidadMismaConfederacion = equiposEnGrupo.Count(e => e.Confederacion == equipo.Confederacion);
+
+            if (equipo.Confederacion == Confederacion.UEFA)
+                return cantidadMismaConfederacion < 2;
+
+            return cantidadMismaConfederacion == 0;
         }
         
         private void GenerarPartidosPorGrupo(Fixture fixture)
