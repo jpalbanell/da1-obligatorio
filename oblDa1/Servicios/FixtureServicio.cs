@@ -14,6 +14,7 @@ namespace Servicios
         private readonly IGrupoRepositorio _grupoRepositorio;
         private readonly IFixtureRepositorio _fixtureRepositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
+        private readonly ISesionServicio _sesionServicio;
         
         private int _proximoIdPartido = 1;
         private int _proximoIdGrupo = 1;
@@ -24,7 +25,8 @@ namespace Servicios
             IPartidoRepositorio partidoRepositorio,
             IGrupoRepositorio grupoRepositorio,
             IFixtureRepositorio fixtureRepositorio,
-            IAuditoriaServicio auditoriaServicio)
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _equipoRepositorio = equipoRepositorio;
             _estadioRepositorio = estadioRepositorio;
@@ -32,9 +34,10 @@ namespace Servicios
             _grupoRepositorio = grupoRepositorio;
             _fixtureRepositorio = fixtureRepositorio;
             _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
 
-        public void GenerarFixture(Fixture fixture, Usuario usuario)
+        public void GenerarFixture(Fixture fixture)
         {
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
@@ -45,10 +48,10 @@ namespace Servicios
             DistribuirEquiposEnGrupos(equiposOrdenados);
             GenerarPartidosPorGrupo(fixture);
             AsignarEstadios();
-            
+
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
-            _auditoriaServicio.Registrar("Generación de fixture", usuario);
+            _auditoriaServicio.Registrar("Generación de fixture", _sesionServicio.ObtenerUsuarioActual());
         }
         
         private void ValidarCantidadEquipos()
