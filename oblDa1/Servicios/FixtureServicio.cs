@@ -14,6 +14,9 @@ namespace Servicios
         private readonly IGrupoRepositorio _grupoRepositorio;
         private readonly IFixtureRepositorio _fixtureRepositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
+        
+        private int _proximoIdPartido = 1;
+        private int _proximoIdGrupo = 1;
 
         public FixtureServicio(
             IEquipoRepositorio equipoRepositorio,
@@ -74,6 +77,7 @@ namespace Servicios
             foreach (var etiqueta in etiquetas)
             {
                 var grupo = new Grupo();
+                grupo.Id = _proximoIdGrupo++;
                 grupo.Etiqueta = etiqueta;
                 _grupoRepositorio.Agregar(grupo);
             }
@@ -174,11 +178,13 @@ namespace Servicios
                 {
                     var (local, visitante) = cruces[i];
                     var partido = new Partido();
+                    partido.Id = _proximoIdPartido++;
                     partido.EquipoLocal = equipos[local];
                     partido.EquipoVisitante = equipos[visitante];
                     partido.Grupo = grupo;
                     partido.Fase = FaseTorneo.FaseGrupos;
                     partido.Codigo = $"G{grupo.Etiqueta}-{i + 1}";
+                    grupo.ListaPartidos.Add(partido);
                     partidosDelGrupo.Add(partido);
                 }
 
