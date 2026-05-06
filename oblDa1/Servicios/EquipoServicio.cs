@@ -5,9 +5,9 @@ namespace Servicios
 {
     public class EquipoServicio : IEquipoServicio
     {
-        private IEquipoRepositorio _equipoRepositorio;
-        private IAuditoriaServicio _auditoriaServicio;
-        private ISesionServicio _sesionServicio;
+        private readonly IEquipoRepositorio _equipoRepositorio;
+        private readonly IAuditoriaServicio _auditoriaServicio;
+        private readonly ISesionServicio _sesionServicio;
 
         public EquipoServicio(IEquipoRepositorio equipoRepositorio, 
             IAuditoriaServicio auditoriaServicio,
