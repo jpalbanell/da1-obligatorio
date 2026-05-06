@@ -8,6 +8,8 @@ namespace Servicios
         private readonly IUsuarioRepositorio _repositorio;
         private readonly ISesionServicio _sesionServicio;
         private readonly IAuditoriaServicio _auditoriaServicio;
+        
+        private const string ContrasenaDefault = "Password@1";
 
         public AutenticacionServicio(
             IUsuarioRepositorio repositorio,
@@ -30,6 +32,12 @@ namespace Servicios
         
         public void CambiarContrasena(int id, string nuevaContrasena)
         {
+            var usuarioEnSesion = _sesionServicio.ObtenerUsuarioActual();
+            if (usuarioEnSesion == null)
+                throw new Exception("No hay sesión activa.");
+            if (usuarioEnSesion.Id != id)
+                throw new Exception("No podés cambiar la contraseña de otro usuario.");
+            
             var usuario = ObtenerUsuarioExistente(id);
             usuario.Contrasena = nuevaContrasena;
             _repositorio.Actualizar(usuario);
@@ -39,9 +47,14 @@ namespace Servicios
         public void ReiniciarContrasena(int id)
         {
             var usuario = ObtenerUsuarioExistente(id);
-            usuario.Contrasena = "Password@1";
+            usuario.Contrasena = GenerarContrasenaDefault();
             _repositorio.Actualizar(usuario);
             _auditoriaServicio.Registrar($"Reinicio de contraseña: {usuario.Email}", _sesionServicio.ObtenerUsuarioActual());
+        }
+        
+        private string GenerarContrasenaDefault()
+        {
+            return ContrasenaDefault;
         }
         
         private Usuario ObtenerUsuarioExistente(int id)
