@@ -31,6 +31,10 @@
                         @onclick="() => AbrirModalEditar(estadio)">
                     Editar
                 </button>
+                <button class="btn btn-sm btn-outline-danger ms-1"
+                        @onclick="() => Eliminar(estadio.Nombre)">
+                    Eliminar
+                </button>
             </td>
         </tr>
     }
@@ -100,6 +104,9 @@
     private bool _mostrarModal = false;
     private void AbrirModal()
     {
+        _form = new EstadioRequest();
+        _modoEdicion = false;
+        _mensajeError = "";
         _mostrarModal = true;
     }
     private EstadioRequest _form = new();
@@ -144,5 +151,19 @@
         _modoEdicion = true;
         _mensajeError = "";
         _mostrarModal = true;
+    }
+    private void Eliminar(string nombre)
+    {
+        try
+        {
+            EstadioServicio.EliminarEstadio(nombre);
+            _estadios = EstadioServicio.ObtenerTodos()
+                .Select(EstadioResponse.FromEntity)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+        }
     }
 }
