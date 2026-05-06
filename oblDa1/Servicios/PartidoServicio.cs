@@ -23,6 +23,7 @@ namespace Servicios
         {
             partido.Id = _proximoId++;
             _repositorio.Agregar(partido);
+            _auditoriaServicio.Registrar($"Alta de partido: {partido.Codigo}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         public List<Partido> ObtenerTodos()
