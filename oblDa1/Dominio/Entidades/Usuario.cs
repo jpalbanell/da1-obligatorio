@@ -113,6 +113,11 @@ namespace Dominio.Entidades
             var hash = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
+        
+        public bool TieneRol(Rol rol)
+        {
+            return Roles.Contains(rol);
+        }
     }
 }
 
