@@ -62,6 +62,34 @@ namespace Tests
             }
         }
         
+        private void CargarEquiposParaForzarConflictoConfederacion()
+        {
+            var confederaciones = new[]
+            {
+                Confederacion.CONMEBOL, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.CONMEBOL, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.OFC
+            };
+
+            for (int i = 0; i < 48; i++)
+            {
+                var equipo = new Equipo();
+                equipo.Nombre = $"Equipo_{i + 1}";
+                equipo.Confederacion = confederaciones[i];
+                equipo.RankingFifa = 2500 - (i * 45);
+                _equipoRepositorio.Agregar(equipo);
+            }
+        }
+        
         private void CargarEquiposConEmpate()
         {
             Confederacion[] confederaciones = {
@@ -377,5 +405,29 @@ namespace Tests
             Assert.AreEqual("Parque Viera", partidos[2].Estadio.Nombre);
             Assert.AreEqual("Tróccoli", partidos[3].Estadio.Nombre);
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConOrdenQueRompeRoundRobinPuro_NoDeberiaRepetirConfederacionNoUefa()
+        {
+            CargarEquiposParaForzarConflictoConfederacion();
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            foreach (var grupo in grupos)
+            {
+                var equipos = grupo.ListaPosiciones.Select(p => p.Equipo).ToList();
+                var noUefa = equipos.Where(e => e.Confederacion != Confederacion.UEFA).ToList();
+                var confederacionesRepetidas = noUefa
+                    .GroupBy(e => e.Confederacion)
+                    .Any(g => g.Count() > 1);
+                Assert.IsFalse(confederacionesRepetidas, $"Grupo {grupo.Etiqueta} tiene confederación no-UEFA repetida");
+            }
+        }
+
     }
 }
