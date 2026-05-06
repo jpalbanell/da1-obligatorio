@@ -35,14 +35,20 @@ namespace Servicios
         {
             return _repositorio.ObtenerTodos();
         }
+        
+        private void ValidarEstadioExiste(string nombre)
+        {
+            if (_repositorio.ObtenerPorNombre(nombre) == null)
+                throw new Exception("Estadio no encontrado.");
+        }
 
         public void ModificarEstadio(Estadio estadio)
         {
-            ValidarEstadioExistente(estadio.Nombre);
+            _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarNombreUnicoEnEdicion(estadio);
+            ValidarEstadioExiste(estadio.Nombre);
             _repositorio.Actualizar(estadio);
             _auditoriaServicio.Registrar($"Edición de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
-
         }
 
         private void ValidarNombreUnicoEnEdicion(Estadio estadio)
@@ -54,6 +60,7 @@ namespace Servicios
 
         public void EliminarEstadio(string nombre)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             _repositorio.Eliminar(nombre);
             _auditoriaServicio.Registrar($"Eliminación de estadio: {nombre}", _sesionServicio.ObtenerUsuarioActual());
         }

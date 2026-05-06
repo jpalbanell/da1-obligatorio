@@ -196,5 +196,44 @@ namespace Tests
 
             _servicio.AgregarEstadio(estadio);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarEstadio_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+
+            var usuarioEditor = new Usuario();
+            usuarioEditor.Nombre = "Juan";
+            usuarioEditor.Apellido = "Perez";
+            usuarioEditor.Email = "juan@ejemplo.com";
+            usuarioEditor.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioEditor.Contrasena = "Abcdef1@";
+            usuarioEditor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuarioEditor);
+
+            estadio.Capacidad = 65000;
+            _servicio.ModificarEstadio(estadio);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void EliminarEstadio_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+
+            var usuarioEditor = new Usuario();
+            usuarioEditor.Nombre = "Juan";
+            usuarioEditor.Apellido = "Perez";
+            usuarioEditor.Email = "juan@ejemplo.com";
+            usuarioEditor.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioEditor.Contrasena = "Abcdef1@";
+            usuarioEditor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuarioEditor);
+
+            _servicio.EliminarEstadio("Centenario");
+        }
     }
 }
