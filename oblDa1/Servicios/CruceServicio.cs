@@ -123,7 +123,7 @@ namespace Servicios
             return 0;
         }
         
-        private List<PosicionesGrupo> ObtenerClasificados()
+        private List<PosicionesGrupo> ObtenerClasificados(Random random)
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
             var todasLasPosiciones = new List<PosicionesGrupo>();
@@ -131,22 +131,27 @@ namespace Servicios
             foreach (var grupo in grupos)
             {
                 var posicionesGrupo = CalcularPosicionesGrupo(grupo);
-                var ordenadas = OrdenarPosiciones(posicionesGrupo);
+                var ordenadas = OrdenarPosiciones(posicionesGrupo, random);
                 todasLasPosiciones.AddRange(ordenadas);
             }
 
             return todasLasPosiciones;
         }
 
-        private List<PosicionesGrupo> OrdenarPosiciones(List<PosicionesGrupo> posiciones)
+        private List<PosicionesGrupo> OrdenarPosiciones(List<PosicionesGrupo> posiciones, Random random)
         {
-            return posiciones
+            var ordenadas = posiciones
                 .OrderByDescending(p => p.Puntos)
                 .ThenByDescending(p => p.DiferenciaGoles)
                 .ThenByDescending(p => p.GolesFavor)
+                .GroupBy(p => new { p.Puntos, p.DiferenciaGoles, p.GolesFavor })
+                .SelectMany(g => g.OrderBy(_ => random.Next()))
                 .ToList();
+
+            return ordenadas;
         }
-        private (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados()
+        
+        private (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados(Random random)
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
             var primeros = new List<PosicionesGrupo>();
@@ -155,7 +160,7 @@ namespace Servicios
 
             foreach (var grupo in grupos)
             {
-                var posicionesOrdenadas = OrdenarPosiciones(CalcularPosicionesGrupo(grupo));
+                var posicionesOrdenadas = OrdenarPosiciones(CalcularPosicionesGrupo(grupo), random);
                 primeros.Add(posicionesOrdenadas[0]);
                 segundos.Add(posicionesOrdenadas[1]);
                 terceros.Add(posicionesOrdenadas[2]);
@@ -173,7 +178,8 @@ namespace Servicios
         
         private List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> GenerarEmparejamientos(int semilla)
         {
-            var (primeros, segundos, mejoresTerceros) = SeleccionarClasificados();
+            var random = new Random(semilla);
+            var (primeros, segundos, mejoresTerceros) = SeleccionarClasificados(random);
 
             var primerosOrdenados = primeros
                 .OrderByDescending(p => p.Puntos)
@@ -193,7 +199,7 @@ namespace Servicios
             var cuatroSegundosMenorPuntaje = segundosOrdenados.Skip(8).ToList();
             var ochoSegundosRestantes = segundosOrdenados.Take(8).ToList();
 
-            var random = new Random(semilla);
+            
             AplicarFisherYates(ochoMejoresPrimeros, random);
             AplicarFisherYates(mejoresTerceros, random);
             AplicarFisherYates(cuatroRestantesPrimeros, random);
@@ -281,7 +287,7 @@ namespace Servicios
             var partidos = new List<Partido>();
             foreach (var (local, visitante, codigo) in emparejamientos)
             {
-                var partido = new Partido(_proximoIdPartido++);
+                var partido = new Partido(ObtenerProximoIdPartido());
                 partido.Codigo = codigo;
                 partido.Fase = FaseTorneo.Dieciseisavos;
                 partido.EquipoLocal = local.Equipo;
@@ -352,7 +358,7 @@ namespace Servicios
 
         private Partido CrearPartidoEliminatorio(string codigo, FaseTorneo fase, Partido origenLocal, Partido origenVisitante)
         {
-            var partido = new Partido(_proximoIdPartido++);
+            var partido = new Partido(ObtenerProximoIdPartido());
             partido.Codigo = codigo;
             partido.Fase = fase;
             partido.Fecha = new DateTime(2026, 7, 1, 14, 0, 0);
@@ -366,7 +372,12 @@ namespace Servicios
             return partido;
         }
 
-        private int _proximoIdPartido = 1000;
+        private int ObtenerProximoIdPartido()
+        {
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            if (partidos.Count == 0) return 1;
+            return partidos.Max(p => p.Id) + 1;
+        }
 
         private Estadio ObtenerPrimerEstadioDisponible()
         {
