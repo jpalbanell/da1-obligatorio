@@ -7,7 +7,7 @@ namespace Servicios
         void AgregarEstadio(Estadio estadio);
         Estadio ObtenerEstadio(string nombre);
         List<Estadio> ObtenerTodos();
-        void ModificarEstadio(Estadio estadio);
+        void ModificarEstadio(Estadio estadio, string nombreOriginal);
         void EliminarEstadio(string nombre);
     }
 }

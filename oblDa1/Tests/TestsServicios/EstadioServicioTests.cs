@@ -101,7 +101,7 @@ namespace Tests
             _servicio.AgregarEstadio(estadio);
 
             estadio.Capacidad = 65000;
-            _servicio.ModificarEstadio(estadio);
+            _servicio.ModificarEstadio(estadio, "Centenario");
 
             var resultado = _servicio.ObtenerEstadio("Centenario");
             Assert.AreEqual(65000, resultado.Capacidad);
@@ -135,7 +135,7 @@ namespace Tests
             _servicio.AgregarEstadio(estadio2);
 
             estadio2.Nombre = "Centenario";
-            _servicio.ModificarEstadio(estadio2);
+            _servicio.ModificarEstadio(estadio2, "Maracana");
         }
         [TestMethod]
         [ExpectedException(typeof(Exception))]
@@ -146,7 +146,7 @@ namespace Tests
             estadio.Ciudad = "Montevideo";
             estadio.Capacidad = 60000;
 
-            _servicio.ModificarEstadio(estadio);
+            _servicio.ModificarEstadio(estadio, "NoExiste");
         }
         
         [TestMethod]
@@ -163,7 +163,7 @@ namespace Tests
             var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
             _servicio.AgregarEstadio(estadio);
             estadio.Capacidad = 65000;
-            _servicio.ModificarEstadio(estadio);
+            _servicio.ModificarEstadio(estadio, "Centenario");
             Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
         
@@ -214,7 +214,7 @@ namespace Tests
             _sesionServicio.IniciarSesion(usuarioEditor);
 
             estadio.Capacidad = 65000;
-            _servicio.ModificarEstadio(estadio);
+            _servicio.ModificarEstadio(estadio, "Centenario");
         }
 
         [TestMethod]

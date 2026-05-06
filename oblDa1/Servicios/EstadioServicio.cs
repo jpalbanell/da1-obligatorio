@@ -42,19 +42,20 @@ namespace Servicios
                 throw new Exception("Estadio no encontrado.");
         }
 
-        public void ModificarEstadio(Estadio estadio)
+        public void ModificarEstadio(Estadio estadio, string nombreOriginal)
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
-            ValidarNombreUnicoEnEdicion(estadio);
+            ValidarNombreUnicoEnEdicion(estadio.Nombre, nombreOriginal);
             ValidarEstadioExiste(estadio.Nombre);
             _repositorio.Actualizar(estadio);
             _auditoriaServicio.Registrar($"Edición de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
-        private void ValidarNombreUnicoEnEdicion(Estadio estadio)
+        private void ValidarNombreUnicoEnEdicion(string nombreNuevo, string nombreOriginal)
         {
-            var existente = _repositorio.ObtenerPorNombre(estadio.Nombre);
-            if (existente != null && existente != estadio)
+            if (nombreNuevo == nombreOriginal) return;
+            var existente = _repositorio.ObtenerPorNombre(nombreNuevo);
+            if (existente != null)
                 throw new Exception("Ya existe un estadio con ese nombre.");
         }
 

@@ -1,0 +1,148 @@
+@page "/estadios"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IEstadioServicio EstadioServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+
+<h3>Estadios</h3>
+<button class="btn btn-primary mb-3" @onclick="AbrirModal">+ Agregar estadio</button>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Ciudad</th>
+        <th>Capacidad</th>
+        <th>Descripción</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var estadio in _estadios)
+    {
+        <tr>
+            <td>@estadio.Nombre</td>
+            <td>@estadio.Ciudad</td>
+            <td>@estadio.Capacidad</td>
+            <td>@estadio.Descripcion</td>
+            <td>
+                <button class="btn btn-sm btn-outline-secondary" 
+                        @onclick="() => AbrirModalEditar(estadio)">
+                    Editar
+                </button>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (_mostrarModal)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(_modoEdicion ? "Editar estadio" : "Agregar estadio")</h5>
+                    <button class="btn-close" @onclick="CerrarModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(_mensajeError))
+                    {
+                        <div class="alert alert-danger">@_mensajeError</div>
+                    }
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" @bind="_form.Nombre"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ciudad</label>
+                        <input class="form-control" @bind="_form.Ciudad"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Capacidad (mín. 20.000)</label>
+                        <input type="number" class="form-control" @bind="_form.Capacidad"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción (opcional)</label>
+                        <textarea class="form-control" @bind="_form.Descripcion" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+                    <button class="btn btn-primary" @onclick="Guardar">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
+
+@code {
+    private Usuario _usuarioActual;
+    private List<EstadioResponse> _estadios = new();
+    private string _mensajeError = "";
+    private bool _modoEdicion = false;
+    private string _nombreOriginal = "";
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        _estadios = EstadioServicio.ObtenerTodos()
+            .Select(EstadioResponse.FromEntity)
+            .ToList();
+    }
+    private bool _mostrarModal = false;
+    private void AbrirModal()
+    {
+        _mostrarModal = true;
+    }
+    private EstadioRequest _form = new();
+
+    private void CerrarModal()
+    {
+        _mostrarModal = false;
+    }
+
+    private void Guardar()
+    {
+        try
+        {
+            var estadio = _form.ToEntity();
+            if (_modoEdicion)
+                EstadioServicio.ModificarEstadio(estadio, _nombreOriginal);
+            else
+                EstadioServicio.AgregarEstadio(estadio);
+
+            _estadios = EstadioServicio.ObtenerTodos()
+                .Select(EstadioResponse.FromEntity)
+                .ToList();
+            CerrarModal();
+            _form = new EstadioRequest();
+            _modoEdicion = false;
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+        }
+    }
+    private void AbrirModalEditar(EstadioResponse estadio)
+    {
+        _form = new EstadioRequest
+        {
+            Nombre = estadio.Nombre,
+            Ciudad = estadio.Ciudad,
+            Capacidad = estadio.Capacidad,
+            Descripcion = estadio.Descripcion
+        };
+        _nombreOriginal = estadio.Nombre;
+        _modoEdicion = true;
+        _mensajeError = "";
+        _mostrarModal = true;
+    }
+}
