@@ -14,6 +14,7 @@ namespace Tests
         private IFixtureRepositorio _fixtureRepositorio;
         private IAuditoriaServicio _auditoriaServicio;
         private IFixtureServicio _servicio;
+        private ISesionServicio _sesionServicio;
 
         [TestInitialize]
         public void Setup()
@@ -24,13 +25,15 @@ namespace Tests
             _grupoRepositorio = new GrupoRepositorio();
             _fixtureRepositorio = new FixtureRepositorio();
             _auditoriaServicio = new AuditoriaServicio(new AuditoriaRepositorio());
+            _sesionServicio = new SesionServicio();
             _servicio = new FixtureServicio(
                 _equipoRepositorio,
                 _estadioRepositorio,
                 _partidoRepositorio,
                 _grupoRepositorio,
                 _fixtureRepositorio,
-                _auditoriaServicio
+                _auditoriaServicio,
+                _sesionServicio
             );
         }
         
@@ -156,8 +159,9 @@ namespace Tests
         {
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
-
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
         }
         
         [TestMethod]
@@ -168,8 +172,9 @@ namespace Tests
 
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
-
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
         }
         
         [TestMethod]
@@ -182,8 +187,9 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
             fixture.EstaGenerado = true;
-
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
         }
         
         [TestMethod]
@@ -195,7 +201,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var grupos = _grupoRepositorio.ObtenerTodos();
             Assert.AreEqual(12, grupos.Count);
@@ -210,7 +217,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var grupos = _grupoRepositorio.ObtenerTodos();
             foreach (var grupo in grupos)
@@ -228,7 +236,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var grupos = _grupoRepositorio.ObtenerTodos();
             foreach (var grupo in grupos)
@@ -255,7 +264,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var partidos = _partidoRepositorio.ObtenerTodos();
             Assert.AreEqual(72, partidos.Count);
@@ -270,7 +280,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var partidos = _partidoRepositorio.ObtenerTodos();
             var horasValidas = new[] { 14, 18, 22 };
@@ -291,7 +302,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var estadiosOrdenados = _estadioRepositorio.ObtenerTodos()
                 .OrderBy(e => e.Nombre)
@@ -316,7 +328,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var resultado = _fixtureRepositorio.Obtener();
             Assert.IsTrue(resultado.EstaGenerado);
@@ -332,7 +345,8 @@ namespace Tests
             fixture.SemillaFixture = 42;
             var usuario = CrearUsuarioValido();
 
-            _servicio.GenerarFixture(fixture, usuario);
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var logs = _auditoriaServicio.ObtenerTodos();
             Assert.IsTrue(logs.Count > 0);
@@ -347,7 +361,8 @@ namespace Tests
             var fixture1 = new Fixture();
             fixture1.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture1, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture1);
             var grupos1 = _grupoRepositorio.ObtenerTodos();
             var primerEquipoGrupoA1 = grupos1[0].ListaPosiciones[0].Equipo.Nombre;
 
@@ -359,7 +374,8 @@ namespace Tests
             var fixture2 = new Fixture();
             fixture2.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture2, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture2);
             var grupos2 = _grupoRepositorio.ObtenerTodos();
             var primerEquipoGrupoA2 = grupos2[0].ListaPosiciones[0].Equipo.Nombre;
 
@@ -375,7 +391,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var partidos = _partidoRepositorio.ObtenerTodos();
             var partidosPorDia = partidos.GroupBy(p => p.Fecha.Date);
@@ -405,7 +422,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var partidos = _partidoRepositorio.ObtenerTodos();
 
@@ -424,7 +442,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var grupos = _grupoRepositorio.ObtenerTodos();
             foreach (var grupo in grupos)
@@ -447,7 +466,8 @@ namespace Tests
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
 
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var partidos = _partidoRepositorio.ObtenerTodos();
             var grupos = _grupoRepositorio.ObtenerTodos();
@@ -473,8 +493,9 @@ namespace Tests
 
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
-
-            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+            
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
 
             var partidos = _partidoRepositorio.ObtenerTodos();
             var equipos = _equipoRepositorio.ObtenerTodos();
