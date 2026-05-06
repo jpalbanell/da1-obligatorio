@@ -24,6 +24,11 @@ namespace Tests
 
             var usuario = new Usuario();
             usuario.Nombre = "Santiago";
+            usuario.Apellido = "Garcia";
+            usuario.Email = "santiago@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Administrador);
             _sesionServicio.IniciarSesion(usuario);
         }
 
@@ -169,6 +174,27 @@ namespace Tests
             _servicio.AgregarEstadio(estadio);
             _servicio.EliminarEstadio("Centenario");
             Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarEstadio_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Juan";
+            usuario.Apellido = "Perez";
+            usuario.Email = "juan@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuario);
+
+            var estadio = new Estadio();
+            estadio.Nombre = "Centenario";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 60000;
+
+            _servicio.AgregarEstadio(estadio);
         }
     }
 }

@@ -20,10 +20,10 @@ namespace Servicios
 
         public void AgregarEstadio(Estadio estadio)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarNombreUnico(estadio.Nombre);
             _repositorio.Agregar(estadio);
             _auditoriaServicio.Registrar($"Alta de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
-
         }
 
         public Estadio ObtenerEstadio(string nombre)
