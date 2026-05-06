@@ -63,7 +63,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        public void SimularPartido_ConMismasemilla_MismoResultado()
+        public void SimularPartido_ConMismaSemilla_YDistintoId_DeberiaProducirResultadosDiferentes()
         {
             var partido1 = CrearPartidoConEquipos(1500, 1500);
             partido1.Id = 1;
@@ -76,8 +76,8 @@ namespace Tests.TestsServicios
             _simulacionServicio.SimularPartido(1, 42);
             _simulacionServicio.SimularPartido(2, 42);
 
-            Assert.AreEqual(partido1.GolesLocal, partido2.GolesLocal);
-            Assert.AreEqual(partido1.GolesVisitante, partido2.GolesVisitante);
+            Assert.IsFalse(partido1.GolesLocal == partido2.GolesLocal &&
+                           partido1.GolesVisitante == partido2.GolesVisitante);
         }
         
         [TestMethod]
@@ -160,5 +160,70 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
+        
+        [TestMethod]
+        public void SimularFase_ConVariosPartidos_DeberiaTenerResultadosDiferentes()
+        {
+            var partido1 = CrearPartidoConEquipos(1500, 1500);
+            partido1.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido1);
+
+            var partido2 = CrearPartidoConEquipos(1500, 1500);
+            partido2.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido2);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.IsFalse(partido1.GolesLocal == partido2.GolesLocal &&
+                           partido1.GolesVisitante == partido2.GolesVisitante);
+        }
+        
+        [TestMethod]
+        public void SimularPartido_DeberiaRegistrarSemillaEnAuditoria()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1200);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            var logs = _auditoriaRepositorio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("42")));
+        }
+        
+        [TestMethod]
+        public void SimularFase_DeberiaRegistrarSemillaEnAuditoria()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1200);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            var logs = _auditoriaRepositorio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("FaseGrupos") && l.Accion.Contains("42")));
+        }
+        [TestMethod]
+        public void SimularPartido_EnFaseEliminatoria_ConEmpate_DeberiaAsignarVencedor()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1500);
+            partido.Fase = FaseTorneo.Octavos;
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 0);
+
+            Assert.IsNotNull(partido.Vencedor);
+        }
+        [TestMethod]
+        public void SimularPartido_EnFaseGrupos_ConEmpate_NoDeberiaAsignarVencedor()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1500);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 0);
+
+            Assert.IsNull(partido.Vencedor);
+        }
+        
     }
 }
