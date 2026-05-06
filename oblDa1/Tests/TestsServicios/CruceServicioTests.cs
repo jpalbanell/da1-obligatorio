@@ -342,5 +342,25 @@ namespace Tests.TestsServicios
 
             _servicio.GenerarCruces(42);
         }
+        
+        [TestMethod]
+        public void GenerarCruces_PartidoTercerPuesto_DeberiaUsarPerdedoresDeSemifinales()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+
+            _servicio.GenerarCruces(42);
+
+            var partidoTP = _partidoRepositorio.ObtenerTodos()
+                .First(p => p.Codigo == "TP");
+
+            Assert.IsTrue(partidoTP.EsPorPerdedor,
+                "El tercer puesto debe estar marcado como por perdedor");
+        }
+        
+        
     }
 }

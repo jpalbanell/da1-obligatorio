@@ -342,7 +342,8 @@ namespace Servicios
 
         private void CrearPartidosTercerPuestoYFinal(List<Partido> semifinales)
         {
-            CrearPartidoEliminatorio("TP", FaseTorneo.TercerPuesto, semifinales[0], semifinales[1]);
+            var tercerPuesto = CrearPartidoEliminatorio("TP", FaseTorneo.TercerPuesto, semifinales[0], semifinales[1]);
+            tercerPuesto.EsPorPerdedor = true;
             CrearPartidoEliminatorio("F", FaseTorneo.Final, semifinales[0], semifinales[1]);
         }
 

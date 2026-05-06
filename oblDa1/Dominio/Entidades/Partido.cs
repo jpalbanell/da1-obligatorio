@@ -17,6 +17,7 @@ namespace Dominio.Entidades
         public Partido OrigenVisitante { get; set; }
         public bool EstaBloqueado { get; set; }
         public bool TieneResultado { get; set; } = false;
+        public bool EsPorPerdedor { get; set; } = false;
 
         public string Codigo
         {
