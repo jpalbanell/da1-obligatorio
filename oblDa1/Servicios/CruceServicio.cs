@@ -25,7 +25,7 @@ namespace Servicios
             _sesionServicio = sesionServicio;
         }
 
-        public void GenerarCruces(int semillaCrucesFase, Usuario usuario)
+        public void GenerarCruces(int semillaCrucesFase)
         {
             var fixture = _fixtureRepositorio.Obtener();
             ValidarFixtureGenerado(fixture);
@@ -39,7 +39,7 @@ namespace Servicios
             fixture.CrucesGenerados = true;
             _fixtureRepositorio.Guardar(fixture);
 
-            _auditoriaServicio.Registrar("Generación de cruces para segunda fase", usuario);
+            _auditoriaServicio.Registrar($"Generación de cruces con SemillaCrucesFase: {semillaCrucesFase}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         private void BloquearPartidosDeFaseGrupos()
@@ -78,7 +78,7 @@ namespace Servicios
             }
         }
         
-        public List<PosicionesGrupo> CalcularPosicionesGrupo(Grupo grupo)
+        private List<PosicionesGrupo> CalcularPosicionesGrupo(Grupo grupo)
         {
             var posiciones = new Dictionary<Equipo, PosicionesGrupo>();
 
@@ -119,7 +119,7 @@ namespace Servicios
             return 0;
         }
         
-        public List<PosicionesGrupo> ObtenerClasificados()
+        private List<PosicionesGrupo> ObtenerClasificados()
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
             var todasLasPosiciones = new List<PosicionesGrupo>();
@@ -142,7 +142,7 @@ namespace Servicios
                 .ThenByDescending(p => p.GolesFavor)
                 .ToList();
         }
-        public (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados()
+        private (List<PosicionesGrupo> primeros, List<PosicionesGrupo> segundos, List<PosicionesGrupo> mejoresTerceros) SeleccionarClasificados()
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
             var primeros = new List<PosicionesGrupo>();
@@ -167,7 +167,7 @@ namespace Servicios
             return (primeros, segundos, mejoresTerceros);
         }
         
-        public List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> GenerarEmparejamientos(int semilla)
+        private List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> GenerarEmparejamientos(int semilla)
         {
             var (primeros, segundos, mejoresTerceros) = SeleccionarClasificados();
 
@@ -189,11 +189,12 @@ namespace Servicios
             var cuatroSegundosMenorPuntaje = segundosOrdenados.Skip(8).ToList();
             var ochoSegundosRestantes = segundosOrdenados.Take(8).ToList();
 
-            AplicarFisherYates(ochoMejoresPrimeros, semilla);
-            AplicarFisherYates(mejoresTerceros, semilla);
-            AplicarFisherYates(cuatroRestantesPrimeros, semilla);
-            AplicarFisherYates(cuatroSegundosMenorPuntaje, semilla);
-            AplicarFisherYates(ochoSegundosRestantes, semilla);
+            var random = new Random(semilla);
+            AplicarFisherYates(ochoMejoresPrimeros, random);
+            AplicarFisherYates(mejoresTerceros, random);
+            AplicarFisherYates(cuatroRestantesPrimeros, random);
+            AplicarFisherYates(cuatroSegundosMenorPuntaje, random);
+            AplicarFisherYates(ochoSegundosRestantes, random);
 
             var emparejamientos = new List<(PosicionesGrupo, PosicionesGrupo, string)>();
 
@@ -204,9 +205,8 @@ namespace Servicios
             return emparejamientos;
         }
 
-        private void AplicarFisherYates<T>(List<T> lista, int semilla)
+        private void AplicarFisherYates<T>(List<T> lista, Random random)
         {
-            var random = new Random(semilla);
             for (int i = lista.Count - 1; i > 0; i--)
             {
                 int j = random.Next(0, i + 1);
@@ -261,9 +261,20 @@ namespace Servicios
             return resultado;
         }
         
-        public void GenerarPartidosEliminatorios(
+        private void GenerarPartidosEliminatorios(
             List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos)
         {
+            var dieciseisavos = CrearPartidosDieciseisavos(emparejamientos);
+            var octavos = CrearPartidosOctavos(dieciseisavos);
+            var cuartos = CrearPartidosCuartos(octavos);
+            var semifinales = CrearPartidosSemifinales(cuartos);
+            CrearPartidosTercerPuestoYFinal(semifinales);
+        }
+
+        private List<Partido> CrearPartidosDieciseisavos(
+            List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos)
+        {
+            var partidos = new List<Partido>();
             foreach (var (local, visitante, codigo) in emparejamientos)
             {
                 var partido = new Partido(_proximoIdPartido++);
@@ -275,7 +286,79 @@ namespace Servicios
                 partido.Estadio = ObtenerPrimerEstadioDisponible();
                 partido.Grupo = ObtenerGrupoPorEtiqueta(local.Grupo.Etiqueta);
                 _partidoRepositorio.Agregar(partido);
+                partidos.Add(partido);
             }
+            return partidos;
+        }
+
+        private List<Partido> CrearPartidosOctavos(List<Partido> dieciseisavos)
+        {
+            var partidos = new List<Partido>();
+            for (int i = 0; i < dieciseisavos.Count; i += 2)
+            {
+                var partido = CrearPartidoEliminatorio(
+                    $"C{i / 2 + 1}",
+                    FaseTorneo.Octavos,
+                    dieciseisavos[i],
+                    dieciseisavos[i + 1]
+                );
+                partidos.Add(partido);
+            }
+            return partidos;
+        }
+
+        private List<Partido> CrearPartidosCuartos(List<Partido> octavos)
+        {
+            var partidos = new List<Partido>();
+            for (int i = 0; i < octavos.Count; i += 2)
+            {
+                var partido = CrearPartidoEliminatorio(
+                    $"D{i / 2 + 1}",
+                    FaseTorneo.Cuartos,
+                    octavos[i],
+                    octavos[i + 1]
+                );
+                partidos.Add(partido);
+            }
+            return partidos;
+        }
+
+        private List<Partido> CrearPartidosSemifinales(List<Partido> cuartos)
+        {
+            var partidos = new List<Partido>();
+            for (int i = 0; i < cuartos.Count; i += 2)
+            {
+                var partido = CrearPartidoEliminatorio(
+                    $"S{i / 2 + 1}",
+                    FaseTorneo.Semifinal,
+                    cuartos[i],
+                    cuartos[i + 1]
+                );
+                partidos.Add(partido);
+            }
+            return partidos;
+        }
+
+        private void CrearPartidosTercerPuestoYFinal(List<Partido> semifinales)
+        {
+            CrearPartidoEliminatorio("TP", FaseTorneo.TercerPuesto, semifinales[0], semifinales[1]);
+            CrearPartidoEliminatorio("F", FaseTorneo.Final, semifinales[0], semifinales[1]);
+        }
+
+        private Partido CrearPartidoEliminatorio(string codigo, FaseTorneo fase, Partido origenLocal, Partido origenVisitante)
+        {
+            var partido = new Partido(_proximoIdPartido++);
+            partido.Codigo = codigo;
+            partido.Fase = fase;
+            partido.Fecha = new DateTime(2026, 7, 1, 14, 0, 0);
+            partido.Estadio = ObtenerPrimerEstadioDisponible();
+            partido.Grupo = _grupoRepositorio.ObtenerTodos().First();
+            partido.OrigenLocal = origenLocal;
+            partido.OrigenVisitante = origenVisitante;
+            partido.EquipoLocal = origenLocal.EquipoLocal;
+            partido.EquipoVisitante = origenVisitante.EquipoLocal;
+            _partidoRepositorio.Agregar(partido);
+            return partido;
         }
 
         private int _proximoIdPartido = 1000;
