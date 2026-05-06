@@ -68,7 +68,8 @@ namespace Tests
             _repositorio.Agregar(estadio);
 
             estadio.Capacidad = 65000;
-            _repositorio.Actualizar(estadio);
+            _repositorio.Actualizar(estadio, "Centenario");
+
 
             var resultado = _repositorio.ObtenerPorNombre("Centenario");
             Assert.AreEqual(65000, resultado.Capacidad);
@@ -99,7 +100,7 @@ namespace Tests
         {
             var estadio = CrearEstadioValido("NoExiste", "Ciudad", 30000);
 
-            _repositorio.Actualizar(estadio);
+            _repositorio.Actualizar(estadio, "NoExiste");
         }
     }
 }

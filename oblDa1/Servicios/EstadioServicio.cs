@@ -46,8 +46,8 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarNombreUnicoEnEdicion(estadio.Nombre, nombreOriginal);
-            ValidarEstadioExiste(estadio.Nombre);
-            _repositorio.Actualizar(estadio);
+            ValidarEstadioExiste(nombreOriginal);
+            _repositorio.Actualizar(estadio, nombreOriginal);
             _auditoriaServicio.Registrar($"Edición de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 

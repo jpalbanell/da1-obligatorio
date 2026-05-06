@@ -21,9 +21,9 @@ namespace Repositorios
             return _estadios.FirstOrDefault(e => e.Nombre == nombre);
         }
 
-        public void Actualizar(Estadio estadio)
+        public void Actualizar(Estadio estadio, string nombreOriginal)
         {
-            var indice = _estadios.FindIndex(e => e.Nombre == estadio.Nombre);
+            var indice = _estadios.FindIndex(e => e.Nombre == nombreOriginal);
             ValidarEstadioExistente(indice);
             _estadios[indice] = estadio;
         }
