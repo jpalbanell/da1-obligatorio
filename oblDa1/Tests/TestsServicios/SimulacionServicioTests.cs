@@ -24,6 +24,7 @@ namespace Tests.TestsServicios
 
             var usuario = new Usuario();
             usuario.Nombre = "Santiago";
+            usuario.Roles.Add(Rol.Editor);
             _sesionServicio.IniciarSesion(usuario);
         }
 
@@ -46,6 +47,13 @@ namespace Tests.TestsServicios
             partido.EquipoVisitante = visitante;
 
             return partido;
+        }
+        
+        private Usuario CrearUsuarioSinRol()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "SinRol";
+            return usuario;
         }
 
         [TestMethod]
@@ -241,6 +249,26 @@ namespace Tests.TestsServicios
             var logs = _auditoriaRepositorio.ObtenerTodos();
             Assert.AreEqual(1, logs.Count);
             Assert.IsTrue(logs[0].Accion.Contains("FaseGrupos"));
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void SimularPartido_SinRolEditor_DeberiaLanzarExcepcion()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1200, 1);
+            _partidoRepositorio.Agregar(partido);
+            _sesionServicio.IniciarSesion(CrearUsuarioSinRol());
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void SimularFase_SinRolEditor_DeberiaLanzarExcepcion()
+        {
+            _sesionServicio.IniciarSesion(CrearUsuarioSinRol());
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
         }
     }
 }
