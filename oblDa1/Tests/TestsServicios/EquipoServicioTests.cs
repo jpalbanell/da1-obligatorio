@@ -450,5 +450,21 @@ namespace Tests.TestsServicios
             Assert.IsTrue(equipos.Any(e => e.Nombre == "AFC_01"));
         }
         
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void CompletarEquiposAutomaticamente_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var usuarioEditor = new Usuario();
+            usuarioEditor.Nombre = "Juan";
+            usuarioEditor.Apellido = "Perez";
+            usuarioEditor.Email = "juan@ejemplo.com";
+            usuarioEditor.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioEditor.Contrasena = "Abcdef1@";
+            usuarioEditor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuarioEditor);
+
+            _equipoServicio.CompletarEquiposAutomaticamente(42);
+        }
+        
     }
 }
