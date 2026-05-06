@@ -285,8 +285,9 @@ namespace Tests
             partido.Fecha = new DateTime(2026, 6, 10);
             _servicio.ModificarPartido(partido);
 
-            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
+            Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
+        
         [TestMethod]
         public void ModificarPartido_ConGolesCargados_DeberiaMarcarTieneResultado()
         {
@@ -300,6 +301,16 @@ namespace Tests
 
             var resultado = _servicio.ObtenerPartido(partido.Id);
             Assert.IsTrue(resultado.TieneResultado);
+        }
+        
+        [TestMethod]
+        public void AgregarPartido_DeberiaRegistrarAuditoria()
+        {
+            var partido = CrearPartidoValido();
+
+            _servicio.AgregarPartido(partido);
+
+            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
         }
     }
 }
