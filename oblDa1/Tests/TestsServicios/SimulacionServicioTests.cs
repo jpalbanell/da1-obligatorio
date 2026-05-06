@@ -270,5 +270,16 @@ namespace Tests.TestsServicios
 
             _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
         }
+        
+        [TestMethod]
+        public void SimularPartido_DeberiaMarcarTieneResultado()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1200, 1);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(partido.TieneResultado);
+        }
     }
 }

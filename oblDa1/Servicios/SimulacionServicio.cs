@@ -31,7 +31,7 @@ namespace Servicios
 
             partido.GolesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
-
+            partido.TieneResultado = true;
             AsignarVencedor(partido, random);
 
             _partidoRepositorio.Actualizar(partido);
@@ -60,6 +60,7 @@ namespace Servicios
             var random = new Random(semillaSimulation + partido.Id);
             partido.GolesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
+            partido.TieneResultado = true;
             AsignarVencedor(partido, random);
             _partidoRepositorio.Actualizar(partido);
         }
