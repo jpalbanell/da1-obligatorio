@@ -1,0 +1,46 @@
+@page "/login"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IAutenticacionServicio AutenticacionServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+
+<h3>Iniciar Sesión</h3>
+
+@if (!string.IsNullOrEmpty(_mensajeError))
+{
+    <div class="alert alert-danger">@_mensajeError</div>
+}
+
+<EditForm Model="_loginRequest" OnValidSubmit="IniciarSesion" FormName="LoginForm">
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <InputText class="form-control" @bind-Value="_loginRequest.Email" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Contraseña</label>
+        <InputText type="password" class="form-control" @bind-Value="_loginRequest.Contrasena" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Ingresar</button>
+</EditForm>
+
+@code {
+    private LoginRequest _loginRequest = new();
+    private string _mensajeError = "";
+
+    private void IniciarSesion()
+    {
+        try
+        {
+            AutenticacionServicio.Login(_loginRequest.Email, _loginRequest.Contrasena);
+            Nav.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+        }
+    }
+}
