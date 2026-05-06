@@ -202,5 +202,18 @@ namespace Tests.TestsServicios
             var logs = _auditoriaRepositorio.ObtenerTodos();
             Assert.IsTrue(logs.Any(l => l.Accion.Contains("FaseGrupos") && l.Accion.Contains("42")));
         }
+        [TestMethod]
+        public void SimularPartido_EnFaseEliminatoria_ConEmpate_DeberiaAsignarVencedor()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1500);
+            partido.Fase = FaseTorneo.Octavos;
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 0);
+
+            Assert.IsNotNull(partido.Vencedor);
+        }
+        
+        
     }
 }

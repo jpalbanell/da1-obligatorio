@@ -31,12 +31,13 @@ namespace Servicios
             partido.GolesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
 
-            AsignarVencedor(partido);
+            AsignarVencedor(partido, random);
 
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar(
                 $"Simulación de partido: {partidoId} con SemillaSimulation: {semillaSimulation}",
-                _sesionServicio.ObtenerUsuarioActual());        }
+                _sesionServicio.ObtenerUsuarioActual());
+        }
 
         public void SimularFase(FaseTorneo fase, int semillaSimulation)
         {
@@ -59,12 +60,16 @@ namespace Servicios
             return random.Next(0, maxGoles + 1);
         }
 
-        private void AsignarVencedor(Partido partido)
+        private void AsignarVencedor(Partido partido, Random random)
         {
             if (partido.GolesLocal > partido.GolesVisitante)
                 partido.Vencedor = partido.EquipoLocal;
             else if (partido.GolesVisitante > partido.GolesLocal)
                 partido.Vencedor = partido.EquipoVisitante;
+            else if (partido.Fase != FaseTorneo.FaseGrupos)
+                partido.Vencedor = random.Next(2) == 0
+                    ? partido.EquipoLocal
+                    : partido.EquipoVisitante;
         }
 
         private void ValidarPartidoExistente(Partido partido)
