@@ -438,5 +438,17 @@ namespace Tests.TestsServicios
             _equipoServicio.AgregarEquipo(equipo);
         }
         
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_NombreGenerado_DebeEmpezarDesdeUnosPorConfederacion()
+        {
+            _equipoServicio.CompletarEquiposAutomaticamente(42);
+
+            var equipos = _equipoServicio.ObtenerTodos();
+    
+            Assert.IsTrue(equipos.Any(e => e.Nombre == "UEFA_01"));
+            Assert.IsTrue(equipos.Any(e => e.Nombre == "CAF_01"));
+            Assert.IsTrue(equipos.Any(e => e.Nombre == "AFC_01"));
+        }
+        
     }
 }
