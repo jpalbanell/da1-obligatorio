@@ -41,8 +41,24 @@ namespace Servicios
         public void ModificarUsuario(Usuario usuario)
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
+            ValidarUsuarioExiste(usuario.Id);
+            ValidarEmailUnicoEnEdicion(usuario);
             _repositorio.Actualizar(usuario);
             _auditoriaServicio.Registrar($"Edición de usuario: {usuario.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        private void ValidarUsuarioExiste(int id)
+        {
+            if (_repositorio.ObtenerPorId(id) == null)
+                throw new Exception("Usuario no encontrado.");
+        }
+
+        private void ValidarEmailUnicoEnEdicion(Usuario usuario)
+        {
+            var existente = _repositorio.ObtenerTodos()
+                .FirstOrDefault(u => u.Email.Equals(usuario.Email, StringComparison.OrdinalIgnoreCase));
+            if (existente != null && existente.Id != usuario.Id)
+                throw new Exception("Ya existe un usuario con ese email.");
         }
 
         public void EliminarUsuario(int id)
