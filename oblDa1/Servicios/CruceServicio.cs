@@ -45,13 +45,13 @@ namespace Servicios
 
         private void BloquearPartidosDeFaseGrupos()
         {
-            var grupos = _grupoRepositorio.ObtenerTodos();
-            foreach (var grupo in grupos)
+            var partidosFaseGrupos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.FaseGrupos)
+                .ToList();
+
+            foreach (var partido in partidosFaseGrupos)
             {
-                foreach (var partido in grupo.ListaPartidos)
-                {
-                    partido.EstaBloqueado = true;
-                }
+                partido.EstaBloqueado = true;
             }
         }
         private void ValidarFixtureGenerado(Fixture fixture)

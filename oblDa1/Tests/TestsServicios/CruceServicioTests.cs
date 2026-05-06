@@ -392,5 +392,23 @@ namespace Tests.TestsServicios
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
             _servicio.GenerarCruces(42);
         }
+        
+        [TestMethod]
+        public void GenerarCruces_DeberiaBloquearTodosLosPartidosDeFaseGruposEnElRepositorio()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+
+            _servicio.GenerarCruces(42);
+
+            var partidosFaseGrupos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.FaseGrupos)
+                .ToList();
+
+            Assert.IsTrue(partidosFaseGrupos.All(p => p.EstaBloqueado));
+        }
     }
 }
