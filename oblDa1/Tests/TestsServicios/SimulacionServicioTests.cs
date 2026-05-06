@@ -177,5 +177,17 @@ namespace Tests.TestsServicios
             Assert.IsFalse(partido1.GolesLocal == partido2.GolesLocal &&
                            partido1.GolesVisitante == partido2.GolesVisitante);
         }
+        
+        [TestMethod]
+        public void SimularPartido_DeberiaRegistrarSemillaEnAuditoria()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1200);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            var logs = _auditoriaRepositorio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("42")));
+        }
     }
 }

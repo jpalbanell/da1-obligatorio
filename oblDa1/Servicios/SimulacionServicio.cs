@@ -34,8 +34,9 @@ namespace Servicios
             AsignarVencedor(partido);
 
             _partidoRepositorio.Actualizar(partido);
-            _auditoriaServicio.Registrar($"Simulación de partido: {partidoId}", _sesionServicio.ObtenerUsuarioActual());
-        }
+            _auditoriaServicio.Registrar(
+                $"Simulación de partido: {partidoId} con SemillaSimulation: {semillaSimulation}",
+                _sesionServicio.ObtenerUsuarioActual());        }
 
         public void SimularFase(FaseTorneo fase, int semillaSimulation)
         {
