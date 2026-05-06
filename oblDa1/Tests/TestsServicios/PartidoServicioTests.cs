@@ -24,6 +24,7 @@ namespace Tests
 
             var usuario = new Usuario();
             usuario.Nombre = "Santiago";
+            usuario.Roles.Add(Rol.Editor);
             _sesionServicio.IniciarSesion(usuario);
         }
 
@@ -63,6 +64,13 @@ namespace Tests
             partido.Estadio = CrearEstadioValido("Centenario");
             partido.Grupo = CrearGrupoValido("A");
             return partido;
+        }
+        
+        private Usuario CrearUsuarioSinRol()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "SinRol";
+            return usuario;
         }
 
         [TestMethod]
@@ -311,6 +319,17 @@ namespace Tests
             _servicio.AgregarPartido(partido);
 
             Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarPartido_SinRolEditor_DeberiaLanzarExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            _servicio.AgregarPartido(partido);
+            _sesionServicio.IniciarSesion(CrearUsuarioSinRol());
+
+            _servicio.ModificarPartido(partido);
         }
     }
 }

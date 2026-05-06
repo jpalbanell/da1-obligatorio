@@ -38,10 +38,18 @@ namespace Servicios
         
         public void ModificarPartido(Partido partido)
         {
+            ValidarRolEditor();
             ValidarPartidoNoBloqueado(partido);
             MarcarResultadoSiCorresponde(partido);
             _repositorio.Actualizar(partido);
             _auditoriaServicio.Registrar($"Modificación de partido: {partido.Id}", _sesionServicio.ObtenerUsuarioActual());
+        }
+        
+        private void ValidarRolEditor()
+        {
+            var usuario = _sesionServicio.ObtenerUsuarioActual();
+            if (!usuario.TieneRol(Rol.Editor))
+                throw new Exception("Se requiere rol Editor para modificar partidos.");
         }
 
         private void MarcarResultadoSiCorresponde(Partido partido)
