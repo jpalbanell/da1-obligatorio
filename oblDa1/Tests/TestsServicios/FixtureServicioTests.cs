@@ -62,6 +62,34 @@ namespace Tests
             }
         }
         
+        private void CargarEquiposParaForzarConflictoConfederacion()
+        {
+            var confederaciones = new[]
+            {
+                Confederacion.CONMEBOL, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.CONMEBOL, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.UEFA, Confederacion.OFC
+            };
+
+            for (int i = 0; i < 48; i++)
+            {
+                var equipo = new Equipo();
+                equipo.Nombre = $"Equipo_{i + 1}";
+                equipo.Confederacion = confederaciones[i];
+                equipo.RankingFifa = 2500 - (i * 45);
+                _equipoRepositorio.Agregar(equipo);
+            }
+        }
+        
         private void CargarEquiposConEmpate()
         {
             Confederacion[] confederaciones = {
@@ -80,12 +108,21 @@ namespace Tests
                 Confederacion.OFC
             };
 
+            int[] rankings = {
+                2500, 2450, 2400, 2350, 2300, 2300, 2250, 2200,
+                2150, 2100, 2050, 2000, 1950, 1900, 1850, 1800,
+                1750, 1750, 1700, 1650, 1600, 1550, 1500,
+                1450, 1400, 1350, 1300, 1300, 1250, 1200,
+                1150, 1100, 1050, 1000, 950, 900, 850, 800, 750,
+                700, 650, 600, 600, 550, 500, 450, 400, 350
+            };
+
             for (int i = 0; i < 48; i++)
             {
                 var equipo = new Equipo();
                 equipo.Nombre = $"Equipo_{i + 1}";
                 equipo.Confederacion = confederaciones[i];
-                equipo.RankingFifa = 1500;
+                equipo.RankingFifa = rankings[i];
                 _equipoRepositorio.Agregar(equipo);
             }
         }
@@ -377,5 +414,91 @@ namespace Tests
             Assert.AreEqual("Parque Viera", partidos[2].Estadio.Nombre);
             Assert.AreEqual("Tróccoli", partidos[3].Estadio.Nombre);
         }
+        
+        [TestMethod]
+        public void GenerarFixture_ConOrdenQueRompeRoundRobinPuro_NoDeberiaRepetirConfederacionNoUefa()
+        {
+            CargarEquiposParaForzarConflictoConfederacion();
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            foreach (var grupo in grupos)
+            {
+                var equipos = grupo.ListaPosiciones.Select(p => p.Equipo).ToList();
+                var noUefa = equipos.Where(e => e.Confederacion != Confederacion.UEFA).ToList();
+                var confederacionesRepetidas = noUefa
+                    .GroupBy(e => e.Confederacion)
+                    .Any(g => g.Count() > 1);
+                Assert.IsFalse(confederacionesRepetidas, $"Grupo {grupo.Etiqueta} tiene confederación no-UEFA repetida");
+            }
+        }
+        
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_DeberiaAsignarCodigosConPrefijoGrupo()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            var grupos = _grupoRepositorio.ObtenerTodos();
+
+            foreach (var grupo in grupos)
+            {
+                var partidosDelGrupo = partidos.Where(p => p.Grupo.Etiqueta == grupo.Etiqueta).ToList();
+                Assert.AreEqual(6, partidosDelGrupo.Count);
+
+                for (int i = 0; i < partidosDelGrupo.Count; i++)
+                {
+                    var codigoEsperado = $"G{grupo.Etiqueta}-{i + 1}";
+                    Assert.AreEqual(codigoEsperado, partidosDelGrupo[i].Codigo,
+                        $"Partido {i + 1} del grupo {grupo.Etiqueta} debería tener código {codigoEsperado}");
+                }
+            }
+        }
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_CadaEquipoDebeDescansarAlMenos3DiasEntrePartidos()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            var equipos = _equipoRepositorio.ObtenerTodos();
+
+            foreach (var equipo in equipos)
+            {
+                var partidosDelEquipo = partidos
+                    .Where(p => p.EquipoLocal.Nombre == equipo.Nombre 
+                                || p.EquipoVisitante.Nombre == equipo.Nombre)
+                    .OrderBy(p => p.Fecha)
+                    .ToList();
+
+                for (int i = 0; i < partidosDelEquipo.Count - 1; i++)
+                {
+                    var diasEntrePartidos = (partidosDelEquipo[i + 1].Fecha.Date 
+                                             - partidosDelEquipo[i].Fecha.Date).Days;
+
+                    Assert.IsTrue(diasEntrePartidos >= fixture.SeparacionEntreFechas,
+                        $"Equipo {equipo.Nombre}: partido el {partidosDelEquipo[i].Fecha.Date:dd/MM} " +
+                        $"y otro el {partidosDelEquipo[i + 1].Fecha.Date:dd/MM}. " +
+                        $"Solo {diasEntrePartidos} días de diferencia, mínimo {fixture.SeparacionEntreFechas}.");
+                }
+            }
+        }
+        
     }
 }
