@@ -5,9 +5,9 @@ namespace Servicios
 {
     public class SimulacionServicio : ISimulacionServicio
     {
-        private IPartidoRepositorio _partidoRepositorio;
-        private IAuditoriaServicio _auditoriaServicio;
-        private ISesionServicio _sesionServicio;
+        private readonly IPartidoRepositorio _partidoRepositorio;
+        private readonly IAuditoriaServicio _auditoriaServicio;
+        private readonly ISesionServicio _sesionServicio;
         private const double RankingMaximo = 2500.0;
         private const int MaxGolesBase = 5;
         private const int MinGolesMaximos = 1;
