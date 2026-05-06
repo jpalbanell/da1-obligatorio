@@ -160,5 +160,22 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
+        
+        [TestMethod]
+        public void SimularFase_ConVariosPartidos_DeberiaTenerResultadosDiferentes()
+        {
+            var partido1 = CrearPartidoConEquipos(1500, 1500);
+            partido1.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido1);
+
+            var partido2 = CrearPartidoConEquipos(1500, 1500);
+            partido2.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido2);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.IsFalse(partido1.GolesLocal == partido2.GolesLocal &&
+                           partido1.GolesVisitante == partido2.GolesVisitante);
+        }
     }
 }
