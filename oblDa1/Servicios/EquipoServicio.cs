@@ -98,6 +98,7 @@ namespace Servicios
         
         public void CompletarEquiposAutomaticamente(int semillaCompletar)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             var random = new Random(semillaCompletar);
             var resumen = new System.Text.StringBuilder();
             resumen.Append($"Generación automática de equipos con semilla: {semillaCompletar}. ");
