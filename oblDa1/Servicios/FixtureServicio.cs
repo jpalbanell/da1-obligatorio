@@ -178,7 +178,7 @@ namespace Servicios
                     partido.EquipoVisitante = equipos[visitante];
                     partido.Grupo = grupo;
                     partido.Fase = FaseTorneo.FaseGrupos;
-                    partido.Codigo = $"{grupo.Etiqueta}{i + 1}";
+                    partido.Codigo = $"G{grupo.Etiqueta}-{i + 1}";
                     partidosDelGrupo.Add(partido);
                 }
 
