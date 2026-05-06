@@ -410,5 +410,48 @@ namespace Tests.TestsServicios
 
             Assert.IsTrue(partidosFaseGrupos.All(p => p.EstaBloqueado));
         }
+        
+        [TestMethod]
+        public void GenerarCruces_DeberiaAplicarSemillaCrucesFaseEnDesempate()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposEmpateTotal();
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+
+            _servicio.GenerarCruces(42);
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("SemillaCrucesFase: 42")));
+        }
+        
+        private void CargarDoceGruposEmpateTotal()
+        {
+            var etiquetas = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+            var idPartido = 1;
+
+            foreach (var etiqueta in etiquetas)
+            {
+                var grupo = new Grupo();
+                grupo.Etiqueta = etiqueta;
+                var estadio = CrearEstadio("Estadio " + etiqueta);
+
+                var e1 = CrearEquipo(etiqueta + "_1", Confederacion.UEFA, 2000);
+                var e2 = CrearEquipo(etiqueta + "_2", Confederacion.UEFA, 1900);
+                var e3 = CrearEquipo(etiqueta + "_3", Confederacion.UEFA, 1800);
+                var e4 = CrearEquipo(etiqueta + "_4", Confederacion.UEFA, 1700);
+
+                AgregarPartidoConResultado(grupo, e1, e2, 0, 0, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e3, e4, 0, 0, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e1, e3, 0, 0, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e2, e4, 0, 0, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e1, e4, 0, 0, estadio, idPartido++);
+                AgregarPartidoConResultado(grupo, e2, e3, 0, 0, estadio, idPartido++);
+
+                _grupoRepositorio.Agregar(grupo);
+            }
+        }
     }
 }
