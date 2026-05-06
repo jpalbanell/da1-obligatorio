@@ -45,13 +45,13 @@ namespace Servicios
 
         private void BloquearPartidosDeFaseGrupos()
         {
-            var grupos = _grupoRepositorio.ObtenerTodos();
-            foreach (var grupo in grupos)
+            var partidosFaseGrupos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.FaseGrupos)
+                .ToList();
+
+            foreach (var partido in partidosFaseGrupos)
             {
-                foreach (var partido in grupo.ListaPartidos)
-                {
-                    partido.EstaBloqueado = true;
-                }
+                partido.EstaBloqueado = true;
             }
         }
         private void ValidarFixtureGenerado(Fixture fixture)
@@ -68,14 +68,17 @@ namespace Servicios
         
         private void ValidarTodosLosPartidosTienenResultado()
         {
-            var grupos = _grupoRepositorio.ObtenerTodos();
-            foreach (var grupo in grupos)
+            var partidosFaseGrupos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.FaseGrupos)
+                .ToList();
+
+            if (partidosFaseGrupos.Count == 0)
+                throw new Exception("No hay partidos de fase de grupos cargados.");
+
+            foreach (var partido in partidosFaseGrupos)
             {
-                foreach (var partido in grupo.ListaPartidos)
-                {
-                    if (!partido.TieneResultado)
-                        throw new Exception($"El partido {partido.Codigo} del grupo {grupo.Etiqueta} no tiene resultado cargado.");
-                }
+                if (!partido.TieneResultado)
+                    throw new Exception($"El partido {partido.Codigo} no tiene resultado cargado.");
             }
         }
         
@@ -342,7 +345,8 @@ namespace Servicios
 
         private void CrearPartidosTercerPuestoYFinal(List<Partido> semifinales)
         {
-            CrearPartidoEliminatorio("TP", FaseTorneo.TercerPuesto, semifinales[0], semifinales[1]);
+            var tercerPuesto = CrearPartidoEliminatorio("TP", FaseTorneo.TercerPuesto, semifinales[0], semifinales[1]);
+            tercerPuesto.EsPorPerdedor = true;
             CrearPartidoEliminatorio("F", FaseTorneo.Final, semifinales[0], semifinales[1]);
         }
 
