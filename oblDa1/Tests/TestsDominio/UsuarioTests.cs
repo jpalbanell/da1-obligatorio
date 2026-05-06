@@ -236,5 +236,22 @@ namespace Tests
 
             Assert.IsFalse(resultado);
         }
+        
+        [TestMethod]
+        public void TieneRol_ConRolAsignado_DeberiaRetornarTrue()
+        {
+            var usuario = new Usuario();
+            usuario.Roles.Add(Rol.Administrador);
+
+            Assert.IsTrue(usuario.TieneRol(Rol.Administrador));
+        }
+
+        [TestMethod]
+        public void TieneRol_SinRolAsignado_DeberiaRetornarFalse()
+        {
+            var usuario = new Usuario();
+
+            Assert.IsFalse(usuario.TieneRol(Rol.Administrador));
+        }
     }
 }

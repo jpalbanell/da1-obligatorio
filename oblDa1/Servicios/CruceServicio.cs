@@ -27,6 +27,7 @@ namespace Servicios
 
         public void GenerarCruces(int semillaCrucesFase)
         {
+            _sesionServicio.ValidarRol(Rol.Editor);
             var fixture = _fixtureRepositorio.Obtener();
             ValidarFixtureGenerado(fixture);
             ValidarCrucesNoGenerados(fixture);

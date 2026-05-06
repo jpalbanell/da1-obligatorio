@@ -20,6 +20,7 @@ namespace Servicios
         
         public void AgregarEquipo(Equipo equipo)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarNombreUnico(equipo.Nombre);
             ValidarCupoConfederacion(equipo.Confederacion);
             _equipoRepositorio.Agregar(equipo);
@@ -28,6 +29,7 @@ namespace Servicios
 
         public void EditarEquipo(Equipo equipo)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarNombreUnicoEnEdicion(equipo);
             _equipoRepositorio.Actualizar(equipo);
             _auditoriaServicio.Registrar($"Edición de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
@@ -35,6 +37,7 @@ namespace Servicios
 
         public void EliminarEquipo(string nombre)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarEquipoExistente(nombre);
             _equipoRepositorio.Eliminar(nombre);
             _auditoriaServicio.Registrar($"Eliminación de equipo: {nombre}", _sesionServicio.ObtenerUsuarioActual());

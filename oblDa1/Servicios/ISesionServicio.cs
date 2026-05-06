@@ -7,5 +7,6 @@ namespace Servicios
         void IniciarSesion(Usuario usuario);
         Usuario ObtenerUsuarioActual();
         void CerrarSesion();
+        void ValidarRol(Rol rolRequerido);
     }
 }

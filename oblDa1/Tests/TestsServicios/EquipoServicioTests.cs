@@ -21,9 +21,14 @@ namespace Tests.TestsServicios
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
             _equipoServicio = new EquipoServicio(_equipoRepositorio, _auditoriaServicio, _sesionServicio);
-            
+
             var usuario = new Usuario();
             usuario.Nombre = "Santiago";
+            usuario.Apellido = "Garcia";
+            usuario.Email = "santiago@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Administrador);
             _sesionServicio.IniciarSesion(usuario);
         }
         
@@ -298,10 +303,6 @@ namespace Tests.TestsServicios
             equipo.Confederacion = Confederacion.CONMEBOL;
             equipo.RankingFifa = 1500;
 
-            var usuario = new Usuario();
-            usuario.Nombre = "Santiago";
-            _sesionServicio.IniciarSesion(usuario);
-
             _equipoServicio.AgregarEquipo(equipo);
 
             Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
@@ -415,6 +416,26 @@ namespace Tests.TestsServicios
             Assert.IsTrue(log.Accion.Contains("UEFA"));
             Assert.IsTrue(log.Accion.Contains("CONMEBOL"));
             Assert.IsTrue(log.Accion.Contains("42"));
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarEquipo_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var usuarioEditor = new Usuario();
+            usuarioEditor.Nombre = "Juan";
+            usuarioEditor.Apellido = "Perez";
+            usuarioEditor.Email = "juan@ejemplo.com";
+            usuarioEditor.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioEditor.Contrasena = "Abcdef1@";
+            usuarioEditor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuarioEditor);
+
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo);
         }
         
     }

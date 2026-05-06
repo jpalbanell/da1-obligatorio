@@ -24,6 +24,11 @@ namespace Tests
 
             var usuario = new Usuario();
             usuario.Nombre = "Santiago";
+            usuario.Apellido = "Garcia";
+            usuario.Email = "santiago@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Administrador);
             _sesionServicio.IniciarSesion(usuario);
         }
 
@@ -169,6 +174,66 @@ namespace Tests
             _servicio.AgregarEstadio(estadio);
             _servicio.EliminarEstadio("Centenario");
             Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarEstadio_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Juan";
+            usuario.Apellido = "Perez";
+            usuario.Email = "juan@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuario);
+
+            var estadio = new Estadio();
+            estadio.Nombre = "Centenario";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 60000;
+
+            _servicio.AgregarEstadio(estadio);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarEstadio_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+
+            var usuarioEditor = new Usuario();
+            usuarioEditor.Nombre = "Juan";
+            usuarioEditor.Apellido = "Perez";
+            usuarioEditor.Email = "juan@ejemplo.com";
+            usuarioEditor.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioEditor.Contrasena = "Abcdef1@";
+            usuarioEditor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuarioEditor);
+
+            estadio.Capacidad = 65000;
+            _servicio.ModificarEstadio(estadio);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void EliminarEstadio_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _servicio.AgregarEstadio(estadio);
+
+            var usuarioEditor = new Usuario();
+            usuarioEditor.Nombre = "Juan";
+            usuarioEditor.Apellido = "Perez";
+            usuarioEditor.Email = "juan@ejemplo.com";
+            usuarioEditor.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioEditor.Contrasena = "Abcdef1@";
+            usuarioEditor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuarioEditor);
+
+            _servicio.EliminarEstadio("Centenario");
         }
     }
 }
