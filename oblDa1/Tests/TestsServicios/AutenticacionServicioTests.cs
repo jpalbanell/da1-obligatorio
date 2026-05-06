@@ -22,8 +22,15 @@ namespace Tests
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
             _usuarioServicio = new UsuarioServicio(_repositorio, _auditoriaServicio, _sesionServicio);
-            _autenticacionServicio = new AutenticacionServicio(_repositorio, _auditoriaServicio, _sesionServicio);            var usuario = new Usuario();
+            _autenticacionServicio = new AutenticacionServicio(_repositorio, _auditoriaServicio, _sesionServicio);
+
+            var usuario = new Usuario();
             usuario.Nombre = "Santiago";
+            usuario.Apellido = "Garcia";
+            usuario.Email = "santiago@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Administrador);
             _sesionServicio.IniciarSesion(usuario);
         }
 

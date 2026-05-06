@@ -21,6 +21,7 @@ namespace Servicios
 
         public void AgregarUsuario(Usuario usuario)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarEmailUnico(usuario.Email);
             usuario.Id = _proximoId++;
             _repositorio.Agregar(usuario);
@@ -39,12 +40,14 @@ namespace Servicios
 
         public void ModificarUsuario(Usuario usuario)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             _repositorio.Actualizar(usuario);
             _auditoriaServicio.Registrar($"Edición de usuario: {usuario.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
         public void EliminarUsuario(int id)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             _repositorio.Eliminar(id);
             _auditoriaServicio.Registrar($"Eliminación de usuario: {id}", _sesionServicio.ObtenerUsuarioActual());
         }

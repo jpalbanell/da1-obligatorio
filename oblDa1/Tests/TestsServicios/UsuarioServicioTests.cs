@@ -24,6 +24,11 @@ namespace Tests
 
             var usuario = new Usuario();
             usuario.Nombre = "Santiago";
+            usuario.Apellido = "Garcia";
+            usuario.Email = "santiago@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Administrador);
             _sesionServicio.IniciarSesion(usuario);
         }
 
@@ -176,6 +181,29 @@ namespace Tests
             _servicio.EliminarUsuario(usuario.Id);
 
             Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void AgregarUsuario_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var usuarioEditor = new Usuario();
+            usuarioEditor.Nombre = "Juan";
+            usuarioEditor.Apellido = "Perez";
+            usuarioEditor.Email = "juan@ejemplo.com";
+            usuarioEditor.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioEditor.Contrasena = "Abcdef1@";
+            usuarioEditor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuarioEditor);
+
+            var nuevoUsuario = new Usuario();
+            nuevoUsuario.Nombre = "Pedro";
+            nuevoUsuario.Apellido = "Lopez";
+            nuevoUsuario.Email = "pedro@ejemplo.com";
+            nuevoUsuario.FechaNacimiento = new DateTime(1995, 3, 20);
+            nuevoUsuario.Contrasena = "Abcdef1@";
+
+            _servicio.AgregarUsuario(nuevoUsuario);
         }
     }
 }
