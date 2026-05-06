@@ -213,7 +213,17 @@ namespace Tests.TestsServicios
 
             Assert.IsNotNull(partido.Vencedor);
         }
-        
+        [TestMethod]
+        public void SimularPartido_EnFaseGrupos_ConEmpate_NoDeberiaAsignarVencedor()
+        {
+            var partido = CrearPartidoConEquipos(1500, 1500);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 0);
+
+            Assert.IsNull(partido.Vencedor);
+        }
         
     }
 }
