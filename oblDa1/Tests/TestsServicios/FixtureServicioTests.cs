@@ -465,5 +465,40 @@ namespace Tests
                 }
             }
         }
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_CadaEquipoDebeDescansarAlMenos3DiasEntrePartidos()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _servicio.GenerarFixture(fixture, CrearUsuarioValido());
+
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            var equipos = _equipoRepositorio.ObtenerTodos();
+
+            foreach (var equipo in equipos)
+            {
+                var partidosDelEquipo = partidos
+                    .Where(p => p.EquipoLocal.Nombre == equipo.Nombre 
+                                || p.EquipoVisitante.Nombre == equipo.Nombre)
+                    .OrderBy(p => p.Fecha)
+                    .ToList();
+
+                for (int i = 0; i < partidosDelEquipo.Count - 1; i++)
+                {
+                    var diasEntrePartidos = (partidosDelEquipo[i + 1].Fecha.Date 
+                                             - partidosDelEquipo[i].Fecha.Date).Days;
+
+                    Assert.IsTrue(diasEntrePartidos >= fixture.SeparacionEntreFechas,
+                        $"Equipo {equipo.Nombre}: partido el {partidosDelEquipo[i].Fecha.Date:dd/MM} " +
+                        $"y otro el {partidosDelEquipo[i + 1].Fecha.Date:dd/MM}. " +
+                        $"Solo {diasEntrePartidos} días de diferencia, mínimo {fixture.SeparacionEntreFechas}.");
+                }
+            }
+        }
+        
     }
 }
