@@ -205,5 +205,44 @@ namespace Tests
 
             _servicio.AgregarUsuario(nuevoUsuario);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarUsuario_ConUsuarioInexistente_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Id = 999;
+            usuario.Nombre = "Juan";
+            usuario.Apellido = "Perez";
+            usuario.Email = "juan@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+
+            _servicio.ModificarUsuario(usuario);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ModificarUsuario_ConEmailDeOtroUsuario_DeberiaLanzarExcepcion()
+        {
+            var usuario1 = new Usuario();
+            usuario1.Nombre = "Juan";
+            usuario1.Apellido = "Perez";
+            usuario1.Email = "juan@ejemplo.com";
+            usuario1.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario1.Contrasena = "Abcdef1@";
+            _servicio.AgregarUsuario(usuario1);
+
+            var usuario2 = new Usuario();
+            usuario2.Nombre = "Pedro";
+            usuario2.Apellido = "Lopez";
+            usuario2.Email = "pedro@ejemplo.com";
+            usuario2.FechaNacimiento = new DateTime(1995, 3, 20);
+            usuario2.Contrasena = "Abcdef1@";
+            _servicio.AgregarUsuario(usuario2);
+
+            usuario2.Email = "juan@ejemplo.com";
+            _servicio.ModificarUsuario(usuario2);
+        }
     }
 }
