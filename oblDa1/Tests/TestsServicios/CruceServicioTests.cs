@@ -86,6 +86,7 @@ namespace Tests.TestsServicios
                 golesVisitante > golesLocal ? visitante : null;
             partido.TieneResultado = true;
             grupo.ListaPartidos.Add(partido);
+            _partidoRepositorio.Agregar(partido);
         }
 
         private void CargarDoceGruposCompletos()
@@ -361,6 +362,35 @@ namespace Tests.TestsServicios
                 "El tercer puesto debe estar marcado como por perdedor");
         }
         
-        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void GenerarCruces_ConPartidosEnRepositorioSinResultado_DeberiaLanzarExcepcion()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            _grupoRepositorio.Agregar(grupo);
+
+            var equipo1 = CrearEquipo("Uruguay", Confederacion.CONMEBOL, 2000);
+            var equipo2 = CrearEquipo("Argentina", Confederacion.CONMEBOL, 1900);
+            var estadio = CrearEstadio("Centenario");
+
+            var partido = new Partido(1);
+            partido.Codigo = "GA1";
+            partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.EquipoLocal = equipo1;
+            partido.EquipoVisitante = equipo2;
+            partido.Estadio = estadio;
+            partido.Grupo = grupo;
+            partido.TieneResultado = false;
+            _partidoRepositorio.Agregar(partido);
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42);
+        }
     }
 }
