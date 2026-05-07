@@ -119,15 +119,34 @@ namespace Servicios
         private void DistribuirEquiposEnGrupos(List<Equipo> equiposOrdenados)
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
-
-            for (int i = 0; i < equiposOrdenados.Count; i++)
+            var bombos = new List<List<Equipo>>
             {
-                var equipo = equiposOrdenados[i];
-                var grupoDestino = BuscarGrupoDisponible(grupos, equipo, i);
+                equiposOrdenados.Skip(0).Take(12).ToList(),
+                equiposOrdenados.Skip(12).Take(12).ToList(),
+                equiposOrdenados.Skip(24).Take(12).ToList(),
+                equiposOrdenados.Skip(36).Take(12).ToList()
+            };
+
+            foreach (var bombo in bombos)
+                AsignarBomboAGrupos(bombo, grupos);
+        }
+        
+        private void AsignarBomboAGrupos(List<Equipo> bombo, List<Grupo> grupos)
+        {
+            var gruposDisponibles = new List<Grupo>(grupos);
+
+            foreach (var equipo in bombo)
+            {
+                var grupoDestino = gruposDisponibles
+                    .FirstOrDefault(g => PuedeAgregarseAlGrupo(g, equipo));
+
+                if (grupoDestino == null)
+                    throw new Exception($"No se pudo asignar el equipo {equipo.Nombre} a ningún grupo respetando las reglas de confederación.");
 
                 var posicion = new PosicionesGrupo();
                 posicion.Equipo = equipo;
                 grupoDestino.ListaPosiciones.Add(posicion);
+                gruposDisponibles.Remove(grupoDestino);
             }
         }
         
