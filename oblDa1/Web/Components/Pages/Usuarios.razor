@@ -1,0 +1,241 @@
+﻿@page "/usuarios"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IUsuarioServicio UsuarioServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+@inject IAutenticacionServicio AutenticacionServicio
+
+<h3>Usuarios</h3>
+
+@if (!_cargado)
+{
+    <p>Cargando...</p>
+    return;
+}
+
+@if (!_usuarioActual.TieneRol(Rol.Administrador))
+{
+    <p>No tenés permisos para ver esta página.</p>
+    return;
+}
+
+<button class="btn btn-primary mb-3" @onclick="AbrirModal">+ Agregar usuario</button>
+
+@if (!string.IsNullOrEmpty(_mensajeError))
+{
+    <div class="alert alert-danger">@_mensajeError</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Fecha de nacimiento</th>
+            <th>Roles</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var usuario in _usuarios)
+        {
+            <tr>
+                <td>@usuario.Nombre</td>
+                <td>@usuario.Apellido</td>
+                <td>@usuario.Email</td>
+                <td>@usuario.FechaNacimiento</td>
+                <td>@string.Join(", ", usuario.Roles)</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            @onclick="() => AbrirModalEditar(usuario)">
+                        Editar
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning ms-1"
+                            @onclick="() => ReiniciarContrasena(usuario.Id)">
+                        Reiniciar contraseña
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger ms-1"
+                            @onclick="() => Eliminar(usuario.Id)">
+                        Eliminar
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (_mostrarModal)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(_modoEdicion ? "Editar usuario" : "Agregar usuario")</h5>
+                    <button class="btn-close" @onclick="CerrarModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(_mensajeModal))
+                    {
+                        <div class="alert alert-danger">@_mensajeModal</div>
+                    }
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" @bind="_form.Nombre"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Apellido</label>
+                        <input class="form-control" @bind="_form.Apellido"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input class="form-control" @bind="_form.Email"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de nacimiento (MM-DD-AAAA)</label>
+                        <input class="form-control" @bind="_form.FechaNacimiento" placeholder="01-31-1990"/>
+                    </div>
+                    @if (!_modoEdicion)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" @bind="_form.Contrasena"/>
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <label class="form-label">Roles</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="rolAdmin" @bind="_form.EsAdministrador"/>
+                            <label class="form-check-label" for="rolAdmin">Administrador</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="rolEditor" @bind="_form.EsEditor"/>
+                            <label class="form-check-label" for="rolEditor">Editor</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+                    <button class="btn btn-primary" @onclick="Guardar">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
+
+@code {
+    private bool _cargado = false;
+    private Usuario _usuarioActual;
+    private List<UsuarioResponse> _usuarios = new();
+    private string _mensajeError = "";
+    private string _mensajeModal = "";
+    private bool _mostrarModal = false;
+    private bool _modoEdicion = false;
+    private UsuarioRequest _form = new();
+    private int _idEditando = 0;
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        CargarUsuarios();
+        _cargado = true;
+    }
+
+    private void CargarUsuarios()
+    {
+        _usuarios = UsuarioServicio.ObtenerTodos()
+            .Select(UsuarioResponse.FromEntity)
+            .ToList();
+    }
+
+    private void AbrirModal()
+    {
+        _form = new UsuarioRequest();
+        _modoEdicion = false;
+        _mensajeModal = "";
+        _mostrarModal = true;
+    }
+
+    private void AbrirModalEditar(UsuarioResponse usuario)
+    {
+        _form = new UsuarioRequest
+        {
+            Nombre = usuario.Nombre,
+            Apellido = usuario.Apellido,
+            Email = usuario.Email,
+            FechaNacimiento = usuario.FechaNacimiento,
+            EsAdministrador = usuario.Roles.Contains("Administrador"),
+            EsEditor = usuario.Roles.Contains("Editor")
+        };
+        _idEditando = usuario.Id;
+        _modoEdicion = true;
+        _mensajeModal = "";
+        _mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        _mostrarModal = false;
+        _mensajeModal = "";
+    }
+
+    private void Guardar()
+    {
+        try
+        {
+            if (_modoEdicion)
+            {
+                var usuario = _form.ToEntity();
+                usuario.Id = _idEditando;
+                UsuarioServicio.ModificarUsuario(usuario);
+            }
+            else
+            {
+                UsuarioServicio.AgregarUsuario(_form.ToEntity());
+            }
+            CargarUsuarios();
+            CerrarModal();
+        }
+        catch (Exception ex)
+        {
+            _mensajeModal = ex.Message;
+        }
+    }
+
+    private void Eliminar(int id)
+    {
+        try
+        {
+            UsuarioServicio.EliminarUsuario(id);
+            CargarUsuarios();
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+        }
+    }
+
+    private void ReiniciarContrasena(int id)
+    {
+        try
+        {
+            AutenticacionServicio.ReiniciarContrasena(id);
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+        }
+    }
+}
