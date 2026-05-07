@@ -1,0 +1,155 @@
+@page "/partidos/{Id:int}/editar"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IPartidoServicio PartidoServicio
+@inject IEstadioServicio EstadioServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+
+
+
+@if (!_cargado)
+{
+    <p>Cargando...</p>
+    return;
+}
+
+@if (!_usuarioActual.TieneRol(Rol.Editor))
+{
+    <p>No tenés permisos para ver esta página.</p>
+    return;
+}
+
+@if (_partido == null)
+{
+    <p>Partido no encontrado.</p>
+    return;
+}
+
+@if (_partido.EstaBloqueado)
+{
+    <p>Este partido está bloqueado y no se puede editar.</p>
+    <button class="btn btn-secondary" @onclick="Volver">Volver</button>
+    return;
+}
+
+<h3>Editar Partido @_partido.Codigo</h3>
+<p><strong>@_partido.EquipoLocal.Nombre</strong> vs <strong>@_partido.EquipoVisitante.Nombre</strong></p>
+
+@if (!string.IsNullOrEmpty(_mensajeError))
+{
+    <div class="alert alert-danger">@_mensajeError</div>
+}
+
+@if (!string.IsNullOrEmpty(_mensajeExito))
+{
+    <div class="alert alert-success">@_mensajeExito</div>
+}
+
+<EditForm Model="_form" OnValidSubmit="Guardar" FormName="EditarPartidoForm">
+    <div class="mb-3">
+        <label class="form-label">Fecha</label>
+        <InputDate class="form-control" @bind-Value="_form.Fecha" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Estadio</label>
+        <InputSelect class="form-select" @bind-Value="_form.EstadioNombre">
+            <option value="">-- Seleccionar --</option>
+            @foreach (var estadio in _estadios)
+            {
+                <option value="@estadio.Nombre">@estadio.Nombre</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-check mb-3">
+        <InputCheckbox class="form-check-input" @bind-Value="_form.CargarResultado" />
+        <label class="form-check-label">Cargar resultado</label>
+    </div>
+
+    @if (_form.CargarResultado)
+    {
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Goles @_partido.EquipoLocal.Nombre</label>
+                <InputNumber class="form-control" @bind-Value="_form.GolesLocal" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Goles @_partido.EquipoVisitante.Nombre</label>
+                <InputNumber class="form-control" @bind-Value="_form.GolesVisitante" />
+            </div>
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-secondary" @onclick="Volver">Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private bool _cargado = false;
+    private Usuario? _usuarioActual;
+    private Partido? _partido;
+    private List<Estadio> _estadios = new();
+    private EditarPartidoRequest _form = new();
+    private string _mensajeError = "";
+    private string _mensajeExito = "";
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _partido = PartidoServicio.ObtenerPartido(Id);
+        if (_partido != null)
+        {
+            _form = EditarPartidoRequest.FromEntity(_partido);
+            _estadios = EstadioServicio.ObtenerTodos();
+        }
+
+        _cargado = true;
+    }
+
+    private void Guardar()
+    {
+        try
+        {
+            _partido!.Fecha = _form.Fecha;
+
+            var estadio = EstadioServicio.ObtenerEstadio(_form.EstadioNombre);
+            if (estadio == null)
+                throw new Exception("Estadio no encontrado.");
+            _partido.Estadio = estadio;
+
+            if (_form.CargarResultado)
+            {
+                _partido.GolesLocal = _form.GolesLocal;
+                _partido.GolesVisitante = _form.GolesVisitante;
+                _partido.Vencedor = _form.GolesLocal > _form.GolesVisitante ? _partido.EquipoLocal :
+                                    _form.GolesVisitante > _form.GolesLocal ? _partido.EquipoVisitante :
+                                    null!;
+            }
+
+            PartidoServicio.ModificarPartido(_partido);
+
+            _mensajeExito = "Partido modificado correctamente.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+            _mensajeExito = "";
+        }
+    }
+
+    private void Volver()
+    {
+        Nav.NavigateTo("/partidos");
+    }
+}
