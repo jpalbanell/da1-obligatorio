@@ -1,0 +1,73 @@
+@page "/auditoria"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IAuditoriaServicio AuditoriaServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+
+@if (!_cargado)
+{
+    <p>Cargando...</p>
+    return;
+}
+
+@if (!_usuarioActual.TieneRol(Rol.Administrador))
+{
+    <p>No tenés permisos para ver esta página.</p>
+    return;
+}
+
+<h3>Log de Auditoría</h3>
+
+@if (_logs.Count == 0)
+{
+    <p>No hay registros de auditoría.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Acción</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var log in _logs)
+        {
+            <tr>
+                <td>@log.Timestamp.ToString("yyyy-MM-ddTHH:mm:ss")</td>
+                <td>@log.NombreUsuario</td>
+                <td>@log.EmailUsuario</td>
+                <td>@log.Accion</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool _cargado = false;
+    private Usuario? _usuarioActual;
+    private List<LogAuditoriaResponse> _logs = new();
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _logs = AuditoriaServicio.ObtenerTodos()
+            .Select(LogAuditoriaResponse.FromEntity)
+            .OrderByDescending(l => l.Timestamp)
+            .ToList();
+
+        _cargado = true;
+    }
+}
