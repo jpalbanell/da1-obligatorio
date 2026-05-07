@@ -383,5 +383,15 @@ namespace Servicios
 
             return resultado;
         }
+        
+        public List<Grupo> ObtenerGrupos()
+        {
+            return _grupoRepositorio.ObtenerTodos();
+        }
+
+        public Fixture ObtenerFixture()
+        {
+            return _fixtureRepositorio.Obtener();
+        }
     }
 }
