@@ -1,0 +1,272 @@
+﻿@page "/equipos"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IEquipoServicio EquipoServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+
+<h3>Equipos</h3>
+
+@if (!_cargado)
+{
+    <p>Cargando...</p>
+    return;
+}
+
+<div class="d-flex gap-2 mb-3">
+    <button class="btn btn-primary" @onclick="AbrirModal">+ Agregar equipo</button>
+    <button class="btn btn-outline-secondary" @onclick="AbrirModalCompletar">
+        Completar hasta 48
+    </button>
+    <span class="align-self-center text-muted">@_equipos.Count / 48 equipos cargados</span>
+</div>
+
+@if (!string.IsNullOrEmpty(_mensajeError))
+{
+    <div class="alert alert-danger">@_mensajeError</div>
+}
+
+@if (!string.IsNullOrEmpty(_mensajeExito))
+{
+    <div class="alert alert-success">@_mensajeExito</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Confederación</th>
+            <th>Ranking FIFA</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var equipo in _equipos)
+        {
+            <tr>
+                <td>@equipo.Nombre</td>
+                <td>@equipo.Confederacion</td>
+                <td>@equipo.RankingFifa</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            @onclick="() => AbrirModalEditar(equipo)">
+                        Editar
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger ms-1"
+                            @onclick="() => Eliminar(equipo.Nombre)">
+                        Eliminar
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (_mostrarModal)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(_modoEdicion ? "Editar equipo" : "Agregar equipo")</h5>
+                    <button class="btn-close" @onclick="CerrarModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(_mensajeModal))
+                    {
+                        <div class="alert alert-danger">@_mensajeModal</div>
+                    }
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" @bind="_form.Nombre"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confederación</label>
+                        <select class="form-select" @bind="_form.Confederacion">
+                            <option value="">Seleccioná</option>
+                            @foreach (var conf in _confederaciones)
+                            {
+                                <option value="@conf">@conf</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ranking FIFA (300–2500)</label>
+                        <input type="number" class="form-control" @bind="_form.RankingFifa"/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+                    <button class="btn btn-primary" @onclick="Guardar">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
+
+@if (_mostrarModalCompletar)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Completar equipos automáticamente</h5>
+                    <button class="btn-close" @onclick="CerrarModalCompletar"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(_mensajeModalCompletar))
+                    {
+                        <div class="alert alert-danger">@_mensajeModalCompletar</div>
+                    }
+                    <p class="text-muted">
+                        Se generarán equipos ficticios para completar los 48 requeridos,
+                        respetando los cupos por confederación.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label">Semilla</label>
+                        <input type="number" class="form-control" @bind="_semillaCompletar"/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CerrarModalCompletar">Cancelar</button>
+                    <button class="btn btn-primary" @onclick="Completar">Completar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
+
+@code {
+    private bool _cargado = false;
+    private Usuario _usuarioActual;
+    private List<EquipoResponse> _equipos = new();
+    private string _mensajeError = "";
+    private string _mensajeExito = "";
+    private string _mensajeModal = "";
+    private string _mensajeModalCompletar = "";
+    private bool _mostrarModal = false;
+    private bool _mostrarModalCompletar = false;
+    private bool _modoEdicion = false;
+    private string _nombreOriginal = "";
+    private int _semillaCompletar = 42;
+    private EquipoRequest _form = new();
+
+    private List<string> _confederaciones = Enum.GetNames<Confederacion>().ToList();
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        CargarEquipos();
+        _cargado = true;
+    }
+
+    private void CargarEquipos()
+    {
+        _equipos = EquipoServicio.ObtenerTodos()
+            .Select(EquipoResponse.FromEntity)
+            .ToList();
+    }
+
+    private void AbrirModal()
+    {
+        _form = new EquipoRequest();
+        _modoEdicion = false;
+        _mensajeModal = "";
+        _mostrarModal = true;
+    }
+
+    private void AbrirModalEditar(EquipoResponse equipo)
+    {
+        _form = new EquipoRequest
+        {
+            Nombre = equipo.Nombre,
+            Confederacion = equipo.Confederacion,
+            RankingFifa = equipo.RankingFifa
+        };
+        _nombreOriginal = equipo.Nombre;
+        _modoEdicion = true;
+        _mensajeModal = "";
+        _mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        _mostrarModal = false;
+        _mensajeModal = "";
+    }
+
+    private void AbrirModalCompletar()
+    {
+        _semillaCompletar = 42;
+        _mensajeModalCompletar = "";
+        _mostrarModalCompletar = true;
+    }
+
+    private void CerrarModalCompletar()
+    {
+        _mostrarModalCompletar = false;
+        _mensajeModalCompletar = "";
+    }
+
+    private void Guardar()
+    {
+        try
+        {
+            if (_modoEdicion)
+            {
+                var equipo = _form.ToEntity();
+                EquipoServicio.EditarEquipo(equipo);
+            }
+            else
+            {
+                EquipoServicio.AgregarEquipo(_form.ToEntity());
+            }
+            CargarEquipos();
+            CerrarModal();
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeModal = ex.Message;
+        }
+    }
+
+    private void Eliminar(string nombre)
+    {
+        try
+        {
+            EquipoServicio.EliminarEquipo(nombre);
+            CargarEquipos();
+            _mensajeError = "";
+            _mensajeExito = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+        }
+    }
+
+    private void Completar()
+    {
+        try
+        {
+            EquipoServicio.CompletarEquiposAutomaticamente(_semillaCompletar);
+            CargarEquipos();
+            CerrarModalCompletar();
+            _mensajeExito = $"Equipos completados correctamente con semilla {_semillaCompletar}.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeModalCompletar = ex.Message;
+        }
+    }
+}
