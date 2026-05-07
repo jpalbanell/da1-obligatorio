@@ -1,7 +1,150 @@
 ﻿@page "/"
+@using Dominio.Entidades
+@using Servicios
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+@inject IEquipoServicio EquipoServicio
+@inject IEstadioServicio EstadioServicio
+@inject IPartidoServicio PartidoServicio
+@inject IFixtureServicio FixtureServicio
 
-<PageTitle>Home</PageTitle>
+<h3>Bienvenido, @_usuarioActual.Nombre</h3>
 
-<h1>Hello, world!</h1>
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <h5>Equipos</h5>
+            <h2>@_cantidadEquipos / 48</h2>
+            @if (_cantidadEquipos < 48)
+            {
+                <span class="badge bg-secondary">Incompleto</span>
+            }
+            else
+            {
+                <span class="badge bg-success">Completo</span>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <h5>Estadios</h5>
+            <h2>@_cantidadEstadios</h2>
+            @if (_cantidadEstadios < 4)
+            {
+                <span class="badge bg-secondary">Faltan @(4 - _cantidadEstadios) para generar fixture</span>
+            }
+            else
+            {
+                <span class="badge bg-success">OK</span>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <h5>Fixture</h5>
+            @if (_fixtureGenerado)
+            {
+                <span class="badge bg-success">Generado</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">No generado</span>
+            }
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h5>Próximos partidos</h5>
+            @if (_proximosPartidos.Count == 0)
+            {
+                <p class="text-muted">No hay partidos próximos.</p>
+            }
+            else
+            {
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Local</th>
+                        <th>Visitante</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var partido in _proximosPartidos)
+                    {
+                        <tr>
+                            <td>@partido.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@partido.EquipoLocal.Nombre</td>
+                            <td>@partido.EquipoVisitante.Nombre</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+        <div class="col-md-6">
+            <h5>Últimos resultados</h5>
+            @if (_ultimosResultados.Count == 0)
+            {
+                <p class="text-muted">No hay resultados cargados.</p>
+            }
+            else
+            {
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>Local</th>
+                        <th>Resultado</th>
+                        <th>Visitante</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var partido in _ultimosResultados)
+                    {
+                        <tr>
+                            <td>@partido.EquipoLocal.Nombre</td>
+                            <td>@partido.GolesLocal - @partido.GolesVisitante</td>
+                            <td>@partido.EquipoVisitante.Nombre</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
+@code {
+    private Usuario _usuarioActual;
+    private int _cantidadEquipos;
+    private int _cantidadEstadios;
+    private bool _fixtureGenerado;
+    private List<Partido> _proximosPartidos = new();
+    private List<Partido> _ultimosResultados = new();
+    
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        _cantidadEquipos = EquipoServicio.ObtenerTodos().Count;
+        _cantidadEstadios = EstadioServicio.ObtenerTodos().Count;
+        _fixtureGenerado = FixtureServicio.ObtenerFixture()?.EstaGenerado ?? false;
+        var partidos = PartidoServicio.ObtenerTodos();
+
+        _proximosPartidos = partidos
+            .Where(p => !p.TieneResultado && p.Fecha >= DateTime.Now)
+            .OrderBy(p => p.Fecha)
+            .Take(5)
+            .ToList();
+
+        _ultimosResultados = partidos
+            .Where(p => p.TieneResultado)
+            .OrderByDescending(p => p.Fecha)
+            .Take(5)
+            .ToList();
+    }
+}
