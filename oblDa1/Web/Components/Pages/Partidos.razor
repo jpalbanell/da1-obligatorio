@@ -1,0 +1,168 @@
+@page "/partidos"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IPartidoServicio PartidoServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+
+@if (!_cargado)
+{
+    <p>Cargando...</p>
+    return;
+}
+
+<h3>Listado de Partidos</h3>
+
+<div class="row mb-3">
+    <div class="col-md-3">
+        <label class="form-label">Fecha</label>
+        <input type="date" class="form-control" @bind="_filtroFecha" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Estadio</label>
+        <input type="text" class="form-control" @bind="_filtroEstadio" placeholder="Nombre del estadio" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Grupo</label>
+        <input type="text" class="form-control" @bind="_filtroGrupo" placeholder="A, B, C..." />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Fase</label>
+        <select class="form-select" @bind="_filtroFase">
+            <option value="">Todas</option>
+            @foreach (var fase in Enum.GetValues<FaseTorneo>())
+            {
+                <option value="@fase">@fase</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-secondary w-100" @onclick="LimpiarFiltros">Limpiar</button>
+    </div>
+</div>
+
+@{
+    var partidosFiltrados = AplicarFiltros();
+}
+
+@if (partidosFiltrados.Count == 0)
+{
+    <p>No hay partidos para mostrar.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Fecha</th>
+                <th>Fase</th>
+                <th>Grupo</th>
+                <th>Local</th>
+                <th>Resultado</th>
+                <th>Visitante</th>
+                <th>Estadio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var partido in partidosFiltrados)
+            {
+                <tr>
+                    <td>@partido.Codigo</td>
+                    <td>@partido.Fecha.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@partido.Fase</td>
+                    <td>@partido.Grupo</td>
+                    <td>@partido.EquipoLocal</td>
+                    <td>
+                        @if (partido.TieneResultado)
+                        {
+                            <span>@partido.GolesLocal - @partido.GolesVisitante</span>
+                        }
+                        else
+                        {
+                            <span>vs</span>
+                        }
+                    </td>
+                    <td>@partido.EquipoVisitante</td>
+                    <td>@partido.Estadio</td>
+                    <td>
+                        @if (_usuarioActual.TieneRol(Rol.Editor) && !partido.EstaBloqueado)
+                        {
+                            <button class="btn btn-sm btn-primary" @onclick="() => EditarPartido(partido.Id)">Editar</button>
+                        }
+                        @if (partido.EstaBloqueado)
+                        {
+                            <span class="badge bg-secondary">Bloqueado</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool _cargado = false;
+    private Usuario? _usuarioActual;
+    private List<PartidoResponse> _partidos = new();
+
+    private DateTime? _filtroFecha;
+    private string _filtroEstadio = "";
+    private string _filtroGrupo = "";
+    private string _filtroFase = "";
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        CargarPartidos();
+        _cargado = true;
+    }
+
+    private void CargarPartidos()
+    {
+        _partidos = PartidoServicio.ObtenerTodos()
+            .Select(PartidoResponse.FromEntity)
+            .OrderBy(p => p.Fecha)
+            .ToList();
+    }
+
+    private List<PartidoResponse> AplicarFiltros()
+    {
+        var resultado = _partidos.AsEnumerable();
+
+        if (_filtroFecha.HasValue)
+            resultado = resultado.Where(p => p.Fecha.Date == _filtroFecha.Value.Date);
+
+        if (!string.IsNullOrWhiteSpace(_filtroEstadio))
+            resultado = resultado.Where(p => p.Estadio.Contains(_filtroEstadio, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(_filtroGrupo))
+            resultado = resultado.Where(p => p.Grupo.Equals(_filtroGrupo, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(_filtroFase))
+            resultado = resultado.Where(p => p.Fase == _filtroFase);
+
+        return resultado.ToList();
+    }
+
+    private void LimpiarFiltros()
+    {
+        _filtroFecha = null;
+        _filtroEstadio = "";
+        _filtroGrupo = "";
+        _filtroFase = "";
+    }
+
+    private void EditarPartido(int id)
+    {
+        Nav.NavigateTo($"/partidos/{id}/editar");
+    }
+}
