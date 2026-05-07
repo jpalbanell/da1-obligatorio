@@ -1,0 +1,212 @@
+﻿@page "/fixture"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IFixtureServicio FixtureServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+@inject ICruceServicio CruceServicio
+
+<h3>Fixture</h3>
+
+@if (!_cargado)
+{
+    <p>Cargando...</p>
+    return;
+}
+
+@if (!string.IsNullOrEmpty(_mensajeError))
+{
+    <div class="alert alert-danger">@_mensajeError</div>
+}
+
+@if (!string.IsNullOrEmpty(_mensajeExito))
+{
+    <div class="alert alert-success">@_mensajeExito</div>
+}
+
+@if (!_fixtureGenerado)
+{
+    <div class="card" style="max-width: 500px;">
+        <div class="card-body">
+            <h5 class="card-title">Generar fixture</h5>
+            <div class="mb-3">
+                <label class="form-label">Semilla fixture</label>
+                <input type="number" class="form-control" @bind="_form.SemillaFixture"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Fecha de inicio (AAAA-MM-DD)</label>
+                <input class="form-control" @bind="_form.FechaInicioTorneo" placeholder="2026-06-01"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Máximo de partidos por día</label>
+                <input type="number" class="form-control" @bind="_form.MaxPartidosPorDia"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Separación entre fechas (días)</label>
+                <input type="number" class="form-control" @bind="_form.SeparacionEntreFechas"/>
+            </div>
+            <button class="btn btn-primary" @onclick="GenerarFixture">Generar fixture</button>
+        </div>
+    </div>
+}
+else
+{
+    @if (!_crucesGenerados)
+    {
+        <div class="mb-3">
+            <label class="form-label">Semilla cruces</label>
+            <input type="number" class="form-control" style="max-width: 200px;" 
+                   @bind="_semillaCruces"/>
+            <button class="btn btn-success mt-2" @onclick="GenerarCruces">
+                Generar cruces segunda fase
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Cruces de segunda fase generados.</div>
+    }
+
+    <div class="row mt-3">
+        @foreach (var grupo in _grupos)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Grupo @grupo.Etiqueta</strong>
+                    </div>
+                    <div class="card-body">
+                        <h6>Equipos</h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Pts</th>
+                                    <th>GF</th>
+                                    <th>GC</th>
+                                    <th>DG</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var pos in grupo.Posiciones)
+                                {
+                                    <tr>
+                                        <td>@pos.Equipo</td>
+                                        <td>@pos.Puntos</td>
+                                        <td>@pos.GolesFavor</td>
+                                        <td>@pos.GolesContra</td>
+                                        <td>@pos.DiferenciaGoles</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <h6 class="mt-2">Partidos</h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Local</th>
+                                    <th>Visitante</th>
+                                    <th>Fecha</th>
+                                    <th>Estadio</th>
+                                    <th>Resultado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var partido in grupo.Partidos)
+                                {
+                                    <tr>
+                                        <td>@partido.Codigo</td>
+                                        <td>@partido.EquipoLocal</td>
+                                        <td>@partido.EquipoVisitante</td>
+                                        <td>@partido.Fecha</td>
+                                        <td>@partido.Estadio</td>
+                                        <td>@partido.Resultado</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private bool _cargado = false;
+    private Usuario _usuarioActual;
+    private bool _fixtureGenerado = false;
+    private bool _crucesGenerados = false;
+    private string _mensajeError = "";
+    private string _mensajeExito = "";
+    private List<GrupoResponse> _grupos = new();
+    private GenerarFixtureRequest _form = new();
+    private int _semillaCruces = 42;
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        var fixture = FixtureServicio.ObtenerFixture();
+        if (fixture != null)
+        {
+            _fixtureGenerado = fixture.EstaGenerado;
+            _crucesGenerados = fixture.CrucesGenerados;
+        }
+
+        if (_fixtureGenerado)
+            CargarGrupos();
+
+        _cargado = true;
+    }
+
+    private void CargarGrupos()
+    {
+        _grupos = FixtureServicio.ObtenerGrupos()
+            .Select(GrupoResponse.FromEntity)
+            .ToList();
+    }
+
+    private void GenerarFixture()
+    {
+        try
+        {
+            var fixture = _form.ToEntity();
+            FixtureServicio.GenerarFixture(fixture);
+            _fixtureGenerado = true;
+            _crucesGenerados = false;
+            CargarGrupos();
+            _mensajeExito = "Fixture generado correctamente.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+            _mensajeExito = "";
+        }
+    }
+
+    private void GenerarCruces()
+    {
+        try
+        {
+            CruceServicio.GenerarCruces(_semillaCruces);
+            _crucesGenerados = true;
+            _mensajeExito = "Cruces generados correctamente.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+            _mensajeExito = "";
+        }
+    }
+}
