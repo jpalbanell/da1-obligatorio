@@ -13,12 +13,14 @@ namespace Tests.TestsServicios
         private ISesionServicio _sesionServicio = null!;
         private IFixtureRepositorio _fixtureRepositorio = null!;
         private ICruceServicio _servicio = null!;
+        private IEstadioRepositorio _estadioRepositorio = null!;
 
         [TestInitialize]
         public void Setup()
         {
             _grupoRepositorio = new GrupoRepositorio();
             _partidoRepositorio = new PartidoRepositorio();
+            _estadioRepositorio = new EstadioRepositorio();
             _auditoriaServicio = new AuditoriaServicio(new AuditoriaRepositorio());
             _sesionServicio = new SesionServicio();
             _fixtureRepositorio = new FixtureRepositorio();
@@ -26,6 +28,7 @@ namespace Tests.TestsServicios
                 _grupoRepositorio,
                 _partidoRepositorio,
                 _fixtureRepositorio,
+                _estadioRepositorio,
                 _auditoriaServicio,
                 _sesionServicio
             );
@@ -87,6 +90,9 @@ namespace Tests.TestsServicios
             partido.TieneResultado = true;
             grupo.ListaPartidos.Add(partido);
             _partidoRepositorio.Agregar(partido);
+
+            if (_estadioRepositorio.ObtenerPorNombre(estadio.Nombre) == null)
+                _estadioRepositorio.Agregar(estadio);
         }
 
         private void CargarDoceGruposCompletos()
@@ -206,6 +212,7 @@ namespace Tests.TestsServicios
             _grupoRepositorio = new GrupoRepositorio();
             _fixtureRepositorio = new FixtureRepositorio();
             _partidoRepositorio = new PartidoRepositorio();
+            _estadioRepositorio = new EstadioRepositorio();
             fixture = new Fixture();
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
@@ -213,6 +220,7 @@ namespace Tests.TestsServicios
                 _grupoRepositorio,
                 _partidoRepositorio,
                 _fixtureRepositorio,
+                _estadioRepositorio,
                 _auditoriaServicio,
                 _sesionServicio
             );
@@ -469,6 +477,31 @@ namespace Tests.TestsServicios
             var idsUnicos = ids.Distinct().ToList();
 
             Assert.AreEqual(ids.Count, idsUnicos.Count, "No debe haber IDs duplicados entre partidos de fase de grupos y cruces");
+        }
+        [TestMethod]
+        public void GenerarCruces_DeberiaRotarEstadiosPorNombreNormalizado()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+
+            _estadioRepositorio.Agregar(CrearEstadio("Maracaná"));
+            _estadioRepositorio.Agregar(CrearEstadio("Centenario"));
+            _estadioRepositorio.Agregar(CrearEstadio("Azteca"));
+            _estadioRepositorio.Agregar(CrearEstadio("Wembley"));
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42);
+
+            var partidosEliminatorios = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase != FaseTorneo.FaseGrupos)
+                .OrderBy(p => p.Id)
+                .ToList();
+
+            var nombresEstadios = partidosEliminatorios.Select(p => p.Estadio.Nombre).Distinct().ToList();
+
+            Assert.IsTrue(nombresEstadios.Count > 1, "Los partidos eliminatorios deben rotar entre múltiples estadios");
         }
     }
 }

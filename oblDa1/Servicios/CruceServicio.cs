@@ -8,6 +8,7 @@ namespace Servicios
         private readonly IGrupoRepositorio _grupoRepositorio;
         private readonly IPartidoRepositorio _partidoRepositorio;
         private readonly IFixtureRepositorio _fixtureRepositorio;
+        private readonly IEstadioRepositorio _estadioRepositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
 
@@ -15,12 +16,14 @@ namespace Servicios
             IGrupoRepositorio grupoRepositorio,
             IPartidoRepositorio partidoRepositorio,
             IFixtureRepositorio fixtureRepositorio,
+            IEstadioRepositorio estadioRepositorio,
             IAuditoriaServicio auditoriaServicio,
             ISesionServicio sesionServicio)
         {
             _grupoRepositorio = grupoRepositorio;
             _partidoRepositorio = partidoRepositorio;
             _fixtureRepositorio = fixtureRepositorio;
+            _estadioRepositorio = estadioRepositorio;
             _auditoriaServicio = auditoriaServicio;
             _sesionServicio = sesionServicio;
         }
@@ -285,6 +288,7 @@ namespace Servicios
             List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos)
         {
             var partidos = new List<Partido>();
+            int indiceEstadio = 0;
             foreach (var (local, visitante, codigo) in emparejamientos)
             {
                 var partido = new Partido(ObtenerProximoIdPartido());
@@ -293,7 +297,7 @@ namespace Servicios
                 partido.EquipoLocal = local.Equipo;
                 partido.EquipoVisitante = visitante.Equipo;
                 partido.Fecha = new DateTime(2026, 7, 1, 14, 0, 0);
-                partido.Estadio = ObtenerPrimerEstadioDisponible();
+                partido.Estadio = ObtenerEstadioRotado(indiceEstadio++);
                 partido.Grupo = ObtenerGrupoPorEtiqueta(local.Grupo.Etiqueta);
                 _partidoRepositorio.Agregar(partido);
                 partidos.Add(partido);
@@ -355,14 +359,15 @@ namespace Servicios
             tercerPuesto.EsPorPerdedor = true;
             CrearPartidoEliminatorio("F", FaseTorneo.Final, semifinales[0], semifinales[1]);
         }
-
+        
         private Partido CrearPartidoEliminatorio(string codigo, FaseTorneo fase, Partido origenLocal, Partido origenVisitante)
         {
+            var indiceEstadio = ContarPartidosEliminatorios();
             var partido = new Partido(ObtenerProximoIdPartido());
             partido.Codigo = codigo;
             partido.Fase = fase;
             partido.Fecha = new DateTime(2026, 7, 1, 14, 0, 0);
-            partido.Estadio = ObtenerPrimerEstadioDisponible();
+            partido.Estadio = ObtenerEstadioRotado(indiceEstadio);
             partido.Grupo = _grupoRepositorio.ObtenerTodos().First();
             partido.OrigenLocal = origenLocal;
             partido.OrigenVisitante = origenVisitante;
@@ -372,6 +377,12 @@ namespace Servicios
             return partido;
         }
 
+        private int ContarPartidosEliminatorios()
+        {
+            return _partidoRepositorio.ObtenerTodos()
+                .Count(p => p.Fase != FaseTorneo.FaseGrupos);
+        }
+
         private int ObtenerProximoIdPartido()
         {
             var partidos = _partidoRepositorio.ObtenerTodos();
@@ -379,13 +390,45 @@ namespace Servicios
             return partidos.Max(p => p.Id) + 1;
         }
 
-        private Estadio ObtenerPrimerEstadioDisponible()
+        private Estadio ObtenerEstadioRotado(int indice)
         {
-            var grupos = _grupoRepositorio.ObtenerTodos();
-            return grupos
-                .SelectMany(g => g.ListaPartidos)
-                .First()
-                .Estadio;
+            var estadios = _estadioRepositorio.ObtenerTodos()
+                .OrderBy(e => Normalizar(e.Nombre), StringComparer.Ordinal)
+                .ToList();
+
+            if (estadios.Count == 0)
+                throw new Exception("No hay estadios cargados.");
+
+            return estadios[indice % estadios.Count];
+        }
+
+        private string Normalizar(string texto)
+        {
+            if (string.IsNullOrEmpty(texto))
+                return string.Empty;
+
+            var resultado = texto.ToLowerInvariant();
+
+            var formaDescompuesta = resultado.Normalize(System.Text.NormalizationForm.FormD);
+            var sinTildes = new System.Text.StringBuilder();
+            foreach (var c in formaDescompuesta)
+            {
+                var categoria = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+                if (categoria != System.Globalization.UnicodeCategory.NonSpacingMark)
+                    sinTildes.Append(c);
+            }
+            resultado = sinTildes.ToString().Normalize(System.Text.NormalizationForm.FormC);
+
+            var conEspacios = new System.Text.StringBuilder();
+            foreach (var c in resultado)
+            {
+                conEspacios.Append(char.IsLetterOrDigit(c) ? c : ' ');
+            }
+            resultado = conEspacios.ToString();
+
+            resultado = System.Text.RegularExpressions.Regex.Replace(resultado, @"\s+", " ").Trim();
+
+            return resultado;
         }
 
         private Grupo ObtenerGrupoPorEtiqueta(string etiqueta)
