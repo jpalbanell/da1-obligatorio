@@ -1,0 +1,512 @@
+﻿@page "/fixture"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IFixtureServicio FixtureServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+@inject ICruceServicio CruceServicio
+@inject ISimulacionServicio SimulacionServicio
+@inject IPartidoServicio PartidoServicio
+
+<h3>Fixture</h3>
+
+@if (!_cargado)
+{
+    <p>Cargando...</p>
+    return;
+}
+
+@if (!string.IsNullOrEmpty(_mensajeError))
+{
+    <div class="alert alert-danger">@_mensajeError</div>
+}
+
+@if (!string.IsNullOrEmpty(_mensajeExito))
+{
+    <div class="alert alert-success">@_mensajeExito</div>
+}
+
+@if (!_fixtureGenerado)
+{
+    <div class="card" style="max-width: 500px;">
+        <div class="card-body">
+            <h5 class="card-title">Generar fixture</h5>
+            <div class="mb-3">
+                <label class="form-label">Semilla fixture</label>
+                <input type="number" class="form-control" @bind="_form.SemillaFixture"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Fecha de inicio (AAAA-MM-DD)</label>
+                <input class="form-control" @bind="_form.FechaInicioTorneo" placeholder="2026-06-01"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Máximo de partidos por día</label>
+                <input type="number" class="form-control" @bind="_form.MaxPartidosPorDia"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Separación entre fechas (días)</label>
+                <input type="number" class="form-control" @bind="_form.SeparacionEntreFechas"/>
+            </div>
+            <button class="btn btn-primary" @onclick="GenerarFixture">Generar fixture</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex gap-3 align-items-end mb-3 flex-wrap">
+        <div>
+            <label class="form-label">Semilla simulación</label>
+            <input type="number" class="form-control" style="max-width: 200px;"
+                   @bind="_semillaSimulacion"/>
+        </div>
+
+        @if (!_faseGruposSimulada)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularFaseGrupos">
+                Simular fase de grupos
+            </button>
+        }
+        else if (!_crucesGenerados)
+        {
+            <div>
+                <label class="form-label">Semilla cruces</label>
+                <input type="number" class="form-control" style="max-width: 200px;"
+                       @bind="_semillaCruces"/>
+            </div>
+            <button class="btn btn-success" @onclick="GenerarCruces">
+                Generar cruces segunda fase
+            </button>
+        }
+        else if (!_dieciseisavosSimulados)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularDieciseisavos">
+                Simular dieciseisavos
+            </button>
+        }
+        else if (!_octavosSimulados)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularOctavos">
+                Simular octavos
+            </button>
+        }
+        else if (!_cuartosSimulados)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularCuartos">
+                Simular cuartos
+            </button>
+        }
+        else if (!_semifinalesSimuladas)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularSemifinales">
+                Simular semifinales
+            </button>
+        }
+        else if (!_tercerPuestoSimulado || !_finalSimulada)
+        {
+            @if (!_tercerPuestoSimulado)
+            {
+                <button class="btn btn-outline-secondary" @onclick="SimularTercerPuesto">
+                    Simular tercer puesto
+                </button>
+            }
+            @if (!_finalSimulada)
+            {
+                <button class="btn btn-outline-primary" @onclick="SimularFinal">
+                    Simular final
+                </button>
+            }
+        }
+        else
+        {
+            <div class="alert alert-success mb-0">¡Torneo finalizado!</div>
+        }
+    </div>
+
+    <div class="row mt-3">
+        @foreach (var grupo in _grupos)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Grupo @grupo.Etiqueta</strong>
+                    </div>
+                    <div class="card-body">
+                        <h6>Equipos</h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Pts</th>
+                                    <th>GF</th>
+                                    <th>GC</th>
+                                    <th>DG</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var pos in grupo.Posiciones)
+                                {
+                                    <tr>
+                                        <td>@pos.Equipo</td>
+                                        <td>@pos.Puntos</td>
+                                        <td>@pos.GolesFavor</td>
+                                        <td>@pos.GolesContra</td>
+                                        <td>@pos.DiferenciaGoles</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <h6 class="mt-2">Partidos</h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Local</th>
+                                    <th>Visitante</th>
+                                    <th>Fecha</th>
+                                    <th>Estadio</th>
+                                    <th>Resultado</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var partido in grupo.Partidos)
+                                {
+                                    <tr>
+                                        <td>@partido.Codigo</td>
+                                        <td>@partido.EquipoLocal</td>
+                                        <td>@partido.EquipoVisitante</td>
+                                        <td>@partido.Fecha</td>
+                                        <td>@partido.Estadio</td>
+                                        <td>@partido.Resultado</td>
+                                        <td>
+                                            @if (!partido.TieneResultado)
+                                            {
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                        @onclick="() => SimularPartido(partido.Id)">
+                                                    Simular
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (_crucesGenerados)
+    {
+        var fases = new[]
+        {
+            (FaseTorneo.Dieciseisavos, "Dieciseisavos"),
+            (FaseTorneo.Octavos, "Octavos"),
+            (FaseTorneo.Cuartos, "Cuartos"),
+            (FaseTorneo.Semifinal, "Semifinales"),
+            (FaseTorneo.TercerPuesto, "Tercer puesto"),
+            (FaseTorneo.Final, "Final")
+        };
+
+        foreach (var (fase, nombre) in fases)
+        {
+            var partidosFase = PartidoServicio.ObtenerPorFase(fase);
+            if (partidosFase.Any())
+            {
+                <h5 class="mt-4">@nombre</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Local</th>
+                            <th>Visitante</th>
+                            <th>Resultado</th>
+                            <th>Vencedor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var partido in partidosFase)
+                        {
+                            <tr>
+                                <td>@partido.Codigo</td>
+                                <td>@(partido.EquipoLocal?.Nombre ?? "Por definir")</td>
+                                <td>@(partido.EquipoVisitante?.Nombre ?? "Por definir")</td>
+                                <td>@(partido.TieneResultado ? $"{partido.GolesLocal} - {partido.GolesVisitante}" : "Por jugar")</td>
+                                <td>@(partido.Vencedor?.Nombre ?? "")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        }
+    }
+}
+
+@code {
+    private bool _cargado = false;
+    private Usuario _usuarioActual;
+    private bool _fixtureGenerado = false;
+    private bool _crucesGenerados = false;
+    private string _mensajeError = "";
+    private string _mensajeExito = "";
+    private List<GrupoResponse> _grupos = new();
+    private GenerarFixtureRequest _form = new();
+    private int _semillaCruces = 42;
+    private int _semillaSimulacion = 42;
+    private bool _faseGruposSimulada = false;
+    private bool _dieciseisavosSimulados = false;
+    private bool _octavosSimulados = false;
+    private bool _cuartosSimulados = false;
+    private bool _semifinalesSimuladas = false;
+    private bool _tercerPuestoSimulado = false;
+    private bool _finalSimulada = false;
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        var fixture = FixtureServicio.ObtenerFixture();
+        if (fixture != null)
+        {
+            _fixtureGenerado = fixture.EstaGenerado;
+            _crucesGenerados = fixture.CrucesGenerados;
+        }
+
+        if (_fixtureGenerado)
+            CargarGrupos();
+
+        _cargado = true;
+        
+        if (_fixtureGenerado)
+        {
+            CargarGrupos();
+            CargarEstadoFases();
+        }
+    }
+    
+    private void CargarEstadoFases()
+    {
+        var todosLosPartidos = PartidoServicio.ObtenerTodos();
+    
+        _faseGruposSimulada = todosLosPartidos
+            .Where(p => p.Fase == FaseTorneo.FaseGrupos)
+            .All(p => p.TieneResultado);
+    
+        _dieciseisavosSimulados = todosLosPartidos
+                                      .Any(p => p.Fase == FaseTorneo.Dieciseisavos) &&
+                                  todosLosPartidos
+                                      .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                                      .All(p => p.TieneResultado);
+    
+        _octavosSimulados = todosLosPartidos
+                                .Any(p => p.Fase == FaseTorneo.Octavos) &&
+                            todosLosPartidos
+                                .Where(p => p.Fase == FaseTorneo.Octavos)
+                                .All(p => p.TieneResultado);
+    
+        _cuartosSimulados = todosLosPartidos
+                                .Any(p => p.Fase == FaseTorneo.Cuartos) &&
+                            todosLosPartidos
+                                .Where(p => p.Fase == FaseTorneo.Cuartos)
+                                .All(p => p.TieneResultado);
+    
+        _semifinalesSimuladas = todosLosPartidos
+                                    .Any(p => p.Fase == FaseTorneo.Semifinal) &&
+                                todosLosPartidos
+                                    .Where(p => p.Fase == FaseTorneo.Semifinal)
+                                    .All(p => p.TieneResultado);
+    
+        _tercerPuestoSimulado = todosLosPartidos
+                                    .Any(p => p.Fase == FaseTorneo.TercerPuesto) &&
+                                todosLosPartidos
+                                    .Where(p => p.Fase == FaseTorneo.TercerPuesto)
+                                    .All(p => p.TieneResultado);
+    
+        _finalSimulada = todosLosPartidos
+                             .Any(p => p.Fase == FaseTorneo.Final) &&
+                         todosLosPartidos
+                             .Where(p => p.Fase == FaseTorneo.Final)
+                             .All(p => p.TieneResultado);
+    }
+
+    private void CargarGrupos()
+    {
+        _grupos = FixtureServicio.ObtenerGrupos()
+            .Select(GrupoResponse.FromEntity)
+            .ToList();
+    }
+
+    private void GenerarFixture()
+    {
+        try
+        {
+            var fixture = _form.ToEntity();
+            FixtureServicio.GenerarFixture(fixture);
+            _fixtureGenerado = true;
+            _crucesGenerados = false;
+            CargarGrupos();
+            _mensajeExito = "Fixture generado correctamente.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+            _mensajeExito = "";
+        }
+    }
+    
+    private void SimularFaseGrupos()
+    {
+        try
+        {
+            SimulacionServicio.SimularFase(FaseTorneo.FaseGrupos, _semillaSimulacion);
+            CargarGrupos();
+            CargarEstadoFases();
+            _mensajeExito = $"Fase de grupos simulada con semilla {_semillaSimulacion}.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+            _mensajeExito = "";
+        }
+        _faseGruposSimulada = true;
+    }
+
+    private void SimularPartido(int partidoId)
+    {
+        try
+        {
+            SimulacionServicio.SimularPartido(partidoId, _semillaSimulacion);
+            CargarGrupos();
+            _mensajeExito = $"Partido simulado con semilla {_semillaSimulacion}.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+            _mensajeExito = "";
+        }
+    }
+
+    private void GenerarCruces()
+    {
+        try
+        {
+            CruceServicio.GenerarCruces(_semillaCruces);
+            _crucesGenerados = true;
+            _mensajeExito = "Cruces generados correctamente.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+            _mensajeExito = "";
+        }
+    }
+    
+    
+   private void SimularDieciseisavos()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Dieciseisavos, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Dieciseisavos simulados con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularOctavos()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Octavos, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Octavos simulados con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularCuartos()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Cuartos, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Cuartos simulados con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularSemifinales()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Semifinal, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Semifinales simuladas con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularTercerPuesto()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.TercerPuesto, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Tercer puesto simulado con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularFinal()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Final, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Final simulada con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+}

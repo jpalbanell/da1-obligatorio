@@ -33,5 +33,6 @@ namespace Repositorios
             if (indice == -1)
                 throw new Exception("Partido no encontrado");
         }
+        
     }
 }

@@ -42,6 +42,8 @@ namespace Servicios
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
             ValidarFixtureNoGenerado(fixture);
+            _proximoIdGrupo = 1;
+            _proximoIdPartido = 1;
             CrearGrupos();
 
             var equiposOrdenados = OrdenarEquiposPorRanking(fixture.SemillaFixture);
