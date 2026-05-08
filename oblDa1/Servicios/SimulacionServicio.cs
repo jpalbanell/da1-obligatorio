@@ -8,6 +8,7 @@ namespace Servicios
         private readonly IPartidoRepositorio _partidoRepositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
+        private readonly IGrupoRepositorio _grupoRepositorio;
         private const double RankingMaximo = 2500.0;
         private const int MaxGolesBase = 5;
         private const int MinGolesMaximos = 1;
@@ -33,6 +34,7 @@ namespace Servicios
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
+            ActualizarPosiciones(partido);
 
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar(
@@ -62,6 +64,7 @@ namespace Servicios
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
+            ActualizarPosiciones(partido);
             _partidoRepositorio.Actualizar(partido);
         }
 
@@ -95,6 +98,37 @@ namespace Servicios
             var usuario = _sesionServicio.ObtenerUsuarioActual();
             if (!usuario.TieneRol(Rol.Editor))
                 throw new Exception("Se requiere rol Editor para simular partidos.");
+        }
+        
+        private void ActualizarPosiciones(Partido partido)
+        {
+            if (partido.Grupo == null) return;
+
+            var posLocal = partido.Grupo.ListaPosiciones
+                .FirstOrDefault(p => p.Equipo.Nombre == partido.EquipoLocal.Nombre);
+
+            var posVisitante = partido.Grupo.ListaPosiciones
+                .FirstOrDefault(p => p.Equipo.Nombre == partido.EquipoVisitante.Nombre);
+
+            if (posLocal == null || posVisitante == null) return;
+
+            posLocal.GolesFavor += partido.GolesLocal;
+            posLocal.GolesContra += partido.GolesVisitante;
+            posLocal.DiferenciaGoles = posLocal.GolesFavor - posLocal.GolesContra;
+
+            posVisitante.GolesFavor += partido.GolesVisitante;
+            posVisitante.GolesContra += partido.GolesLocal;
+            posVisitante.DiferenciaGoles = posVisitante.GolesFavor - posVisitante.GolesContra;
+            
+            posLocal.Puntos += CalcularPuntos(partido.GolesLocal, partido.GolesVisitante);
+            posVisitante.Puntos += CalcularPuntos(partido.GolesVisitante, partido.GolesLocal);
+        }
+        
+        private int CalcularPuntos(int golesFavor, int golesContra)
+        {
+            if (golesFavor > golesContra) return 3;
+            if (golesFavor == golesContra) return 1;
+            return 0;
         }
     }
 }
