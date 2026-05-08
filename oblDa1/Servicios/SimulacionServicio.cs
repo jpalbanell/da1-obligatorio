@@ -120,6 +120,12 @@ namespace Servicios
             posVisitante.GolesFavor += partido.GolesVisitante;
             posVisitante.GolesContra += partido.GolesLocal;
             posVisitante.DiferenciaGoles = posVisitante.GolesFavor - posVisitante.GolesContra;
+            
+            posLocal.Puntos += partido.GolesLocal > partido.GolesVisitante ? 3 :
+                partido.GolesLocal == partido.GolesVisitante ? 1 : 0;
+
+            posVisitante.Puntos += partido.GolesVisitante > partido.GolesLocal ? 3 :
+                partido.GolesLocal == partido.GolesVisitante ? 1 : 0;
         }
     }
 }

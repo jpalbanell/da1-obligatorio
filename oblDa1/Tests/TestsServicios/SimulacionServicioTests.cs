@@ -350,5 +350,49 @@ namespace Tests.TestsServicios
             Assert.AreEqual(partido.GolesVisitante, posicionVisitante.GolesFavor);
             Assert.AreEqual(partido.GolesLocal, posicionVisitante.GolesContra);
         }
+        
+        [TestMethod]
+        public void SimularPartido_DeberiaActualizarPuntosSegunResultado()
+        {
+            var grupo = new Grupo();
+            grupo.Id = 1;
+            grupo.Etiqueta = "A";
+    
+            var partido = CrearPartidoConEquipos(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+    
+            var posicionLocal = new PosicionesGrupo();
+            posicionLocal.Equipo = partido.EquipoLocal;
+            posicionLocal.Grupo = grupo;
+    
+            var posicionVisitante = new PosicionesGrupo();
+            posicionVisitante.Equipo = partido.EquipoVisitante;
+            posicionVisitante.Grupo = grupo;
+    
+            grupo.ListaPosiciones.Add(posicionLocal);
+            grupo.ListaPosiciones.Add(posicionVisitante);
+            grupo.ListaPartidos.Add(partido);
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            if (partido.GolesLocal > partido.GolesVisitante)
+            {
+                Assert.AreEqual(3, posicionLocal.Puntos);
+                Assert.AreEqual(0, posicionVisitante.Puntos);
+            }
+            else if (partido.GolesLocal == partido.GolesVisitante)
+            {
+                Assert.AreEqual(1, posicionLocal.Puntos);
+                Assert.AreEqual(1, posicionVisitante.Puntos);
+            }
+            else
+            {
+                Assert.AreEqual(0, posicionLocal.Puntos);
+                Assert.AreEqual(3, posicionVisitante.Puntos);
+            }
+        }
     }
 }
