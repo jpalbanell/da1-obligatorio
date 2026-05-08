@@ -444,5 +444,22 @@ namespace Tests.TestsServicios
 
             Assert.IsNotNull(partidoSiguiente.EquipoLocal);
         }
+        
+        [TestMethod]
+        public void SimularPartido_PropagaVencedorAlSiguientePartidoOrigenVisitante()
+        {
+            var partidoActual = CrearPartidoConEquipos(2500, 300);
+            partidoActual.Id = 1;
+            partidoActual.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(partidoActual);
+
+            var partidoSiguiente = new Partido(2);
+            partidoSiguiente.OrigenVisitante = partidoActual;
+            _partidoRepositorio.Agregar(partidoSiguiente);
+
+            _simulacionServicio.SimularPartido(1, 42);
+
+            Assert.IsNotNull(partidoSiguiente.EquipoVisitante);
+        }
     }
 }
