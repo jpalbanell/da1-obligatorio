@@ -60,14 +60,14 @@ else
             <input type="number" class="form-control" style="max-width: 200px;"
                    @bind="_semillaSimulacion"/>
         </div>
-        @if(!_faseGruposSimulada)
-        {
-        <button class="btn btn-outline-primary" @onclick="SimularFaseGrupos">
-            Simular fase de grupos
-        </button>
-        }
 
-        @if (!_crucesGenerados)
+        @if (!_faseGruposSimulada)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularFaseGrupos">
+                Simular fase de grupos
+            </button>
+        }
+        else if (!_crucesGenerados)
         {
             <div>
                 <label class="form-label">Semilla cruces</label>
@@ -78,9 +78,48 @@ else
                 Generar cruces segunda fase
             </button>
         }
+        else if (!_dieciseisavosSimulados)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularDieciseisavos">
+                Simular dieciseisavos
+            </button>
+        }
+        else if (!_octavosSimulados)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularOctavos">
+                Simular octavos
+            </button>
+        }
+        else if (!_cuartosSimulados)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularCuartos">
+                Simular cuartos
+            </button>
+        }
+        else if (!_semifinalesSimuladas)
+        {
+            <button class="btn btn-outline-primary" @onclick="SimularSemifinales">
+                Simular semifinales
+            </button>
+        }
+        else if (!_tercerPuestoSimulado || !_finalSimulada)
+        {
+            @if (!_tercerPuestoSimulado)
+            {
+                <button class="btn btn-outline-secondary" @onclick="SimularTercerPuesto">
+                    Simular tercer puesto
+                </button>
+            }
+            @if (!_finalSimulada)
+            {
+                <button class="btn btn-outline-primary" @onclick="SimularFinal">
+                    Simular final
+                </button>
+            }
+        }
         else
         {
-            <div class="alert alert-info mb-0">Cruces de segunda fase generados.</div>
+            <div class="alert alert-success mb-0">¡Torneo finalizado!</div>
         }
     </div>
 
@@ -159,6 +198,51 @@ else
             </div>
         }
     </div>
+
+    @if (_crucesGenerados)
+    {
+        var fases = new[]
+        {
+            (FaseTorneo.Dieciseisavos, "Dieciseisavos"),
+            (FaseTorneo.Octavos, "Octavos"),
+            (FaseTorneo.Cuartos, "Cuartos"),
+            (FaseTorneo.Semifinal, "Semifinales"),
+            (FaseTorneo.TercerPuesto, "Tercer puesto"),
+            (FaseTorneo.Final, "Final")
+        };
+
+        foreach (var (fase, nombre) in fases)
+        {
+            var partidosFase = PartidoServicio.ObtenerPorFase(fase);
+            if (partidosFase.Any())
+            {
+                <h5 class="mt-4">@nombre</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Local</th>
+                            <th>Visitante</th>
+                            <th>Resultado</th>
+                            <th>Vencedor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var partido in partidosFase)
+                        {
+                            <tr>
+                                <td>@partido.Codigo</td>
+                                <td>@(partido.EquipoLocal?.Nombre ?? "Por definir")</td>
+                                <td>@(partido.EquipoVisitante?.Nombre ?? "Por definir")</td>
+                                <td>@(partido.TieneResultado ? $"{partido.GolesLocal} - {partido.GolesVisitante}" : "Por jugar")</td>
+                                <td>@(partido.Vencedor?.Nombre ?? "")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        }
+    }
 }
 
 @code {
@@ -328,4 +412,101 @@ else
             _mensajeExito = "";
         }
     }
+    
+    
+   private void SimularDieciseisavos()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Dieciseisavos, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Dieciseisavos simulados con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularOctavos()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Octavos, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Octavos simulados con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularCuartos()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Cuartos, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Cuartos simulados con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularSemifinales()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Semifinal, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Semifinales simuladas con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularTercerPuesto()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.TercerPuesto, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Tercer puesto simulado con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
+
+private void SimularFinal()
+{
+    try
+    {
+        SimulacionServicio.SimularFase(FaseTorneo.Final, _semillaSimulacion);
+        CargarEstadoFases();
+        _mensajeExito = $"Final simulada con semilla {_semillaSimulacion}.";
+        _mensajeError = "";
+    }
+    catch (Exception ex)
+    {
+        _mensajeError = ex.Message;
+        _mensajeExito = "";
+    }
+}
 }
