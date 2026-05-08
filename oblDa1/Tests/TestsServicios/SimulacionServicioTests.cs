@@ -394,5 +394,38 @@ namespace Tests.TestsServicios
                 Assert.AreEqual(3, posicionVisitante.Puntos);
             }
         }
+        
+        [TestMethod]
+        public void SimularFase_DeberiaActualizarPosicionesDelGrupo()
+        {
+            var grupo = new Grupo();
+            grupo.Id = 1;
+            grupo.Etiqueta = "A";
+
+            var partido = CrearPartidoConEquipos(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+
+            var posicionLocal = new PosicionesGrupo();
+            posicionLocal.Equipo = partido.EquipoLocal;
+            posicionLocal.Grupo = grupo;
+
+            var posicionVisitante = new PosicionesGrupo();
+            posicionVisitante.Equipo = partido.EquipoVisitante;
+            posicionVisitante.Grupo = grupo;
+
+            grupo.ListaPosiciones.Add(posicionLocal);
+            grupo.ListaPosiciones.Add(posicionVisitante);
+            grupo.ListaPartidos.Add(partido);
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.AreEqual(partido.GolesLocal, posicionLocal.GolesFavor);
+            Assert.AreEqual(partido.GolesVisitante, posicionLocal.GolesContra);
+            Assert.AreEqual(partido.GolesVisitante, posicionVisitante.GolesFavor);
+            Assert.AreEqual(partido.GolesLocal, posicionVisitante.GolesContra);
+        }
     }
 }

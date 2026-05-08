@@ -66,6 +66,7 @@ namespace Servicios
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
+            ActualizarPosiciones(partido);
             _partidoRepositorio.Actualizar(partido);
         }
 
