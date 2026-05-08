@@ -59,9 +59,12 @@ else
             <input type="number" class="form-control" style="max-width: 200px;"
                    @bind="_semillaSimulacion"/>
         </div>
+        @if(!_faseGruposSimulada)
+        {
         <button class="btn btn-outline-primary" @onclick="SimularFaseGrupos">
             Simular fase de grupos
         </button>
+        }
 
         @if (!_crucesGenerados)
         {
@@ -168,6 +171,7 @@ else
     private GenerarFixtureRequest _form = new();
     private int _semillaCruces = 42;
     private int _semillaSimulacion = 42;
+    private bool _faseGruposSimulada = false;
 
     protected override void OnInitialized()
     {
@@ -189,6 +193,14 @@ else
             CargarGrupos();
 
         _cargado = true;
+        
+        if (_fixtureGenerado)
+        {
+            CargarGrupos();
+            _faseGruposSimulada = FixtureServicio.ObtenerGrupos()
+                .SelectMany(g => g.ListaPartidos)
+                .All(p => p.TieneResultado);
+        }
     }
 
     private void CargarGrupos()
@@ -231,6 +243,7 @@ else
             _mensajeError = ex.Message;
             _mensajeExito = "";
         }
+        _faseGruposSimulada = true;
     }
 
     private void SimularPartido(int partidoId)
