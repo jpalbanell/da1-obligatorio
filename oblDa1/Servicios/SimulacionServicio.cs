@@ -24,7 +24,7 @@ namespace Servicios
 
         public void SimularPartido(int partidoId, int semillaSimulation)
         {
-            ValidarRolEditor();
+            _sesionServicio.ValidarRol(Rol.Editor);
             var partido = _partidoRepositorio.ObtenerPorId(partidoId);
             ValidarPartidoExistente(partido);
 
@@ -43,7 +43,7 @@ namespace Servicios
 
         public void SimularFase(FaseTorneo fase, int semillaSimulation)
         {
-            ValidarRolEditor();
+            _sesionServicio.ValidarRol(Rol.Editor);
             var partidos = _partidoRepositorio.ObtenerTodos()
                 .Where(p => p.Fase == fase)
                 .ToList();
@@ -91,13 +91,6 @@ namespace Servicios
         {
             if (partido == null)
                 throw new Exception("Partido no encontrado");
-        }
-        
-        private void ValidarRolEditor()
-        {
-            var usuario = _sesionServicio.ObtenerUsuarioActual();
-            if (!usuario.TieneRol(Rol.Editor))
-                throw new Exception("Se requiere rol Editor para simular partidos.");
         }
         
         private void ActualizarPosiciones(Partido partido)
