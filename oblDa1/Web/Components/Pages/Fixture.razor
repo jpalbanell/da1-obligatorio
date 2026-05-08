@@ -7,6 +7,7 @@
 @inject NavigationManager Nav
 @inject ICruceServicio CruceServicio
 @inject ISimulacionServicio SimulacionServicio
+@inject IPartidoServicio PartidoServicio
 
 <h3>Fixture</h3>
 
@@ -172,6 +173,12 @@ else
     private int _semillaCruces = 42;
     private int _semillaSimulacion = 42;
     private bool _faseGruposSimulada = false;
+    private bool _dieciseisavosSimulados = false;
+    private bool _octavosSimulados = false;
+    private bool _cuartosSimulados = false;
+    private bool _semifinalesSimuladas = false;
+    private bool _tercerPuestoSimulado = false;
+    private bool _finalSimulada = false;
 
     protected override void OnInitialized()
     {
@@ -197,10 +204,53 @@ else
         if (_fixtureGenerado)
         {
             CargarGrupos();
-            _faseGruposSimulada = FixtureServicio.ObtenerGrupos()
-                .SelectMany(g => g.ListaPartidos)
-                .All(p => p.TieneResultado);
+            CargarEstadoFases();
         }
+    }
+    
+    private void CargarEstadoFases()
+    {
+        var todosLosPartidos = PartidoServicio.ObtenerTodos();
+    
+        _faseGruposSimulada = todosLosPartidos
+            .Where(p => p.Fase == FaseTorneo.FaseGrupos)
+            .All(p => p.TieneResultado);
+    
+        _dieciseisavosSimulados = todosLosPartidos
+                                      .Any(p => p.Fase == FaseTorneo.Dieciseisavos) &&
+                                  todosLosPartidos
+                                      .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                                      .All(p => p.TieneResultado);
+    
+        _octavosSimulados = todosLosPartidos
+                                .Any(p => p.Fase == FaseTorneo.Octavos) &&
+                            todosLosPartidos
+                                .Where(p => p.Fase == FaseTorneo.Octavos)
+                                .All(p => p.TieneResultado);
+    
+        _cuartosSimulados = todosLosPartidos
+                                .Any(p => p.Fase == FaseTorneo.Cuartos) &&
+                            todosLosPartidos
+                                .Where(p => p.Fase == FaseTorneo.Cuartos)
+                                .All(p => p.TieneResultado);
+    
+        _semifinalesSimuladas = todosLosPartidos
+                                    .Any(p => p.Fase == FaseTorneo.Semifinal) &&
+                                todosLosPartidos
+                                    .Where(p => p.Fase == FaseTorneo.Semifinal)
+                                    .All(p => p.TieneResultado);
+    
+        _tercerPuestoSimulado = todosLosPartidos
+                                    .Any(p => p.Fase == FaseTorneo.TercerPuesto) &&
+                                todosLosPartidos
+                                    .Where(p => p.Fase == FaseTorneo.TercerPuesto)
+                                    .All(p => p.TieneResultado);
+    
+        _finalSimulada = todosLosPartidos
+                             .Any(p => p.Fase == FaseTorneo.Final) &&
+                         todosLosPartidos
+                             .Where(p => p.Fase == FaseTorneo.Final)
+                             .All(p => p.TieneResultado);
     }
 
     private void CargarGrupos()
@@ -235,6 +285,7 @@ else
         {
             SimulacionServicio.SimularFase(FaseTorneo.FaseGrupos, _semillaSimulacion);
             CargarGrupos();
+            CargarEstadoFases();
             _mensajeExito = $"Fase de grupos simulada con semilla {_semillaSimulacion}.";
             _mensajeError = "";
         }
