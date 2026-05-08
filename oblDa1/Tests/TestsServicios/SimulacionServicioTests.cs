@@ -23,7 +23,7 @@ namespace Tests.TestsServicios
             _sesionServicio = new SesionServicio();
             _grupoRepositorio = new GrupoRepositorio();
             _simulacionServicio = new SimulacionServicio(
-                _partidoRepositorio, _auditoriaServicio, _sesionServicio, _grupoRepositorio);
+                _partidoRepositorio, _auditoriaServicio, _sesionServicio);
 
 
             var usuario = new Usuario();

@@ -15,13 +15,11 @@ namespace Servicios
 
         public SimulacionServicio(IPartidoRepositorio partidoRepositorio,
             IAuditoriaServicio auditoriaServicio,
-            ISesionServicio sesionServicio,
-            IGrupoRepositorio grupoRepositorio)
+            ISesionServicio sesionServicio)
         {
             _partidoRepositorio = partidoRepositorio;
             _auditoriaServicio = auditoriaServicio;
             _sesionServicio = sesionServicio;
-            _grupoRepositorio = grupoRepositorio;
         }
 
         public void SimularPartido(int partidoId, int semillaSimulation)
@@ -122,11 +120,15 @@ namespace Servicios
             posVisitante.GolesContra += partido.GolesLocal;
             posVisitante.DiferenciaGoles = posVisitante.GolesFavor - posVisitante.GolesContra;
             
-            posLocal.Puntos += partido.GolesLocal > partido.GolesVisitante ? 3 :
-                partido.GolesLocal == partido.GolesVisitante ? 1 : 0;
-
-            posVisitante.Puntos += partido.GolesVisitante > partido.GolesLocal ? 3 :
-                partido.GolesLocal == partido.GolesVisitante ? 1 : 0;
+            posLocal.Puntos += CalcularPuntos(partido.GolesLocal, partido.GolesVisitante);
+            posVisitante.Puntos += CalcularPuntos(partido.GolesVisitante, partido.GolesLocal);
+        }
+        
+        private int CalcularPuntos(int golesFavor, int golesContra)
+        {
+            if (golesFavor > golesContra) return 3;
+            if (golesFavor == golesContra) return 1;
+            return 0;
         }
     }
 }
