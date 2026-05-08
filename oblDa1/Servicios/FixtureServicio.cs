@@ -134,20 +134,46 @@ namespace Servicios
         private void AsignarBomboAGrupos(List<Equipo> bombo, List<Grupo> grupos)
         {
             var gruposDisponibles = new List<Grupo>(grupos);
+            var asignaciones = new List<(Equipo, Grupo)>();
 
-            foreach (var equipo in bombo)
+            if (!AsignarBomboConBacktracking(bombo, 0, gruposDisponibles, asignaciones))
+                throw new Exception("No se encontró una distribución válida para el bombo actual.");
+
+            foreach (var (equipo, grupo) in asignaciones)
             {
-                var grupoDestino = gruposDisponibles
-                    .FirstOrDefault(g => PuedeAgregarseAlGrupo(g, equipo));
-
-                if (grupoDestino == null)
-                    throw new Exception($"No se pudo asignar el equipo {equipo.Nombre} a ningún grupo respetando las reglas de confederación.");
-
                 var posicion = new PosicionesGrupo();
                 posicion.Equipo = equipo;
-                grupoDestino.ListaPosiciones.Add(posicion);
-                gruposDisponibles.Remove(grupoDestino);
+                grupo.ListaPosiciones.Add(posicion);
             }
+        }
+        
+        private bool AsignarBomboConBacktracking(
+            List<Equipo> bombo,
+            int indice,
+            List<Grupo> gruposDisponibles,
+            List<(Equipo, Grupo)> asignaciones)
+        {
+            if (indice == bombo.Count)
+                return true;
+
+            var equipo = bombo[indice];
+
+            foreach (var grupo in gruposDisponibles.ToList())
+            {
+                if (!PuedeAgregarseAlGrupo(grupo, equipo))
+                    continue;
+
+                gruposDisponibles.Remove(grupo);
+                asignaciones.Add((equipo, grupo));
+
+                if (AsignarBomboConBacktracking(bombo, indice + 1, gruposDisponibles, asignaciones))
+                    return true;
+
+                gruposDisponibles.Add(grupo);
+                asignaciones.RemoveAt(asignaciones.Count - 1);
+            }
+
+            return false;
         }
         
         private Grupo BuscarGrupoDisponible(List<Grupo> grupos, Equipo equipo, int indiceEquipo)
