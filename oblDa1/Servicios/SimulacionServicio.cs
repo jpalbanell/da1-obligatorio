@@ -8,17 +8,20 @@ namespace Servicios
         private readonly IPartidoRepositorio _partidoRepositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
+        private readonly IGrupoRepositorio _grupoRepositorio;
         private const double RankingMaximo = 2500.0;
         private const int MaxGolesBase = 5;
         private const int MinGolesMaximos = 1;
 
         public SimulacionServicio(IPartidoRepositorio partidoRepositorio,
             IAuditoriaServicio auditoriaServicio,
-            ISesionServicio sesionServicio)
+            ISesionServicio sesionServicio,
+            IGrupoRepositorio grupoRepositorio)
         {
             _partidoRepositorio = partidoRepositorio;
             _auditoriaServicio = auditoriaServicio;
             _sesionServicio = sesionServicio;
+            _grupoRepositorio = grupoRepositorio;
         }
 
         public void SimularPartido(int partidoId, int semillaSimulation)
@@ -33,6 +36,7 @@ namespace Servicios
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
+            ActualizarPosiciones(partido);
 
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar(
@@ -95,6 +99,18 @@ namespace Servicios
             var usuario = _sesionServicio.ObtenerUsuarioActual();
             if (!usuario.TieneRol(Rol.Editor))
                 throw new Exception("Se requiere rol Editor para simular partidos.");
+        }
+        
+        private void ActualizarPosiciones(Partido partido)
+        {
+            if (partido.Grupo == null) return;
+
+            var posLocal = partido.Grupo.ListaPosiciones
+                .FirstOrDefault(p => p.Equipo.Nombre == partido.EquipoLocal.Nombre);
+
+            if (posLocal == null) return;
+
+            posLocal.GolesFavor += partido.GolesLocal;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Tests.TestsServicios
         private IAuditoriaServicio _auditoriaServicio;
         private IAuditoriaRepositorio _auditoriaRepositorio;
         private ISesionServicio _sesionServicio;
+        private IGrupoRepositorio _grupoRepositorio;
 
         [TestInitialize]
         public void Setup()
@@ -20,7 +21,10 @@ namespace Tests.TestsServicios
             _auditoriaRepositorio = new AuditoriaRepositorio();
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
-            _simulacionServicio = new SimulacionServicio(_partidoRepositorio, _auditoriaServicio, _sesionServicio);
+            _grupoRepositorio = new GrupoRepositorio();
+            _simulacionServicio = new SimulacionServicio(
+                _partidoRepositorio, _auditoriaServicio, _sesionServicio, _grupoRepositorio);
+
 
             var usuario = new Usuario();
             usuario.Nombre = "Santiago";
@@ -280,6 +284,37 @@ namespace Tests.TestsServicios
             _simulacionServicio.SimularPartido(partido.Id, 42);
 
             Assert.IsTrue(partido.TieneResultado);
+        }
+        
+        [TestMethod]
+        public void SimularPartido_DeberiaActualizarPosicionesDelGrupo()
+        {
+            var grupo = new Grupo();
+            grupo.Id = 1;
+            grupo.Etiqueta = "A";
+    
+            var partido = CrearPartidoConEquipos(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+    
+            var posicionLocal = new PosicionesGrupo();
+            posicionLocal.Equipo = partido.EquipoLocal;
+            posicionLocal.Grupo = grupo;
+    
+            var posicionVisitante = new PosicionesGrupo();
+            posicionVisitante.Equipo = partido.EquipoVisitante;
+            posicionVisitante.Grupo = grupo;
+    
+            grupo.ListaPosiciones.Add(posicionLocal);
+            grupo.ListaPosiciones.Add(posicionVisitante);
+            grupo.ListaPartidos.Add(partido);
+    
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(posicionLocal.GolesFavor > 0 || posicionVisitante.GolesFavor > 0);
         }
     }
 }
