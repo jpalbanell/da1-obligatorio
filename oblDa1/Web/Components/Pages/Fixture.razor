@@ -6,6 +6,7 @@
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
 @inject ICruceServicio CruceServicio
+@inject ISimulacionServicio SimulacionServicio
 
 <h3>Fixture</h3>
 
@@ -52,21 +53,32 @@
 }
 else
 {
-    @if (!_crucesGenerados)
-    {
-        <div class="mb-3">
-            <label class="form-label">Semilla cruces</label>
-            <input type="number" class="form-control" style="max-width: 200px;" 
-                   @bind="_semillaCruces"/>
-            <button class="btn btn-success mt-2" @onclick="GenerarCruces">
+    <div class="d-flex gap-3 align-items-end mb-3 flex-wrap">
+        <div>
+            <label class="form-label">Semilla simulación</label>
+            <input type="number" class="form-control" style="max-width: 200px;"
+                   @bind="_semillaSimulacion"/>
+        </div>
+        <button class="btn btn-outline-primary" @onclick="SimularFaseGrupos">
+            Simular fase de grupos
+        </button>
+
+        @if (!_crucesGenerados)
+        {
+            <div>
+                <label class="form-label">Semilla cruces</label>
+                <input type="number" class="form-control" style="max-width: 200px;"
+                       @bind="_semillaCruces"/>
+            </div>
+            <button class="btn btn-success" @onclick="GenerarCruces">
                 Generar cruces segunda fase
             </button>
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-info">Cruces de segunda fase generados.</div>
-    }
+        }
+        else
+        {
+            <div class="alert alert-info mb-0">Cruces de segunda fase generados.</div>
+        }
+    </div>
 
     <div class="row mt-3">
         @foreach (var grupo in _grupos)
@@ -112,6 +124,7 @@ else
                                     <th>Fecha</th>
                                     <th>Estadio</th>
                                     <th>Resultado</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -124,6 +137,15 @@ else
                                         <td>@partido.Fecha</td>
                                         <td>@partido.Estadio</td>
                                         <td>@partido.Resultado</td>
+                                        <td>
+                                            @if (!partido.TieneResultado)
+                                            {
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                        @onclick="() => SimularPartido(partido.Id)">
+                                                    Simular
+                                                </button>
+                                            }
+                                        </td>
                                     </tr>
                                 }
                             </tbody>
@@ -145,6 +167,7 @@ else
     private List<GrupoResponse> _grupos = new();
     private GenerarFixtureRequest _form = new();
     private int _semillaCruces = 42;
+    private int _semillaSimulacion = 42;
 
     protected override void OnInitialized()
     {
@@ -185,6 +208,38 @@ else
             _crucesGenerados = false;
             CargarGrupos();
             _mensajeExito = "Fixture generado correctamente.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+            _mensajeExito = "";
+        }
+    }
+    
+    private void SimularFaseGrupos()
+    {
+        try
+        {
+            SimulacionServicio.SimularFase(FaseTorneo.FaseGrupos, _semillaSimulacion);
+            CargarGrupos();
+            _mensajeExito = $"Fase de grupos simulada con semilla {_semillaSimulacion}.";
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+            _mensajeExito = "";
+        }
+    }
+
+    private void SimularPartido(int partidoId)
+    {
+        try
+        {
+            SimulacionServicio.SimularPartido(partidoId, _semillaSimulacion);
+            CargarGrupos();
+            _mensajeExito = $"Partido simulado con semilla {_semillaSimulacion}.";
             _mensajeError = "";
         }
         catch (Exception ex)

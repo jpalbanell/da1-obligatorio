@@ -49,6 +49,7 @@ namespace Web.DTOs
         public string Estadio { get; set; } = "";
         public string Resultado { get; set; } = "";
         public string Vencedor { get; set; } = "";
+        public bool TieneResultado { get; set; }
 
         public static PartidoGrupoResponse FromEntity(Partido p) => new()
         {
@@ -59,7 +60,8 @@ namespace Web.DTOs
             Fecha = p.Fecha != default ? p.Fecha.ToString("dd/MM/yyyy HH:mm") : "",
             Estadio = p.Estadio?.Nombre ?? "",
             Resultado = p.TieneResultado ? $"{p.GolesLocal} - {p.GolesVisitante}" : "Por jugar",
-            Vencedor = p.Vencedor?.Nombre ?? (p.TieneResultado ? "Empate" : "")
+            Vencedor = p.Vencedor?.Nombre ?? (p.TieneResultado ? "Empate" : ""),
+            TieneResultado = p.TieneResultado
         };
     }
 }
