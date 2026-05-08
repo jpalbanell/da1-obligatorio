@@ -316,5 +316,39 @@ namespace Tests.TestsServicios
 
             Assert.IsTrue(posicionLocal.GolesFavor > 0 || posicionVisitante.GolesFavor > 0);
         }
+        
+        [TestMethod]
+        public void SimularPartido_DeberiaActualizarGolesYPuntosDeAmbosEquipos()
+        {
+            var grupo = new Grupo();
+            grupo.Id = 1;
+            grupo.Etiqueta = "A";
+    
+            var partido = CrearPartidoConEquipos(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+    
+            var posicionLocal = new PosicionesGrupo();
+            posicionLocal.Equipo = partido.EquipoLocal;
+            posicionLocal.Grupo = grupo;
+    
+            var posicionVisitante = new PosicionesGrupo();
+            posicionVisitante.Equipo = partido.EquipoVisitante;
+            posicionVisitante.Grupo = grupo;
+    
+            grupo.ListaPosiciones.Add(posicionLocal);
+            grupo.ListaPosiciones.Add(posicionVisitante);
+            grupo.ListaPartidos.Add(partido);
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+
+            Assert.AreEqual(partido.GolesLocal, posicionLocal.GolesFavor);
+            Assert.AreEqual(partido.GolesVisitante, posicionLocal.GolesContra);
+            Assert.AreEqual(partido.GolesLocal - partido.GolesVisitante, posicionLocal.DiferenciaGoles);
+            Assert.AreEqual(partido.GolesVisitante, posicionVisitante.GolesFavor);
+            Assert.AreEqual(partido.GolesLocal, posicionVisitante.GolesContra);
+        }
     }
 }

@@ -108,9 +108,18 @@ namespace Servicios
             var posLocal = partido.Grupo.ListaPosiciones
                 .FirstOrDefault(p => p.Equipo.Nombre == partido.EquipoLocal.Nombre);
 
-            if (posLocal == null) return;
+            var posVisitante = partido.Grupo.ListaPosiciones
+                .FirstOrDefault(p => p.Equipo.Nombre == partido.EquipoVisitante.Nombre);
+
+            if (posLocal == null || posVisitante == null) return;
 
             posLocal.GolesFavor += partido.GolesLocal;
+            posLocal.GolesContra += partido.GolesVisitante;
+            posLocal.DiferenciaGoles = posLocal.GolesFavor - posLocal.GolesContra;
+
+            posVisitante.GolesFavor += partido.GolesVisitante;
+            posVisitante.GolesContra += partido.GolesLocal;
+            posVisitante.DiferenciaGoles = posVisitante.GolesFavor - posVisitante.GolesContra;
         }
     }
 }
