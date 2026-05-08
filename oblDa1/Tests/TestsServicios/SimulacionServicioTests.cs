@@ -427,5 +427,22 @@ namespace Tests.TestsServicios
             Assert.AreEqual(partido.GolesVisitante, posicionVisitante.GolesFavor);
             Assert.AreEqual(partido.GolesLocal, posicionVisitante.GolesContra);
         }
+        
+        [TestMethod]
+        public void SimularPartido_PropagaVencedorAlSiguientePartidoOrigenLocal()
+        {
+            var partidoActual = CrearPartidoConEquipos(2500, 300);
+            partidoActual.Id = 1;
+            partidoActual.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(partidoActual);
+
+            var partidoSiguiente = new Partido(2);
+            partidoSiguiente.OrigenLocal = partidoActual;
+            _partidoRepositorio.Agregar(partidoSiguiente);
+
+            _simulacionServicio.SimularPartido(1, 42);
+
+            Assert.IsNotNull(partidoSiguiente.EquipoLocal);
+        }
     }
 }

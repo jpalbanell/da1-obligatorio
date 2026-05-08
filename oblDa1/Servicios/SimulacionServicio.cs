@@ -29,13 +29,12 @@ namespace Servicios
             ValidarPartidoExistente(partido);
 
             var random = new Random(semillaSimulation + partidoId);
-
             partido.GolesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
             ActualizarPosiciones(partido);
-
+            PropagrarResultado(partido);
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar(
                 $"Simulación de partido: {partidoId} con SemillaSimulation: {semillaSimulation}",
@@ -65,6 +64,7 @@ namespace Servicios
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
             ActualizarPosiciones(partido);
+            PropagrarResultado(partido);
             _partidoRepositorio.Actualizar(partido);
         }
 
@@ -129,6 +129,30 @@ namespace Servicios
             if (golesFavor > golesContra) return 3;
             if (golesFavor == golesContra) return 1;
             return 0;
+        }
+        
+        private void PropagrarResultado(Partido partido)
+        {
+            if (partido.Vencedor == null) return;
+            var siguientes = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.OrigenLocal?.Id == partido.Id || p.OrigenVisitante?.Id == partido.Id)
+                .ToList();
+            foreach (var siguiente in siguientes)
+            {
+                var equipo = siguiente.EsPorPerdedor ? ObtenerPerdedor(partido) : partido.Vencedor;
+                if (siguiente.OrigenLocal?.Id == partido.Id)
+                    siguiente.EquipoLocal = equipo;
+                else
+                    siguiente.EquipoVisitante = equipo;
+                _partidoRepositorio.Actualizar(siguiente);
+            }
+        }
+        
+        private Equipo ObtenerPerdedor(Partido partido)
+        {
+            return partido.Vencedor == partido.EquipoLocal
+                ? partido.EquipoVisitante
+                : partido.EquipoLocal;
         }
     }
 }
