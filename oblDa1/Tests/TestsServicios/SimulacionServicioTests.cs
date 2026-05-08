@@ -427,5 +427,75 @@ namespace Tests.TestsServicios
             Assert.AreEqual(partido.GolesVisitante, posicionVisitante.GolesFavor);
             Assert.AreEqual(partido.GolesLocal, posicionVisitante.GolesContra);
         }
+        
+        [TestMethod]
+        public void SimularPartido_PropagaVencedorAlSiguientePartidoOrigenLocal()
+        {
+            var partidoActual = CrearPartidoConEquipos(2500, 300);
+            partidoActual.Id = 1;
+            partidoActual.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(partidoActual);
+
+            var partidoSiguiente = new Partido(2);
+            partidoSiguiente.OrigenLocal = partidoActual;
+            _partidoRepositorio.Agregar(partidoSiguiente);
+
+            _simulacionServicio.SimularPartido(1, 42);
+
+            Assert.IsNotNull(partidoSiguiente.EquipoLocal);
+        }
+        
+        [TestMethod]
+        public void SimularPartido_PropagaVencedorAlSiguientePartidoOrigenVisitante()
+        {
+            var partidoActual = CrearPartidoConEquipos(2500, 300);
+            partidoActual.Id = 1;
+            partidoActual.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(partidoActual);
+
+            var partidoSiguiente = new Partido(2);
+            partidoSiguiente.OrigenVisitante = partidoActual;
+            _partidoRepositorio.Agregar(partidoSiguiente);
+
+            _simulacionServicio.SimularPartido(1, 42);
+
+            Assert.IsNotNull(partidoSiguiente.EquipoVisitante);
+        }
+        
+        [TestMethod]
+        public void SimularPartido_PropagaPerdedorCuandoEsPorPerdedor()
+        {
+            var semifinal = CrearPartidoConEquipos(2500, 300);
+            semifinal.Id = 1;
+            semifinal.Fase = FaseTorneo.Semifinal;
+            _partidoRepositorio.Agregar(semifinal);
+
+            var tercerPuesto = new Partido(2);
+            tercerPuesto.OrigenLocal = semifinal;
+            tercerPuesto.EsPorPerdedor = true;
+            _partidoRepositorio.Agregar(tercerPuesto);
+
+            _simulacionServicio.SimularPartido(1, 42);
+
+            Assert.IsNotNull(tercerPuesto.EquipoLocal);
+            Assert.AreNotEqual(semifinal.Vencedor, tercerPuesto.EquipoLocal);
+        }
+        
+        [TestMethod]
+        public void SimularFase_PropagaVencedorAlSiguientePartido()
+        {
+            var partidoActual = CrearPartidoConEquipos(2500, 300);
+            partidoActual.Id = 1;
+            partidoActual.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(partidoActual);
+
+            var partidoSiguiente = new Partido(2);
+            partidoSiguiente.OrigenLocal = partidoActual;
+            _partidoRepositorio.Agregar(partidoSiguiente);
+
+            _simulacionServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
+
+            Assert.IsNotNull(partidoSiguiente.EquipoLocal);
+        }
     }
 }
