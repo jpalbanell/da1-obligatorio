@@ -480,5 +480,22 @@ namespace Tests.TestsServicios
             Assert.IsNotNull(tercerPuesto.EquipoLocal);
             Assert.AreNotEqual(semifinal.Vencedor, tercerPuesto.EquipoLocal);
         }
+        
+        [TestMethod]
+        public void SimularFase_PropagaVencedorAlSiguientePartido()
+        {
+            var partidoActual = CrearPartidoConEquipos(2500, 300);
+            partidoActual.Id = 1;
+            partidoActual.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(partidoActual);
+
+            var partidoSiguiente = new Partido(2);
+            partidoSiguiente.OrigenLocal = partidoActual;
+            _partidoRepositorio.Agregar(partidoSiguiente);
+
+            _simulacionServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
+
+            Assert.IsNotNull(partidoSiguiente.EquipoLocal);
+        }
     }
 }
