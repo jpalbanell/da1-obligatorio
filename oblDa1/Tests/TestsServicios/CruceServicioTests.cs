@@ -503,5 +503,26 @@ namespace Tests.TestsServicios
 
             Assert.IsTrue(nombresEstadios.Count > 1, "Los partidos eliminatorios deben rotar entre múltiples estadios");
         }
+        
+        [TestMethod]
+        public void GenerarCruces_DeberiaAsignarFechasDistintasParaFasesEliminatorias()
+        {
+            var fixture = new Fixture();
+            fixture.EstaGenerado = true;
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarCruces(42);
+
+            var partidosEliminatorios = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase != FaseTorneo.FaseGrupos)
+                .ToList();
+
+            var fechasDistintas = partidosEliminatorios.Select(p => p.Fecha.Date).Distinct().ToList();
+
+            Assert.IsTrue(fechasDistintas.Count > 1, 
+                "Los partidos eliminatorios deben tener fechas distintas, no todos el mismo día");
+        }
     }
 }

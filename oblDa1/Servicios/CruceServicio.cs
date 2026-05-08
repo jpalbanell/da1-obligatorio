@@ -11,6 +11,9 @@ namespace Servicios
         private readonly IEstadioRepositorio _estadioRepositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
+        
+        private DateTime _fechaActualEliminatorias;
+        private int _partidosEnFechaActual;
 
         public CruceServicio(
             IGrupoRepositorio grupoRepositorio,
@@ -37,13 +40,24 @@ namespace Servicios
             ValidarTodosLosPartidosTienenResultado();
 
             var emparejamientos = GenerarEmparejamientos(semillaCrucesFase);
-            GenerarPartidosEliminatorios(emparejamientos);
+            InicializarFechaEliminatorias(fixture);
+            GenerarPartidosEliminatorios(emparejamientos, fixture);
             BloquearPartidosDeFaseGrupos();
 
             fixture.CrucesGenerados = true;
             _fixtureRepositorio.Guardar(fixture);
 
             _auditoriaServicio.Registrar($"Generación de cruces con SemillaCrucesFase: {semillaCrucesFase}", _sesionServicio.ObtenerUsuarioActual());
+        }
+        
+        private void InicializarFechaEliminatorias(Fixture fixture)
+        {
+            var ultimaFechaGrupos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.FaseGrupos)
+                .Max(p => p.Fecha.Date);
+
+            _fechaActualEliminatorias = ultimaFechaGrupos.AddDays(fixture.SeparacionEntreFechas);
+            _partidosEnFechaActual = 0;
         }
 
         private void BloquearPartidosDeFaseGrupos()
@@ -275,17 +289,29 @@ namespace Servicios
         }
         
         private void GenerarPartidosEliminatorios(
-            List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos)
+            List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos,
+            Fixture fixture)
         {
-            var dieciseisavos = CrearPartidosDieciseisavos(emparejamientos);
-            var octavos = CrearPartidosOctavos(dieciseisavos);
-            var cuartos = CrearPartidosCuartos(octavos);
-            var semifinales = CrearPartidosSemifinales(cuartos);
-            CrearPartidosTercerPuestoYFinal(semifinales);
+            var dieciseisavos = CrearPartidosDieciseisavos(emparejamientos, fixture);
+            AvanzarDeFase(fixture);
+            var octavos = CrearPartidosOctavos(dieciseisavos, fixture);
+            AvanzarDeFase(fixture);
+            var cuartos = CrearPartidosCuartos(octavos, fixture);
+            AvanzarDeFase(fixture);
+            var semifinales = CrearPartidosSemifinales(cuartos, fixture);
+            AvanzarDeFase(fixture);
+            CrearPartidosTercerPuestoYFinal(semifinales, fixture);
+        }
+
+        private void AvanzarDeFase(Fixture fixture)
+        {
+            _fechaActualEliminatorias = _fechaActualEliminatorias.AddDays(fixture.SeparacionEntreFechas);
+            _partidosEnFechaActual = 0;
         }
 
         private List<Partido> CrearPartidosDieciseisavos(
-            List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos)
+            List<(PosicionesGrupo local, PosicionesGrupo visitante, string codigo)> emparejamientos,
+            Fixture fixture)
         {
             var partidos = new List<Partido>();
             int indiceEstadio = 0;
@@ -296,7 +322,7 @@ namespace Servicios
                 partido.Fase = FaseTorneo.Dieciseisavos;
                 partido.EquipoLocal = local.Equipo;
                 partido.EquipoVisitante = visitante.Equipo;
-                partido.Fecha = new DateTime(2026, 7, 1, 14, 0, 0);
+                partido.Fecha = ObtenerProximaFechaEliminatoria(fixture.MaxPartidosPorDia);
                 partido.Estadio = ObtenerEstadioRotado(indiceEstadio++);
                 partido.Grupo = ObtenerGrupoPorEtiqueta(local.Grupo.Etiqueta);
                 _partidoRepositorio.Agregar(partido);
@@ -305,7 +331,7 @@ namespace Servicios
             return partidos;
         }
 
-        private List<Partido> CrearPartidosOctavos(List<Partido> dieciseisavos)
+        private List<Partido> CrearPartidosOctavos(List<Partido> dieciseisavos, Fixture fixture)
         {
             var partidos = new List<Partido>();
             for (int i = 0; i < dieciseisavos.Count; i += 2)
@@ -314,14 +340,15 @@ namespace Servicios
                     $"C{i / 2 + 1}",
                     FaseTorneo.Octavos,
                     dieciseisavos[i],
-                    dieciseisavos[i + 1]
+                    dieciseisavos[i + 1],
+                    fixture
                 );
                 partidos.Add(partido);
             }
             return partidos;
         }
-
-        private List<Partido> CrearPartidosCuartos(List<Partido> octavos)
+        
+        private List<Partido> CrearPartidosCuartos(List<Partido> octavos, Fixture fixture)
         {
             var partidos = new List<Partido>();
             for (int i = 0; i < octavos.Count; i += 2)
@@ -330,14 +357,15 @@ namespace Servicios
                     $"D{i / 2 + 1}",
                     FaseTorneo.Cuartos,
                     octavos[i],
-                    octavos[i + 1]
+                    octavos[i + 1],
+                    fixture
                 );
                 partidos.Add(partido);
             }
             return partidos;
         }
 
-        private List<Partido> CrearPartidosSemifinales(List<Partido> cuartos)
+        private List<Partido> CrearPartidosSemifinales(List<Partido> cuartos, Fixture fixture)
         {
             var partidos = new List<Partido>();
             for (int i = 0; i < cuartos.Count; i += 2)
@@ -346,27 +374,29 @@ namespace Servicios
                     $"S{i / 2 + 1}",
                     FaseTorneo.Semifinal,
                     cuartos[i],
-                    cuartos[i + 1]
+                    cuartos[i + 1],
+                    fixture
                 );
                 partidos.Add(partido);
             }
             return partidos;
         }
 
-        private void CrearPartidosTercerPuestoYFinal(List<Partido> semifinales)
+        private void CrearPartidosTercerPuestoYFinal(List<Partido> semifinales, Fixture fixture)
         {
-            var tercerPuesto = CrearPartidoEliminatorio("TP", FaseTorneo.TercerPuesto, semifinales[0], semifinales[1]);
+            var tercerPuesto = CrearPartidoEliminatorio("TP", FaseTorneo.TercerPuesto, semifinales[0], semifinales[1], fixture);
             tercerPuesto.EsPorPerdedor = true;
-            CrearPartidoEliminatorio("F", FaseTorneo.Final, semifinales[0], semifinales[1]);
+            AvanzarDeFase(fixture);
+            CrearPartidoEliminatorio("F", FaseTorneo.Final, semifinales[0], semifinales[1], fixture);
         }
         
-        private Partido CrearPartidoEliminatorio(string codigo, FaseTorneo fase, Partido origenLocal, Partido origenVisitante)
+        private Partido CrearPartidoEliminatorio(string codigo, FaseTorneo fase, Partido origenLocal, Partido origenVisitante, Fixture fixture)
         {
             var indiceEstadio = ContarPartidosEliminatorios();
             var partido = new Partido(ObtenerProximoIdPartido());
             partido.Codigo = codigo;
             partido.Fase = fase;
-            partido.Fecha = new DateTime(2026, 7, 1, 14, 0, 0);
+            partido.Fecha = ObtenerProximaFechaEliminatoria(fixture.MaxPartidosPorDia);
             partido.Estadio = ObtenerEstadioRotado(indiceEstadio);
             partido.Grupo = _grupoRepositorio.ObtenerTodos().First();
             partido.OrigenLocal = origenLocal;
@@ -400,6 +430,20 @@ namespace Servicios
                 throw new Exception("No hay estadios cargados.");
 
             return estadios[indice % estadios.Count];
+        }
+        
+        private DateTime ObtenerProximaFechaEliminatoria(int maxPartidosPorDia)
+        {
+            if (_partidosEnFechaActual >= maxPartidosPorDia)
+            {
+                _fechaActualEliminatorias = _fechaActualEliminatorias.AddDays(1);
+                _partidosEnFechaActual = 0;
+            }
+
+            var hora = 14 + (_partidosEnFechaActual * 4);
+            var fecha = _fechaActualEliminatorias.AddHours(hora);
+            _partidosEnFechaActual++;
+            return fecha;
         }
 
         private string Normalizar(string texto)
