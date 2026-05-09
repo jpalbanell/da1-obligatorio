@@ -1,0 +1,83 @@
+@page "/importar"
+@using Dominio.Entidades
+@using Servicios
+@using Web.DTOs
+@inject IImportacionServicio ImportacionServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+@using Microsoft.AspNetCore.Components.Forms
+
+@if (!_usuarioActual.TieneRol(Rol.Editor))
+{
+    <p>No tenés permisos para ver esta página.</p>
+}
+else
+{
+    <h3>Importar equipos</h3>
+
+    <div class="mb-3">
+        <label class="form-label">Seleccioná un archivo CSV</label>
+        <InputFile class="form-control" OnChange="CargarArchivo" accept=".csv"/>
+    </div>
+
+    <button class="btn btn-primary" @onclick="EjecutarImportacion" disabled="@(_contenidoCsv == null)">
+        Importar
+    </button>
+
+    @if (_resultado != null)
+    {
+        <div class="mt-4">
+            <h5>Resultado de la importación</h5>
+
+            <div class="alert alert-success">
+                Equipos importados: @_resultado.EquiposImportados
+            </div>
+
+            @if (_resultado.Errores.Any())
+            {
+                <div class="alert alert-danger">
+                    <p><strong>Errores encontrados:</strong></p>
+
+                    <ul>
+                        @foreach (var error in _resultado.Errores)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+}
+
+@code {
+    private Usuario _usuarioActual;
+    private string _contenidoCsv;
+    private ResultadoImportacion _resultado;
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+    }
+
+    private async Task CargarArchivo(InputFileChangeEventArgs e)
+    {
+        var archivo = e.File;
+
+        using var stream = archivo.OpenReadStream();
+        using var reader = new StreamReader(stream);
+
+        _contenidoCsv = await reader.ReadToEndAsync();
+    }
+
+    private void EjecutarImportacion()
+    {
+        _resultado = ImportacionServicio.ImportarEquipos(_contenidoCsv);
+    }
+}
