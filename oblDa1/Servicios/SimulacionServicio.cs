@@ -47,6 +47,8 @@ namespace Servicios
             var partidos = _partidoRepositorio.ObtenerTodos()
                 .Where(p => p.Fase == fase && !p.TieneResultado)
                 .ToList();
+            
+            BloquearFaseAnterior(fase);
 
             foreach (var partido in partidos)
                 SimularPartidoDeFase(partido, semillaSimulation);
@@ -146,6 +148,17 @@ namespace Servicios
             return partido.Vencedor == partido.EquipoLocal
                 ? partido.EquipoVisitante
                 : partido.EquipoLocal;
+        }
+        
+        private void BloquearFaseAnterior(FaseTorneo faseActual)
+        {
+            if (faseActual == FaseTorneo.FaseGrupos) return;
+            var faseAnterior = faseActual - 1;
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == faseAnterior)
+                .ToList();
+            foreach (var partido in partidos)
+                partido.EstaBloqueado = true;
         }
     }
 }
