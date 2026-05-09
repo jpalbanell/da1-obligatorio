@@ -530,5 +530,23 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(puntosAntes, puntosDespues);
         }
+        
+        [TestMethod]
+        public void SimularFase_AlSimularDieciseisavos_BloquearPartidosDeFaseGrupos()
+        {
+            var partido = CrearPartidoConEquipos(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.TieneResultado = true;
+            partido.EstaBloqueado = false;
+            _partidoRepositorio.Agregar(partido);
+
+            var partidoDieciseisavos = CrearPartidoConEquipos(2000, 1800, 2);
+            partidoDieciseisavos.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(partidoDieciseisavos);
+
+            _simulacionServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
+
+            Assert.IsTrue(partido.EstaBloqueado);
+        }
     }
 }

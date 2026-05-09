@@ -331,5 +331,29 @@ namespace Tests
 
             _servicio.ModificarPartido(partido);
         }
+        
+        [TestMethod]
+        public void ModificarPartido_ConResultado_PropagaVencedorAlSiguientePartido()
+        {
+            var partidoOrigen = CrearPartidoValido();
+            partidoOrigen.Id = 1;
+            _repositorio.Agregar(partidoOrigen);
+
+            var estadio = CrearEstadioValido("Monumental");
+            var partidoSiguiente = new Partido(2);
+            partidoSiguiente.Codigo = "P002";
+            partidoSiguiente.Fecha = new DateTime(2026, 6, 2);
+            partidoSiguiente.Fase = FaseTorneo.Octavos;
+            partidoSiguiente.Estadio = estadio;
+            partidoSiguiente.OrigenLocal = partidoOrigen;
+            _repositorio.Agregar(partidoSiguiente);
+
+            partidoOrigen.GolesLocal = 2;
+            partidoOrigen.GolesVisitante = 1;
+            partidoOrigen.Vencedor = partidoOrigen.EquipoLocal;
+            _servicio.ModificarPartido(partidoOrigen);
+
+            Assert.AreEqual(partidoOrigen.EquipoLocal, partidoSiguiente.EquipoLocal);
+        }
     }
 }
