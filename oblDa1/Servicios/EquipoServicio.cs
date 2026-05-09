@@ -27,12 +27,12 @@ namespace Servicios
             _auditoriaServicio.Registrar($"Alta de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
-        public void EditarEquipo(Equipo equipo)
+        public void EditarEquipo(Equipo equipo, string nombreOriginal)
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
-            ValidarNombreUnicoEnEdicion(equipo);
+            ValidarNombreUnicoEnEdicion(equipo, nombreOriginal);
             ValidarCupoConfederacionEnEdicion(equipo);
-            _equipoRepositorio.Actualizar(equipo);
+            _equipoRepositorio.Actualizar(equipo, nombreOriginal);
             _auditoriaServicio.Registrar($"Edición de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
@@ -88,10 +88,10 @@ namespace Servicios
                 throw new Exception("Ya existe un equipo con ese nombre");
         }
 
-        private void ValidarNombreUnicoEnEdicion(Equipo equipo)
+        private void ValidarNombreUnicoEnEdicion(Equipo equipo, string nombreOriginal)
         {
-            var equipoExistente = _equipoRepositorio.ObtenerPorNombre(equipo.Nombre);
-            if (equipoExistente != null && equipoExistente != equipo)
+            if (equipo.Nombre == nombreOriginal) return;
+            if (_equipoRepositorio.ObtenerPorNombre(equipo.Nombre) != null)
                 throw new Exception("Ya existe un equipo con ese nombre");
         }
 

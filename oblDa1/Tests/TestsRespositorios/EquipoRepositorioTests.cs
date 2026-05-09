@@ -51,8 +51,9 @@ namespace Tests
             equipo.Nombre = "Uruguay";
             _equipoRepositorio.Agregar(equipo);
 
-            equipo.Nombre = "Argentina";
-            _equipoRepositorio.Actualizar(equipo);
+            var equipoEditado = new Equipo();
+            equipoEditado.Nombre = "Argentina";
+            _equipoRepositorio.Actualizar(equipoEditado, "Uruguay");
 
             Assert.AreEqual("Argentina", _equipoRepositorio.ObtenerPorNombre("Argentina").Nombre);
         }
@@ -64,7 +65,7 @@ namespace Tests
             var equipo = new Equipo();
             equipo.Nombre = "Uruguay";
 
-            _equipoRepositorio.Actualizar(equipo);
+            _equipoRepositorio.Actualizar(equipo, "Uruguay");
         }
         
         [TestMethod]
