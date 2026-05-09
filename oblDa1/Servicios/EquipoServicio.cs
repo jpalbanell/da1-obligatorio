@@ -31,8 +31,22 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarNombreUnicoEnEdicion(equipo);
+            ValidarCupoConfederacionEnEdicion(equipo);
             _equipoRepositorio.Actualizar(equipo);
             _auditoriaServicio.Registrar($"Edición de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        private void ValidarCupoConfederacionEnEdicion(Equipo equipo)
+        {
+            var equipoOriginal = _equipoRepositorio.ObtenerPorNombre(equipo.Nombre);
+            if (equipoOriginal == null) return;
+            if (equipoOriginal.Confederacion == equipo.Confederacion) return;
+
+            int cupo = ObtenerCupoConfederacion(equipo.Confederacion);
+            int cantActual = _equipoRepositorio.ObtenerTodos()
+                .Count(e => e.Confederacion == equipo.Confederacion);
+            if (cantActual >= cupo)
+                throw new Exception("Cupo de confederación completo");
         }
 
         public void EliminarEquipo(string nombre)

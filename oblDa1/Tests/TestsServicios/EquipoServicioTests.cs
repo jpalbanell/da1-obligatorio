@@ -466,5 +466,30 @@ namespace Tests.TestsServicios
             _equipoServicio.CompletarEquiposAutomaticamente(42);
         }
         
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void EditarEquipo_CambiandoConfederacionACupoLleno_DeberiaLanzarExcepcion()
+        {
+            for (int i = 1; i <= 7; i++)
+            {
+                var equipo = new Equipo();
+                equipo.Nombre = $"CONMEBOL_{i}";
+                equipo.Confederacion = Confederacion.CONMEBOL;
+                equipo.RankingFifa = 1500;
+                _equipoServicio.AgregarEquipo(equipo);
+            }
+
+            var alemania = new Equipo();
+            alemania.Nombre = "Alemania";
+            alemania.Confederacion = Confederacion.UEFA;
+            alemania.RankingFifa = 1800;
+            _equipoServicio.AgregarEquipo(alemania);
+
+            var alemaniaEditada = new Equipo();
+            alemaniaEditada.Nombre = "Alemania";
+            alemaniaEditada.Confederacion = Confederacion.CONMEBOL;
+            alemaniaEditada.RankingFifa = 1800;
+            _equipoServicio.EditarEquipo(alemaniaEditada);
+        }
     }
 }
