@@ -85,19 +85,19 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CrearPartido_ConEquipoLocalNulo_DeberiaLanzarExcepcion()
+        public void CrearPartido_ConEquipoLocalNulo_DeberiaPermitirlo()
         {
             var partido = new Partido(1);
             partido.EquipoLocal = null;
+            Assert.IsNull(partido.EquipoLocal);
         }
         
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CrearPartido_ConEquipoVisitanteNulo_DeberiaLanzarExcepcion()
+        public void CrearPartido_ConEquipoVisitanteNulo_DeberiaPermitirlo()
         {
             var partido = new Partido(1);
             partido.EquipoVisitante = null;
+            Assert.IsNull(partido.EquipoVisitante);
         }
         
         [TestMethod]
