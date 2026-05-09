@@ -44,11 +44,7 @@ namespace Dominio.Entidades
         public Equipo EquipoLocal
         {
             get => _equipoLocal;
-            set
-            {
-                ValidarNoNulo(value, "EquipoLocal");
-                _equipoLocal = value;
-            }
+            set { _equipoLocal = value; }
         }
 
         public Equipo EquipoVisitante
@@ -56,8 +52,8 @@ namespace Dominio.Entidades
             get => _equipoVisitante;
             set
             {
-                ValidarNoNulo(value, "EquipoVisitante");
-                ValidarEquipoDistintoDeLocal(value);
+                if (value != null && value == _equipoLocal)
+                    throw new ArgumentException("EquipoVisitante no puede ser igual al EquipoLocal");
                 _equipoVisitante = value;
             }
         }
@@ -150,8 +146,11 @@ namespace Dominio.Entidades
 
         private void ValidarVencedor(Equipo equipo)
         {
-            if (equipo != null && equipo != _equipoLocal && equipo != _equipoVisitante)
-                throw new ArgumentException("Vencedor debe ser EquipoLocal o EquipoVisitante");
+            if (equipo != null && _equipoLocal != null && _equipoVisitante != null)
+            {
+                if (equipo != _equipoLocal && equipo != _equipoVisitante)
+                    throw new ArgumentException("Vencedor debe ser EquipoLocal o EquipoVisitante");
+            }
         }
     }
 }

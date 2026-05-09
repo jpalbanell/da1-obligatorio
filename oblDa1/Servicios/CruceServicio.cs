@@ -401,8 +401,6 @@ namespace Servicios
             partido.Grupo = _grupoRepositorio.ObtenerTodos().First();
             partido.OrigenLocal = origenLocal;
             partido.OrigenVisitante = origenVisitante;
-            partido.EquipoLocal = origenLocal.EquipoLocal;
-            partido.EquipoVisitante = origenVisitante.EquipoLocal;
             _partidoRepositorio.Agregar(partido);
             return partido;
         }
