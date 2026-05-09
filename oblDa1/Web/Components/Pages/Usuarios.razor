@@ -46,7 +46,7 @@
                 <td>@usuario.Nombre</td>
                 <td>@usuario.Apellido</td>
                 <td>@usuario.Email</td>
-                <td>@usuario.FechaNacimiento</td>
+                <td>@usuario.FechaNacimiento.ToString("dd/MM/yyyy")</td>
                 <td>@string.Join(", ", usuario.Roles)</td>
                 <td>
                     <button class="btn btn-sm btn-outline-secondary"
@@ -94,8 +94,8 @@
                         <input class="form-control" @bind="_form.Email"/>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Fecha de nacimiento (MM-DD-AAAA)</label>
-                        <input class="form-control" @bind="_form.FechaNacimiento" placeholder="01-31-1990"/>
+                        <label class="form-label">Fecha de nacimiento</label>
+                        <input type="date" class="form-control" @bind="_form.FechaNacimiento"/>
                     </div>
                     @if (!_modoEdicion)
                     {

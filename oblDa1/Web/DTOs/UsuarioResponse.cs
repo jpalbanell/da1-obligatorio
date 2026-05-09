@@ -8,7 +8,7 @@ namespace Web.DTOs
         public string Nombre { get; set; } = "";
         public string Apellido { get; set; } = "";
         public string Email { get; set; } = "";
-        public string FechaNacimiento { get; set; } = "";
+        public DateTime FechaNacimiento { get; set; }
         public List<string> Roles { get; set; } = new();
 
         public static UsuarioResponse FromEntity(Usuario usuario) => new()
@@ -17,7 +17,7 @@ namespace Web.DTOs
             Nombre = usuario.Nombre,
             Apellido = usuario.Apellido,
             Email = usuario.Email,
-            FechaNacimiento = usuario.FechaNacimiento.ToString("MM-dd-yyyy"),
+            FechaNacimiento = usuario.FechaNacimiento,
             Roles = usuario.Roles.Select(r => r.ToString()).ToList()
         };
     }

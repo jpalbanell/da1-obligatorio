@@ -7,7 +7,7 @@ namespace Web.DTOs
         public string Nombre { get; set; } = "";
         public string Apellido { get; set; } = "";
         public string Email { get; set; } = "";
-        public string FechaNacimiento { get; set; } = "";
+        public DateTime FechaNacimiento { get; set; } = DateTime.Today;
         public string Contrasena { get; set; } = "";
         public bool EsAdministrador { get; set; } = false;
         public bool EsEditor { get; set; } = false;
@@ -18,7 +18,7 @@ namespace Web.DTOs
             usuario.Nombre = Nombre;
             usuario.Apellido = Apellido;
             usuario.Email = Email;
-            usuario.FechaNacimiento = DateTime.ParseExact(FechaNacimiento, "MM-dd-yyyy", null);
+            usuario.FechaNacimiento = FechaNacimiento;
             usuario.Contrasena = Contrasena;
             if (EsAdministrador) usuario.Roles.Add(Rol.Administrador);
             if (EsEditor) usuario.Roles.Add(Rol.Editor);
