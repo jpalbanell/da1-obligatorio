@@ -45,7 +45,7 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Editor);
             var partidos = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.Fase == fase)
+                .Where(p => p.Fase == fase && !p.TieneResultado)
                 .ToList();
 
             foreach (var partido in partidos)
