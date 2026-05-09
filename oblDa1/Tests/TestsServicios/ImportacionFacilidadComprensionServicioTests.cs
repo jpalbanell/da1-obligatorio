@@ -9,12 +9,27 @@ namespace Tests.TestsServicios
     {
         private IEquipoRepositorio _equipoRepositorio = null!;
         private IImportacionServicio _servicio = null!;
+        private IAuditoriaRepositorio _auditoriaRepositorio = null!;
+        private IAuditoriaServicio _auditoriaServicio = null!;
+        private ISesionServicio _sesionServicio = null!;
 
         [TestInitialize]
         public void Setup()
         {
             _equipoRepositorio = new EquipoRepositorio();
-            _servicio = new ImportacionFacilidadComprensionServicio(_equipoRepositorio);
+            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+            _sesionServicio = new SesionServicio();
+            _servicio = new ImportacionFacilidadComprensionServicio(_equipoRepositorio, _auditoriaServicio, _sesionServicio);
+
+            var usuario = new Usuario();
+            usuario.Nombre = "Juan";
+            usuario.Apellido = "Perez";
+            usuario.Email = "juan@ejemplo.com";
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
+            usuario.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuario);
         }
 
         [TestMethod]
@@ -92,6 +107,46 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(0, resultado.EquiposImportados);
             Assert.AreEqual(0, resultado.Errores.Count);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ImportarEquipos_SinRolEditor_DeberiaLanzarExcepcion()
+        {
+            var usuarioSinRol = new Usuario();
+            usuarioSinRol.Nombre = "Juan";
+            usuarioSinRol.Apellido = "Perez";
+            usuarioSinRol.Email = "juan@ejemplo.com";
+            usuarioSinRol.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioSinRol.Contrasena = "Abcdef1@";
+            _sesionServicio.IniciarSesion(usuarioSinRol);
+
+            var csv = "Nombre,Confederación,RankingFIFA\nUruguay,CONMEBOL,1500";
+            _servicio.ImportarEquipos(csv);
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_DeberiaRegistrarAuditoria()
+        {
+            var csv = "Nombre,Confederación,RankingFIFA\nUruguay,CONMEBOL,1500";
+
+            _servicio.ImportarEquipos(csv);
+
+            var logs = _auditoriaRepositorio.ObtenerTodos();
+            Assert.AreEqual(1, logs.Count);
+            Assert.IsTrue(logs[0].Accion.Contains("Importación"));
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_ConErrores_DeberiaRegistrarAuditoriaIncluyendoErrores()
+        {
+            var csv = "Nombre,Confederación,RankingFIFA\nUruguay,CONMEBOL,1500\nMalo,INVALIDA,1500";
+
+            _servicio.ImportarEquipos(csv);
+
+            var logs = _auditoriaRepositorio.ObtenerTodos();
+            Assert.AreEqual(1, logs.Count);
+            Assert.IsTrue(logs[0].Accion.Contains("1 errores"));
         }
     }
 }

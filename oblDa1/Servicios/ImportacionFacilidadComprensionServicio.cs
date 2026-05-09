@@ -11,16 +11,24 @@ namespace Servicios
         private const int ColumnaConfederacion = 1;
         private const int ColumnaRankingFifa = 2;
         private const char SeparadorDeColumnas = ',';
-
         private readonly IEquipoRepositorio _equipoRepositorio;
+        private readonly IAuditoriaServicio _auditoriaServicio;
+        private readonly ISesionServicio _sesionServicio;
 
-        public ImportacionFacilidadComprensionServicio(IEquipoRepositorio equipoRepositorio)
+        public ImportacionFacilidadComprensionServicio(
+            IEquipoRepositorio equipoRepositorio,
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _equipoRepositorio = equipoRepositorio;
+            _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
 
         public ResultadoImportacion ImportarEquipos(string contenidoCsv)
         {
+            _sesionServicio.ValidarRol(Rol.Editor);
+
             var resultado = new ResultadoImportacion();
             var filasDeDatos = ObtenerFilasDeDatos(contenidoCsv);
 
@@ -29,7 +37,15 @@ namespace Servicios
                 ImportarFila(fila, numeroFila, resultado);
             }
 
+            RegistrarAuditoria(resultado);
+
             return resultado;
+        }
+
+        private void RegistrarAuditoria(ResultadoImportacion resultado)
+        {
+            var mensaje = $"Importación de equipos: {resultado.EquiposImportados} equipos importados, {resultado.Errores.Count} errores.";
+            _auditoriaServicio.Registrar(mensaje, _sesionServicio.ObtenerUsuarioActual());
         }
 
         private IEnumerable<(string fila, int numero)> ObtenerFilasDeDatos(string contenidoCsv)

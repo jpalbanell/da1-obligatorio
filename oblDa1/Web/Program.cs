@@ -17,7 +17,7 @@ builder.Services.AddSingleton<IPartidoRepositorio, PartidoRepositorio>();
 builder.Services.AddSingleton<IGrupoRepositorio, GrupoRepositorio>();
 builder.Services.AddSingleton<IAuditoriaRepositorio, AuditoriaRepositorio>();
 builder.Services.AddSingleton<IFixtureRepositorio, FixtureRepositorio>();
-builder.Services.AddSingleton<IImportacionServicio, ImportacionFacilidadComprensionServicio>();
+
 
 // Servicios
 builder.Services.AddScoped<IEquipoServicio, EquipoServicio>();
@@ -30,6 +30,7 @@ builder.Services.AddScoped<ISesionServicio, SesionServicio>();
 builder.Services.AddScoped<IAutenticacionServicio, AutenticacionServicio>();
 builder.Services.AddScoped<IFixtureServicio, FixtureServicio>();
 builder.Services.AddScoped<ICruceServicio, CruceServicio>();
+builder.Services.AddScoped<IImportacionServicio, ImportacionFacilidadComprensionServicio>();
 
 var app = builder.Build();
 
