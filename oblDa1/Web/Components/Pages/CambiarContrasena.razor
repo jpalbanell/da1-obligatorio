@@ -1,0 +1,77 @@
+@page "/cambiar-contrasena"
+@rendermode InteractiveServer
+@inject Servicios.ISesionServicio SesionServicio
+@inject Servicios.IAutenticacionServicio AutenticacionServicio
+@inject NavigationManager Nav
+
+<h3>Cambiar contraseña</h3>
+
+@if (_usuario == null)
+{
+    <p>Debe estar logueado para cambiar la contraseña.</p>
+}
+else
+{
+    <div class="mb-3">
+        <label class="form-label">Nueva contraseña</label>
+        <input type="password" class="form-control" @bind="_nuevaContrasena" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Confirmar nueva contraseña</label>
+        <input type="password" class="form-control" @bind="_confirmacion" />
+    </div>
+
+    <button class="btn btn-primary" @onclick="Guardar">Guardar</button>
+
+    @if (!string.IsNullOrEmpty(_mensajeError))
+    {
+        <div class="alert alert-danger mt-3">@_mensajeError</div>
+    }
+    @if (!string.IsNullOrEmpty(_mensajeExito))
+    {
+        <div class="alert alert-success mt-3">@_mensajeExito</div>
+    }
+}
+
+@code {
+    private Dominio.Entidades.Usuario? _usuario;
+    private string _nuevaContrasena = "";
+    private string _confirmacion = "";
+    private string _mensajeError = "";
+    private string _mensajeExito = "";
+
+    protected override void OnInitialized()
+    {
+        _usuario = SesionServicio.ObtenerUsuarioActual();
+    }
+
+    private void Guardar()
+    {
+        _mensajeError = "";
+        _mensajeExito = "";
+
+        if (_usuario == null)
+        {
+            _mensajeError = "Debe estar logueado.";
+            return;
+        }
+
+        if (_nuevaContrasena != _confirmacion)
+        {
+            _mensajeError = "Las contraseñas no coinciden.";
+            return;
+        }
+
+        try
+        {
+            AutenticacionServicio.CambiarContrasena(_usuario.Id, _nuevaContrasena);
+            _mensajeExito = "Contraseña actualizada correctamente.";
+            _nuevaContrasena = "";
+            _confirmacion = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+        }
+    }
+}
