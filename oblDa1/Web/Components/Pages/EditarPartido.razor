@@ -35,7 +35,7 @@
 }
 
 <h3>Editar Partido @_partido.Codigo</h3>
-<p><strong>@_partido.EquipoLocal.Nombre</strong> vs <strong>@_partido.EquipoVisitante.Nombre</strong></p>
+<p><strong>@(_partido.EquipoLocal?.Nombre ?? "Por definir")</strong> vs <strong>@(_partido.EquipoVisitante?.Nombre ?? "Por definir")</strong></p>
 
 @if (!string.IsNullOrEmpty(_mensajeError))
 {
@@ -73,11 +73,12 @@
     {
         <div class="row mb-3">
             <div class="col-md-6">
-                <label class="form-label">Goles @_partido.EquipoLocal.Nombre</label>
+                <label class="form-label">Goles @(_partido.EquipoLocal?.Nombre ?? "Por definir")</label>
+
                 <InputNumber class="form-control" @bind-Value="_form.GolesLocal" />
             </div>
             <div class="col-md-6">
-                <label class="form-label">Goles @_partido.EquipoVisitante.Nombre</label>
+                <label class="form-label">Goles @(_partido.EquipoVisitante?.Nombre ?? "Por definir")</label>
                 <InputNumber class="form-control" @bind-Value="_form.GolesVisitante" />
             </div>
         </div>
