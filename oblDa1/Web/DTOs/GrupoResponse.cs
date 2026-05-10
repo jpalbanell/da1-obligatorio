@@ -12,6 +12,9 @@ namespace Web.DTOs
         {
             Etiqueta = grupo.Etiqueta,
             Posiciones = grupo.ListaPosiciones
+                .OrderByDescending(p => p.Puntos)
+                .ThenByDescending(p => p.DiferenciaGoles)
+                .ThenByDescending(p => p.GolesFavor)
                 .Select(PosicionResponse.FromEntity)
                 .ToList(),
             Partidos = grupo.ListaPartidos
