@@ -190,7 +190,7 @@ namespace Tests.TestsServicios
             _equipoServicio.AgregarEquipo(equipo);
 
             equipo.RankingFifa = 1800;
-            _equipoServicio.EditarEquipo(equipo);
+            _equipoServicio.EditarEquipo(equipo, "Uruguay");
 
             Assert.AreEqual(1800, _equipoRepositorio.ObtenerPorNombre("Uruguay").RankingFifa);
         }
@@ -212,7 +212,7 @@ namespace Tests.TestsServicios
             _equipoServicio.AgregarEquipo(equipo2);
 
             equipo2.Nombre = "Uruguay";
-            _equipoServicio.EditarEquipo(equipo2);
+            _equipoServicio.EditarEquipo(equipo2, "Argentina");
         }
         
         [TestMethod]
@@ -225,7 +225,7 @@ namespace Tests.TestsServicios
             _equipoServicio.AgregarEquipo(equipo);
 
             equipo.RankingFifa = 1800;
-            _equipoServicio.EditarEquipo(equipo);
+            _equipoServicio.EditarEquipo(equipo, "Uruguay");
 
             Assert.AreEqual(1800, _equipoRepositorio.ObtenerPorNombre("Uruguay").RankingFifa);
         }
@@ -318,7 +318,7 @@ namespace Tests.TestsServicios
             _equipoServicio.AgregarEquipo(equipo);
 
             equipo.RankingFifa = 1800;
-            _equipoServicio.EditarEquipo(equipo);
+            _equipoServicio.EditarEquipo(equipo, "Uruguay");
 
             Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
@@ -489,7 +489,24 @@ namespace Tests.TestsServicios
             alemaniaEditada.Nombre = "Alemania";
             alemaniaEditada.Confederacion = Confederacion.CONMEBOL;
             alemaniaEditada.RankingFifa = 1800;
-            _equipoServicio.EditarEquipo(alemaniaEditada);
+            _equipoServicio.EditarEquipo(alemaniaEditada, "Alemania");
+        }
+        [TestMethod]
+        public void EditarEquipo_ConObjetoNuevoMismoNombre_NoLanzaExcepcion()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            _equipoServicio.AgregarEquipo(equipo);
+
+            var equipoEditado = new Equipo();
+            equipoEditado.Nombre = "Uruguay";
+            equipoEditado.Confederacion = Confederacion.CONMEBOL;
+            equipoEditado.RankingFifa = 1800;
+            _equipoServicio.EditarEquipo(equipoEditado, "Uruguay");
+
+            Assert.AreEqual(1800, _equipoRepositorio.ObtenerPorNombre("Uruguay").RankingFifa);
         }
     }
 }

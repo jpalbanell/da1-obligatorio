@@ -223,7 +223,7 @@
             if (_modoEdicion)
             {
                 var equipo = _form.ToEntity();
-                EquipoServicio.EditarEquipo(equipo);
+                EquipoServicio.EditarEquipo(equipo, _nombreOriginal);
             }
             else
             {

@@ -74,8 +74,8 @@
                     {
                         <tr>
                             <td>@partido.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@partido.EquipoLocal.Nombre</td>
-                            <td>@partido.EquipoVisitante.Nombre</td>
+                            <td>@(partido.EquipoLocal?.Nombre ?? "Por definir")</td>
+                            <td>@(partido.EquipoVisitante?.Nombre ?? "Por definir")</td>
                         </tr>
                     }
                     </tbody>
@@ -102,9 +102,9 @@
                     @foreach (var partido in _ultimosResultados)
                     {
                         <tr>
-                            <td>@partido.EquipoLocal.Nombre</td>
+                            <td>@(partido.EquipoLocal?.Nombre ?? "Por definir")</td>
                             <td>@partido.GolesLocal - @partido.GolesVisitante</td>
-                            <td>@partido.EquipoVisitante.Nombre</td>
+                            <td>@(partido.EquipoVisitante?.Nombre ?? "Por definir")</td>
                         </tr>
                     }
                     </tbody>
