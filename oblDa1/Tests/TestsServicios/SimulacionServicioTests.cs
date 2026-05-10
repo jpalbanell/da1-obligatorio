@@ -497,5 +497,56 @@ namespace Tests.TestsServicios
 
             Assert.IsNotNull(partidoSiguiente.EquipoLocal);
         }
+        [TestMethod]
+        public void SimularFase_PartidoYaSimulado_NoduplicaPuntos()
+        {
+            var grupo = new Grupo();
+            grupo.Id = 1;
+            grupo.Etiqueta = "A";
+
+            var partido = CrearPartidoConEquipos(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+
+            var posLocal = new PosicionesGrupo();
+            posLocal.Equipo = partido.EquipoLocal;
+            posLocal.Grupo = grupo;
+
+            var posVisitante = new PosicionesGrupo();
+            posVisitante.Equipo = partido.EquipoVisitante;
+            posVisitante.Grupo = grupo;
+
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+            var puntosAntes = grupo.ListaPosiciones.Sum(p => p.Puntos);
+
+            _simulacionServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+            var puntosDespues = grupo.ListaPosiciones.Sum(p => p.Puntos);
+
+            Assert.AreEqual(puntosAntes, puntosDespues);
+        }
+        
+        [TestMethod]
+        public void SimularFase_AlSimularDieciseisavos_BloquearPartidosDeFaseGrupos()
+        {
+            var partido = CrearPartidoConEquipos(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.TieneResultado = true;
+            partido.EstaBloqueado = false;
+            _partidoRepositorio.Agregar(partido);
+
+            var partidoDieciseisavos = CrearPartidoConEquipos(2000, 1800, 2);
+            partidoDieciseisavos.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(partidoDieciseisavos);
+
+            _simulacionServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
+
+            Assert.IsTrue(partido.EstaBloqueado);
+        }
     }
 }

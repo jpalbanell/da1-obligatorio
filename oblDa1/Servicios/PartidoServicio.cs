@@ -41,6 +41,7 @@ namespace Servicios
             ValidarRolEditor();
             ValidarPartidoNoBloqueado(partido);
             MarcarResultadoSiCorresponde(partido);
+            PropagrarResultado(partido);
             _repositorio.Actualizar(partido);
             _auditoriaServicio.Registrar($"Modificación de partido: {partido.Id}", _sesionServicio.ObtenerUsuarioActual());
         }
@@ -91,6 +92,30 @@ namespace Servicios
             return _repositorio.ObtenerTodos()
                 .Where(p => p.Fase == fase)
                 .ToList();
+        }
+        
+        private void PropagrarResultado(Partido partido)
+        {
+            if (partido.Vencedor == null) return;
+            var siguientes = _repositorio.ObtenerTodos()
+                .Where(p => p.OrigenLocal?.Id == partido.Id || p.OrigenVisitante?.Id == partido.Id)
+                .ToList();
+            foreach (var siguiente in siguientes)
+            {
+                var equipo = siguiente.EsPorPerdedor ? ObtenerPerdedor(partido) : partido.Vencedor;
+                if (siguiente.OrigenLocal?.Id == partido.Id)
+                    siguiente.EquipoLocal = equipo;
+                else
+                    siguiente.EquipoVisitante = equipo;
+                _repositorio.Actualizar(siguiente);
+            }
+        }
+
+        private Equipo ObtenerPerdedor(Partido partido)
+        {
+            return partido.Vencedor == partido.EquipoLocal
+                ? partido.EquipoVisitante
+                : partido.EquipoLocal;
         }
     }
 }
