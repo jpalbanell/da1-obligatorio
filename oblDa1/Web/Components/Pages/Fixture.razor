@@ -10,10 +10,15 @@
 @inject IPartidoServicio PartidoServicio
 
 <h3>Fixture</h3>
-
 @if (!_cargado)
 {
     <p>Cargando...</p>
+    return;
+}
+
+@if (!_usuarioActual.TieneRol(Rol.Editor))
+{
+    <p>No tenés permisos para ver esta página.</p>
     return;
 }
 
