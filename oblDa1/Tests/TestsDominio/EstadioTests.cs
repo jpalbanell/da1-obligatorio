@@ -104,4 +104,12 @@ public class EstadioTests
         var estadio = new Estadio();
         Assert.IsNotNull(estadio.Partidos);
     }
+    
+    [TestMethod]
+    public void CrearEstadio_ConDescripcionVacia_DeberiaAsignarNull()
+    {
+        var estadio = new Estadio();
+        estadio.Descripcion = "";
+        Assert.IsNull(estadio.Descripcion);
+    }
 }
