@@ -46,6 +46,7 @@ namespace Servicios
 
         public void ReiniciarContrasena(int id)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             var usuario = ObtenerUsuarioExistente(id);
             usuario.Contrasena = GenerarContrasenaDefault();
             _repositorio.Actualizar(usuario);
