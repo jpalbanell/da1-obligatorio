@@ -1,0 +1,29 @@
+name: .NET Tests
+
+on:
+  pull_request:
+    branches: [ dev, main ]
+  push:
+    branches: [ dev, main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restaurar dependencias
+        run: dotnet restore oblDa1/oblDa1.sln
+
+      - name: Compilar
+        run: dotnet build oblDa1/oblDa1.sln --configuration Release --no-restore
+
+      - name: Ejecutar tests
+        run: dotnet test oblDa1/oblDa1.sln --configuration Release --no-build --verbosity normal
