@@ -86,6 +86,14 @@ namespace Tests
         }
         
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConEmailFormatoInvalido_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.Email = "noEsUnEmail";
+        }
+        
+        [TestMethod]
         public void CrearUsuario_ConFechaNacimientoValida_DeberiaAsignarFecha()
         {
             var usuario = new Usuario();

@@ -82,6 +82,8 @@ namespace Dominio.Entidades
         {
             if (string.IsNullOrWhiteSpace(email))
                 throw new ArgumentException("El email es obligatorio.");
+            if (!System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                throw new ArgumentException("El formato del email no es válido.");
         }
 
         private void ValidarFechaNacimiento(DateTime fecha)
