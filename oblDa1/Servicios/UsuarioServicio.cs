@@ -22,10 +22,8 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarEmailUnico(usuario.Email);
-            var maxId = _repositorio.ObtenerTodos().Any() 
-                ? _repositorio.ObtenerTodos().Max(u => u.Id) 
-                : 0;
-            usuario.Id = maxId + 1;
+            var usuarios = _repositorio.ObtenerTodos();
+            usuario.Id = usuarios.Any() ? usuarios.Max(u => u.Id) + 1 : 1;
             _repositorio.Agregar(usuario);
             _auditoriaServicio.Registrar($"Alta de usuario: {usuario.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
