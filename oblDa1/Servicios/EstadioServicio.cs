@@ -72,11 +72,5 @@ namespace Servicios
             if (existente != null)
                 throw new Exception("Ya existe un estadio con ese nombre.");
         }
-        
-        private void ValidarEstadioExistente(string nombre)
-        {
-            if (_repositorio.ObtenerPorNombre(nombre) == null)
-                throw new Exception("No existe un estadio con ese nombre");
-        }
     }
 }
