@@ -55,7 +55,7 @@ namespace Servicios
 
         private void MarcarResultadoSiCorresponde(Partido partido)
         {
-            if (partido.GolesLocal >= 0 && partido.GolesVisitante >= 0 && partido.Vencedor != null)
+            if (partido.GolesLocal >= 0 && partido.GolesVisitante >= 0)
                 partido.TieneResultado = true;
         }
 
