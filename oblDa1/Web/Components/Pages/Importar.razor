@@ -7,7 +7,7 @@
 @inject NavigationManager Nav
 @using Microsoft.AspNetCore.Components.Forms
 
-@if (!_usuarioActual.TieneRol(Rol.Editor))
+@if (_usuarioActual == null || !_usuarioActual.TieneRol(Rol.Editor))
 {
     <p>No tenés permisos para ver esta página.</p>
 }
