@@ -140,21 +140,6 @@ namespace Servicios
             return 0;
         }
         
-        private List<PosicionesGrupo> ObtenerClasificados(Random random)
-        {
-            var grupos = _grupoRepositorio.ObtenerTodos();
-            var todasLasPosiciones = new List<PosicionesGrupo>();
-
-            foreach (var grupo in grupos)
-            {
-                var posicionesGrupo = CalcularPosicionesGrupo(grupo);
-                var ordenadas = OrdenarPosiciones(posicionesGrupo, random);
-                todasLasPosiciones.AddRange(ordenadas);
-            }
-
-            return todasLasPosiciones;
-        }
-
         private List<PosicionesGrupo> OrdenarPosiciones(List<PosicionesGrupo> posiciones, Random random)
         {
             var ordenadas = posiciones
