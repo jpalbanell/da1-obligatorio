@@ -69,7 +69,7 @@ namespace Servicios
         private Usuario ObtenerUsuarioPorEmail(string email)
         {
             var usuario = _repositorio.ObtenerTodos()
-                .FirstOrDefault(u => u.Email == email);
+                .FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             if (usuario == null)
                 throw new Exception("Credenciales inválidas.");
             return usuario;

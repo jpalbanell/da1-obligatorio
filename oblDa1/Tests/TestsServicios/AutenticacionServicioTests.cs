@@ -176,5 +176,17 @@ namespace Tests
 
             _autenticacionServicio.ReiniciarContrasena(usuarioObjetivo.Id);
         }
+        
+        [TestMethod]
+        public void Login_ConEmailEnDistintaCapitalizacion_DeberiaFuncionar()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _usuarioServicio.AgregarUsuario(usuario);
+
+            var resultado = _autenticacionServicio.Login("JUAN@EJEMPLO.COM", "Abcdef1@");
+
+            Assert.IsNotNull(resultado);
+            Assert.AreEqual("Juan", resultado.Nombre);
+        }
     }
 }
