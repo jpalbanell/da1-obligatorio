@@ -2,7 +2,7 @@ namespace Dominio.Entidades
 {
     public class Grupo
     {
-        private static readonly string[] EtiquetasValidas =
+        public static readonly string[] EtiquetasValidas =
             { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
 
         private string _etiqueta;

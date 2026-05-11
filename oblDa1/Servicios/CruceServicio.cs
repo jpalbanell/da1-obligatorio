@@ -15,6 +15,10 @@ namespace Servicios
         
         private DateTime _fechaActualEliminatorias;
         private int _partidosEnFechaActual;
+        
+        private const int CantidadMejoresPrimeros = 8;
+        private const int CantidadSegundosRestantes = 8;
+        private const int CantidadMejoresTerceros = 8;
 
         public CruceServicio(
             IGrupoRepositorio grupoRepositorio,
@@ -181,7 +185,7 @@ namespace Servicios
                 .OrderByDescending(p => p.Puntos)
                 .ThenByDescending(p => p.DiferenciaGoles)
                 .ThenByDescending(p => p.GolesFavor)
-                .Take(8)
+                .Take(CantidadMejoresTerceros)
                 .ToList();
 
             return (primeros, segundos, mejoresTerceros);
@@ -198,8 +202,8 @@ namespace Servicios
                 .ThenByDescending(p => p.GolesFavor)
                 .ToList();
 
-            var ochoMejoresPrimeros = primerosOrdenados.Take(8).ToList();
-            var cuatroRestantesPrimeros = primerosOrdenados.Skip(8).ToList();
+            var ochoMejoresPrimeros = primerosOrdenados.Take(CantidadMejoresPrimeros).ToList();
+            var cuatroRestantesPrimeros = primerosOrdenados.Skip(CantidadMejoresPrimeros).ToList();
 
             var segundosOrdenados = segundos
                 .OrderByDescending(p => p.Puntos)
@@ -207,9 +211,8 @@ namespace Servicios
                 .ThenByDescending(p => p.GolesFavor)
                 .ToList();
 
-            var cuatroSegundosMenorPuntaje = segundosOrdenados.Skip(8).ToList();
-            var ochoSegundosRestantes = segundosOrdenados.Take(8).ToList();
-
+            var cuatroSegundosMenorPuntaje = segundosOrdenados.Skip(CantidadSegundosRestantes).ToList();
+            var ochoSegundosRestantes = segundosOrdenados.Take(CantidadSegundosRestantes).ToList();
             
             AplicarFisherYates(ochoMejoresPrimeros, random);
             AplicarFisherYates(mejoresTerceros, random);
