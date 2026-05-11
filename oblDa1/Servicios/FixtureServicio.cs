@@ -82,7 +82,7 @@ namespace Servicios
         
         private void CrearGrupos()
         {
-            string[] etiquetas = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+            var etiquetas = Grupo.EtiquetasValidas;
             foreach (var etiqueta in etiquetas)
             {
                 var grupo = new Grupo();
