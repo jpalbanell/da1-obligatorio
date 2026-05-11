@@ -172,6 +172,7 @@ namespace Tests.TestsServicios
             partido.TieneResultado = false;
             grupo.ListaPartidos.Add(partido);
             _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
 
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
             _servicio.GenerarCruces(42);
