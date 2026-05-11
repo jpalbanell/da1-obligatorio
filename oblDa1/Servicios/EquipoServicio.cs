@@ -90,7 +90,7 @@ namespace Servicios
 
         private void ValidarNombreUnicoEnEdicion(Equipo equipo, string nombreOriginal)
         {
-            if (equipo.Nombre == nombreOriginal) return;
+            if (equipo.Nombre.Equals(nombreOriginal, StringComparison.OrdinalIgnoreCase)) return;
             if (_equipoRepositorio.ObtenerPorNombre(equipo.Nombre) != null)
                 throw new Exception("Ya existe un equipo con ese nombre");
         }
