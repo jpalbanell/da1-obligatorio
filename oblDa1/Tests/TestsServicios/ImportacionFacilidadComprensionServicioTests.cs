@@ -148,5 +148,16 @@ namespace Tests.TestsServicios
             Assert.AreEqual(1, logs.Count);
             Assert.IsTrue(logs[0].Accion.Contains("1 errores"));
         }
+        
+        [TestMethod]
+        public void ImportarEquipos_ConRankingFueraDeRangoInferior_DeberiaRegistrarError()
+        {
+            var csv = "Nombre,Confederación,RankingFIFA\nUruguay,CONMEBOL,100";
+
+            var resultado = _servicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(0, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
     }
 }
