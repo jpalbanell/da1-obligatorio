@@ -394,7 +394,6 @@ namespace Tests
 
             var fixture = new Fixture();
             fixture.SemillaFixture = 42;
-            var usuario = CrearUsuarioValido();
 
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
             _servicio.GenerarFixture(fixture);
