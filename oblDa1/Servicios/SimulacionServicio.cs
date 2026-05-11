@@ -27,6 +27,7 @@ namespace Servicios
             _sesionServicio.ValidarRol(Rol.Editor);
             var partido = _partidoRepositorio.ObtenerPorId(partidoId);
             ValidarPartidoExistente(partido);
+            ValidarEquipos(partido);
 
             var random = new Random(semillaSimulation + partidoId);
             partido.GolesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
@@ -60,6 +61,7 @@ namespace Servicios
 
         private void SimularPartidoDeFase(Partido partido, int semillaSimulation)
         {
+            ValidarEquipos(partido);
             var random = new Random(semillaSimulation + partido.Id);
             partido.GolesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
             partido.GolesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
@@ -68,6 +70,12 @@ namespace Servicios
             ActualizarPosiciones(partido);
             PropagrarResultado(partido);
             _partidoRepositorio.Actualizar(partido);
+        }
+        
+        private void ValidarEquipos(Partido partido)
+        {
+            if (partido.EquipoLocal == null || partido.EquipoVisitante == null)
+                throw new Exception("No se puede simular el partido: aún no hay equipos asignados. Simulá primero las fases anteriores.");
         }
 
         private int GenerarGoles(int rankingFifa, Random random)

@@ -548,5 +548,33 @@ namespace Tests.TestsServicios
 
             Assert.IsTrue(partido.EstaBloqueado);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void SimularPartido_ConEquipoLocalNulo_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.Codigo = "P001";
+            partido.Fecha = new DateTime(2026, 6, 1);
+            partido.EquipoLocal = null;
+            partido.EquipoVisitante = new Equipo { Nombre = "Visitante", Confederacion = Confederacion.UEFA, RankingFifa = 1500 };
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void SimularPartido_ConEquipoVisitanteNulo_DeberiaLanzarExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.Codigo = "P001";
+            partido.Fecha = new DateTime(2026, 6, 1);
+            partido.EquipoLocal = new Equipo { Nombre = "Local", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            partido.EquipoVisitante = null;
+            _partidoRepositorio.Agregar(partido);
+
+            _simulacionServicio.SimularPartido(partido.Id, 42);
+        }
     }
 }
