@@ -10,6 +10,7 @@ namespace Tests.TestsServicios
     public class ImportacionFacilidadComprensionServicioTests
     {
         private IEquipoRepositorio _equipoRepositorio = null!;
+        private IEquipoServicio _equipoServicio = null!;
         private IImportacionServicio _servicio = null!;
         private IAuditoriaRepositorio _auditoriaRepositorio = null!;
         private IAuditoriaServicio _auditoriaServicio = null!;
@@ -22,8 +23,8 @@ namespace Tests.TestsServicios
             _auditoriaRepositorio = new AuditoriaRepositorio();
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
-            _servicio = new ImportacionFacilidadComprensionServicio(_equipoRepositorio, _auditoriaServicio, _sesionServicio);
-
+            _equipoServicio = new EquipoServicio(_equipoRepositorio, _auditoriaServicio, _sesionServicio);
+            _servicio = new ImportacionFacilidadComprensionServicio(_equipoRepositorio, _equipoServicio, _auditoriaServicio, _sesionServicio);
             var usuario = new Usuario();
             usuario.Nombre = "Juan";
             usuario.Apellido = "Perez";
@@ -159,6 +160,19 @@ namespace Tests.TestsServicios
             var resultado = _servicio.ImportarEquipos(csv);
 
             Assert.AreEqual(0, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
+        
+        [TestMethod]
+        public void ImportarEquipos_ExcediendoCupoConfederacion_DeberiaRegistrarError()
+        {
+            var csv = "Nombre,Confederación,RankingFIFA\n" +
+                      "OFC_A,OFC,1500\n" +
+                      "OFC_B,OFC,1600";
+
+            var resultado = _servicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(1, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
     }

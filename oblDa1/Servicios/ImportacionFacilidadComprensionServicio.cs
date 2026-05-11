@@ -12,16 +12,20 @@ namespace Servicios
         private const int ColumnaConfederacion = 1;
         private const int ColumnaRankingFifa = 2;
         private const char SeparadorDeColumnas = ',';
+        
         private readonly IEquipoRepositorio _equipoRepositorio;
+        private readonly IEquipoServicio _equipoServicio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
 
         public ImportacionFacilidadComprensionServicio(
             IEquipoRepositorio equipoRepositorio,
+            IEquipoServicio equipoServicio,
             IAuditoriaServicio auditoriaServicio,
             ISesionServicio sesionServicio)
         {
             _equipoRepositorio = equipoRepositorio;
+            _equipoServicio = equipoServicio;
             _auditoriaServicio = auditoriaServicio;
             _sesionServicio = sesionServicio;
         }
@@ -123,6 +127,7 @@ namespace Servicios
 
         private void GuardarEquipo(Equipo equipo)
         {
+            _equipoServicio.ValidarCupoConfederacion(equipo.Confederacion);
             _equipoRepositorio.Agregar(equipo);
         }
 

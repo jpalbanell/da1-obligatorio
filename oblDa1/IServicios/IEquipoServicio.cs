@@ -10,6 +10,7 @@ namespace IServicios
         List<Equipo> ObtenerTodos();
         Equipo ObtenerPorNombre(string nombre);
         void CompletarEquiposAutomaticamente(int semillaCompletar);
+        void ValidarCupoConfederacion(Dominio.Entidades.Confederacion confederacion);
 
     }
 }

@@ -357,5 +357,18 @@ namespace Tests
 
             Assert.AreEqual(partidoOrigen.EquipoLocal, partidoSiguiente.EquipoLocal);
         }
+        
+        [TestMethod]
+        public void ModificarPartido_ConEmpate_DeberiaMarcarTieneResultado()
+        {
+            var partido = CrearPartidoValido();
+            _servicio.AgregarPartido(partido);
+
+            partido.GolesLocal = 0;
+            partido.GolesVisitante = 0;
+            _servicio.ModificarPartido(partido);
+            var resultado = _servicio.ObtenerPartido(partido.Id);
+            Assert.IsTrue(resultado.TieneResultado);
+        }
     }
 }

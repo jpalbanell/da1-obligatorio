@@ -63,6 +63,7 @@ namespace Servicios
         public void EliminarEstadio(string nombre)
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
+            ValidarEstadioExiste(nombre);
             _repositorio.Eliminar(nombre);
             _auditoriaServicio.Registrar($"Eliminación de estadio: {nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
