@@ -130,6 +130,43 @@ namespace Tests
             }
         }
         
+        private void CargarEquiposEnRepositorio(IEquipoRepositorio repositorio)
+        {
+            Confederacion[] confederaciones = {
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA, Confederacion.UEFA,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.OFC
+            };
+
+            int[] rankings = {
+                2500, 2450, 2400, 2350, 2300, 2300, 2250, 2200,
+                2150, 2100, 2050, 2000, 1950, 1900, 1850, 1800,
+                1750, 1750, 1700, 1650, 1600, 1550, 1500,
+                1450, 1400, 1350, 1300, 1300, 1250, 1200,
+                1150, 1100, 1050, 1000, 950, 900, 850, 800, 750,
+                700, 650, 600, 600, 550, 500, 450, 400, 350
+            };
+
+            for (int i = 0; i < 48; i++)
+            {
+                var equipo = new Equipo();
+                equipo.Nombre = $"Equipo_{i + 1}";
+                equipo.Confederacion = confederaciones[i];
+                equipo.RankingFifa = rankings[i];
+                repositorio.Agregar(equipo);
+            }
+        }
+        
         private void CargarEstadios(int cantidad)
         {
             for (int i = 0; i < cantidad; i++)
@@ -141,6 +178,19 @@ namespace Tests
                 _estadioRepositorio.Agregar(estadio);
             }
         }
+        
+        private void CargarEstadiosEnRepositorio(IEstadioRepositorio repositorio)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var estadio = new Estadio();
+                estadio.Nombre = $"Estadio_{i + 1}";
+                estadio.Ciudad = $"Ciudad_{i + 1}";
+                estadio.Capacidad = 40000;
+                repositorio.Agregar(estadio);
+            }
+        }
+        
         
         private Usuario CrearUsuarioValido()
         {
@@ -364,21 +414,31 @@ namespace Tests
 
             _sesionServicio.IniciarSesion(CrearUsuarioValido());
             _servicio.GenerarFixture(fixture1);
-            var grupos1 = _grupoRepositorio.ObtenerTodos();
-            var primerEquipoGrupoA1 = grupos1[0].ListaPosiciones[0].Equipo.Nombre;
+            var primerEquipoGrupoA1 = _grupoRepositorio.ObtenerTodos()[0]
+                .ListaPosiciones[0].Equipo.Nombre;
 
-            Setup();
+            var equipoRepositorio2 = new EquipoRepositorio();
+            var estadioRepositorio2 = new EstadioRepositorio();
+            var partidoRepositorio2 = new PartidoRepositorio();
+            var grupoRepositorio2 = new GrupoRepositorio();
+            var fixtureRepositorio2 = new FixtureRepositorio();
+            var auditoriaServicio2 = new AuditoriaServicio(new AuditoriaRepositorio());
+            var sesionServicio2 = new SesionServicio();
+            var servicio2 = new FixtureServicio(
+                equipoRepositorio2, estadioRepositorio2, partidoRepositorio2,
+                grupoRepositorio2, fixtureRepositorio2, auditoriaServicio2, sesionServicio2);
 
-            CargarEquiposConEmpate();
-            CargarEstadios(4);
+            sesionServicio2.IniciarSesion(CrearUsuarioValido());
+
+            CargarEquiposEnRepositorio(equipoRepositorio2);
+            CargarEstadiosEnRepositorio(estadioRepositorio2);
 
             var fixture2 = new Fixture();
             fixture2.SemillaFixture = 42;
 
-            _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarFixture(fixture2);
-            var grupos2 = _grupoRepositorio.ObtenerTodos();
-            var primerEquipoGrupoA2 = grupos2[0].ListaPosiciones[0].Equipo.Nombre;
+            servicio2.GenerarFixture(fixture2);
+            var primerEquipoGrupoA2 = grupoRepositorio2.ObtenerTodos()[0]
+                .ListaPosiciones[0].Equipo.Nombre;
 
             Assert.AreEqual(primerEquipoGrupoA1, primerEquipoGrupoA2);
         }
