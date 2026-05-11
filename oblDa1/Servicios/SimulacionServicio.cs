@@ -122,15 +122,8 @@ namespace Servicios
             posVisitante.GolesContra += partido.GolesLocal;
             posVisitante.DiferenciaGoles = posVisitante.GolesFavor - posVisitante.GolesContra;
             
-            posLocal.Puntos += CalcularPuntos(partido.GolesLocal, partido.GolesVisitante);
-            posVisitante.Puntos += CalcularPuntos(partido.GolesVisitante, partido.GolesLocal);
-        }
-        
-        private int CalcularPuntos(int golesFavor, int golesContra)
-        {
-            if (golesFavor > golesContra) return 3;
-            if (golesFavor == golesContra) return 1;
-            return 0;
+            posLocal.Puntos += PosicionesGrupo.CalcularPuntos(partido.GolesLocal, partido.GolesVisitante);
+            posVisitante.Puntos += PosicionesGrupo.CalcularPuntos(partido.GolesVisitante, partido.GolesLocal);
         }
         
         private void PropagarResultado(Partido partido)

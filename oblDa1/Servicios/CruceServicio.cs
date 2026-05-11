@@ -131,14 +131,7 @@ namespace Servicios
             posicion.GolesFavor += golesFavor;
             posicion.GolesContra += golesContra;
             posicion.DiferenciaGoles = posicion.GolesFavor - posicion.GolesContra;
-            posicion.Puntos += CalcularPuntos(golesFavor, golesContra);
-        }
-
-        private int CalcularPuntos(int golesFavor, int golesContra)
-        {
-            if (golesFavor > golesContra) return 3;
-            if (golesFavor == golesContra) return 1;
-            return 0;
+            posicion.Puntos += PosicionesGrupo.CalcularPuntos(golesFavor, golesContra);
         }
         
         private List<PosicionesGrupo> ObtenerClasificados(Random random)
