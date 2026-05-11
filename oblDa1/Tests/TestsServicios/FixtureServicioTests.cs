@@ -150,6 +150,7 @@ namespace Tests
             usuario.Email = "leo@test.com";
             usuario.FechaNacimiento = new DateTime(1990, 1, 1);
             usuario.Contrasena = "Password@1";
+            usuario.Roles.Add(Rol.Editor);
             return usuario;
         }
         
@@ -519,6 +520,27 @@ namespace Tests
                         $"Solo {diasEntrePartidos} días de diferencia, mínimo {fixture.SeparacionEntreFechas}.");
                 }
             }
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void GenerarFixture_SinRolEditor_DeberiaLanzarExcepcion()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            var usuarioSinRol = new Usuario();
+            usuarioSinRol.Nombre = "Juan";
+            usuarioSinRol.Apellido = "Perez";
+            usuarioSinRol.Email = "juan@ejemplo.com";
+            usuarioSinRol.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuarioSinRol.Contrasena = "Password@1";
+            _sesionServicio.IniciarSesion(usuarioSinRol);
+
+            _servicio.GenerarFixture(fixture);
         }
         
     }
