@@ -31,14 +31,14 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarNombreUnicoEnEdicion(equipo, nombreOriginal);
-            ValidarCupoConfederacionEnEdicion(equipo);
+            ValidarCupoConfederacionEnEdicion(equipo, nombreOriginal);
             _equipoRepositorio.Actualizar(equipo, nombreOriginal);
             _auditoriaServicio.Registrar($"Edición de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
 
-        private void ValidarCupoConfederacionEnEdicion(Equipo equipo)
+        private void ValidarCupoConfederacionEnEdicion(Equipo equipo, string nombreOriginal)
         {
-            var equipoOriginal = _equipoRepositorio.ObtenerPorNombre(equipo.Nombre);
+            var equipoOriginal = _equipoRepositorio.ObtenerPorNombre(nombreOriginal);
             if (equipoOriginal == null) return;
             if (equipoOriginal.Confederacion == equipo.Confederacion) return;
 
