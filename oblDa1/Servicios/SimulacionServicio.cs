@@ -1,22 +1,21 @@
 using Dominio.Entidades;
-using Repositorios;
 
 namespace Servicios
 {
     public class SimulacionServicio : ISimulacionServicio
     {
-        private readonly IPartidoRepositorio _partidoRepositorio;
+        private readonly IPartidoServicio _partidoServicio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
         private const double RankingMaximo = 2500.0;
         private const int MaxGolesBase = 5;
         private const int MinGolesMaximos = 1;
 
-        public SimulacionServicio(IPartidoRepositorio partidoRepositorio,
+        public SimulacionServicio(IPartidoServicio partidoServicio,
             IAuditoriaServicio auditoriaServicio,
             ISesionServicio sesionServicio)
         {
-            _partidoRepositorio = partidoRepositorio;
+            _partidoServicio = partidoServicio;
             _auditoriaServicio = auditoriaServicio;
             _sesionServicio = sesionServicio;
         }
@@ -24,7 +23,7 @@ namespace Servicios
         public void SimularPartido(int partidoId, int semillaSimulation)
         {
             _sesionServicio.ValidarRol(Rol.Editor);
-            var partido = _partidoRepositorio.ObtenerPorId(partidoId);
+            var partido = _partidoServicio.ObtenerPartido(partidoId);
             ValidarPartidoExistente(partido);
             ValidarEquipos(partido);
 
@@ -34,8 +33,8 @@ namespace Servicios
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
             ActualizarPosiciones(partido);
-            PropagarResultado(partido);
-            _partidoRepositorio.Actualizar(partido);
+            _partidoServicio.PropagarResultado(partido);
+            _partidoServicio.ActualizarPartido(partido);
             _auditoriaServicio.Registrar(
                 $"Simulación de partido: {partidoId} con SemillaSimulation: {semillaSimulation}",
                 _sesionServicio.ObtenerUsuarioActual());
@@ -44,7 +43,7 @@ namespace Servicios
         public void SimularFase(FaseTorneo fase, int semillaSimulation)
         {
             _sesionServicio.ValidarRol(Rol.Editor);
-            var partidos = _partidoRepositorio.ObtenerTodos()
+            var partidos = _partidoServicio.ObtenerTodos()
                 .Where(p => p.Fase == fase && !p.TieneResultado)
                 .ToList();
             
@@ -67,8 +66,8 @@ namespace Servicios
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
             ActualizarPosiciones(partido);
-            PropagarResultado(partido);
-            _partidoRepositorio.Actualizar(partido);
+            _partidoServicio.PropagarResultado(partido);
+            _partidoServicio.ActualizarPartido(partido);
         }
         
         private void ValidarEquipos(Partido partido)
@@ -122,46 +121,15 @@ namespace Servicios
             posVisitante.GolesContra += partido.GolesLocal;
             posVisitante.DiferenciaGoles = posVisitante.GolesFavor - posVisitante.GolesContra;
             
-            posLocal.Puntos += CalcularPuntos(partido.GolesLocal, partido.GolesVisitante);
-            posVisitante.Puntos += CalcularPuntos(partido.GolesVisitante, partido.GolesLocal);
-        }
-        
-        private int CalcularPuntos(int golesFavor, int golesContra)
-        {
-            if (golesFavor > golesContra) return 3;
-            if (golesFavor == golesContra) return 1;
-            return 0;
-        }
-        
-        private void PropagarResultado(Partido partido)
-        {
-            if (partido.Vencedor == null) return;
-            var siguientes = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.OrigenLocal?.Id == partido.Id || p.OrigenVisitante?.Id == partido.Id)
-                .ToList();
-            foreach (var siguiente in siguientes)
-            {
-                var equipo = siguiente.EsPorPerdedor ? ObtenerPerdedor(partido) : partido.Vencedor;
-                if (siguiente.OrigenLocal?.Id == partido.Id)
-                    siguiente.EquipoLocal = equipo;
-                else
-                    siguiente.EquipoVisitante = equipo;
-                _partidoRepositorio.Actualizar(siguiente);
-            }
-        }
-        
-        private Equipo ObtenerPerdedor(Partido partido)
-        {
-            return partido.Vencedor == partido.EquipoLocal
-                ? partido.EquipoVisitante
-                : partido.EquipoLocal;
+            posLocal.Puntos += PosicionesGrupo.CalcularPuntos(partido.GolesLocal, partido.GolesVisitante);
+            posVisitante.Puntos += PosicionesGrupo.CalcularPuntos(partido.GolesVisitante, partido.GolesLocal);
         }
         
         private void BloquearFaseAnterior(FaseTorneo faseActual)
         {
             if (faseActual == FaseTorneo.FaseGrupos) return;
             var faseAnterior = faseActual - 1;
-            var partidos = _partidoRepositorio.ObtenerTodos()
+            var partidos = _partidoServicio.ObtenerTodos()
                 .Where(p => p.Fase == faseAnterior)
                 .ToList();
             foreach (var partido in partidos)

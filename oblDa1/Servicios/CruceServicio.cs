@@ -1,4 +1,5 @@
 using Dominio.Entidades;
+using Dominio;
 using Repositorios;
 
 namespace Servicios
@@ -130,14 +131,7 @@ namespace Servicios
             posicion.GolesFavor += golesFavor;
             posicion.GolesContra += golesContra;
             posicion.DiferenciaGoles = posicion.GolesFavor - posicion.GolesContra;
-            posicion.Puntos += CalcularPuntos(golesFavor, golesContra);
-        }
-
-        private int CalcularPuntos(int golesFavor, int golesContra)
-        {
-            if (golesFavor > golesContra) return 3;
-            if (golesFavor == golesContra) return 1;
-            return 0;
+            posicion.Puntos += PosicionesGrupo.CalcularPuntos(golesFavor, golesContra);
         }
         
         private List<PosicionesGrupo> ObtenerClasificados(Random random)
@@ -421,7 +415,7 @@ namespace Servicios
         private Estadio ObtenerEstadioRotado(int indice)
         {
             var estadios = _estadioRepositorio.ObtenerTodos()
-                .OrderBy(e => Normalizar(e.Nombre), StringComparer.Ordinal)
+                .OrderBy(e => UtilTexto.Normalizar(e.Nombre), StringComparer.Ordinal)
                 .ToList();
 
             if (estadios.Count == 0)
@@ -443,36 +437,7 @@ namespace Servicios
             _partidosEnFechaActual++;
             return fecha;
         }
-
-        private string Normalizar(string texto)
-        {
-            if (string.IsNullOrEmpty(texto))
-                return string.Empty;
-
-            var resultado = texto.ToLowerInvariant();
-
-            var formaDescompuesta = resultado.Normalize(System.Text.NormalizationForm.FormD);
-            var sinTildes = new System.Text.StringBuilder();
-            foreach (var c in formaDescompuesta)
-            {
-                var categoria = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
-                if (categoria != System.Globalization.UnicodeCategory.NonSpacingMark)
-                    sinTildes.Append(c);
-            }
-            resultado = sinTildes.ToString().Normalize(System.Text.NormalizationForm.FormC);
-
-            var conEspacios = new System.Text.StringBuilder();
-            foreach (var c in resultado)
-            {
-                conEspacios.Append(char.IsLetterOrDigit(c) ? c : ' ');
-            }
-            resultado = conEspacios.ToString();
-
-            resultado = System.Text.RegularExpressions.Regex.Replace(resultado, @"\s+", " ").Trim();
-
-            return resultado;
-        }
-
+        
         private Grupo ObtenerGrupoPorEtiqueta(string etiqueta)
         {
             return _grupoRepositorio.ObtenerPorEtiqueta(etiqueta);

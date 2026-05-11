@@ -95,5 +95,12 @@
             if (valor < 1 || valor > 4)
                 throw new ArgumentException("PosicionFinal debe estar entre 1 y 4");
         }
+        
+        public static int CalcularPuntos(int golesFavor, int golesContra)
+        {
+            if (golesFavor > golesContra) return 3;
+            if (golesFavor == golesContra) return 1;
+            return 0;
+        }
     }
 }

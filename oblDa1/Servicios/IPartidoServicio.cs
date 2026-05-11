@@ -12,6 +12,8 @@
             List<Partido> ObtenerPorEstadio(string nombreEstadio);
             List<Partido> ObtenerPorGrupo(string etiquetaGrupo);
             List<Partido> ObtenerPorFase(FaseTorneo fase);
+            void PropagarResultado(Partido partido);
+            void ActualizarPartido(Partido partido);
         }
         
     }

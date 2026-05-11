@@ -94,7 +94,12 @@ namespace Servicios
                 .ToList();
         }
         
-        private void PropagarResultado(Partido partido)
+        public void ActualizarPartido(Partido partido)
+        {
+            _repositorio.Actualizar(partido);
+        }
+        
+        public void PropagarResultado(Partido partido)
         {
             if (partido.Vencedor == null) return;
             var siguientes = _repositorio.ObtenerTodos()

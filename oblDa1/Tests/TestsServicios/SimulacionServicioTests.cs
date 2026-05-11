@@ -8,6 +8,7 @@ namespace Tests.TestsServicios
     public class SimulacionServicioTests
     {
         private ISimulacionServicio _simulacionServicio;
+        private IPartidoServicio _partidoServicio;
         private IPartidoRepositorio _partidoRepositorio;
         private IAuditoriaServicio _auditoriaServicio;
         private IAuditoriaRepositorio _auditoriaRepositorio;
@@ -22,9 +23,9 @@ namespace Tests.TestsServicios
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
             _grupoRepositorio = new GrupoRepositorio();
+            _partidoServicio = new PartidoServicio(_partidoRepositorio, _auditoriaServicio, _sesionServicio);
             _simulacionServicio = new SimulacionServicio(
-                _partidoRepositorio, _auditoriaServicio, _sesionServicio);
-
+                _partidoServicio, _auditoriaServicio, _sesionServicio);
 
             var usuario = new Usuario();
             usuario.Nombre = "Santiago";
