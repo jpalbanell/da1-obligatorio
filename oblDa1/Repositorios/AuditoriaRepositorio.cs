@@ -1,4 +1,5 @@
 using Dominio.Entidades;
+using IRepositorios;
 
 namespace Repositorios
 {

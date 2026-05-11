@@ -1,15 +1,16 @@
 using Web.Components;
 using Dominio.Entidades;
+using IRepositorios;
 using Repositorios;
+using IServicios;
 using Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Repositorios
 builder.Services.AddSingleton<IEquipoRepositorio, EquipoRepositorio>();
 builder.Services.AddSingleton<IEstadioRepositorio, EstadioRepositorio>();
 builder.Services.AddSingleton<IUsuarioRepositorio, UsuarioRepositorio>();
@@ -19,7 +20,6 @@ builder.Services.AddSingleton<IAuditoriaRepositorio, AuditoriaRepositorio>();
 builder.Services.AddSingleton<IFixtureRepositorio, FixtureRepositorio>();
 
 
-// Servicios
 builder.Services.AddScoped<IEquipoServicio, EquipoServicio>();
 builder.Services.AddScoped<IEstadioServicio, EstadioServicio>();
 builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
@@ -51,11 +51,9 @@ using (var scope = app.Services.CreateScope())
     usuarioRepositorio.Agregar(admin);
 }
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

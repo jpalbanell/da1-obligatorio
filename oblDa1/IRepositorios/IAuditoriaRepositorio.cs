@@ -1,6 +1,6 @@
 using Dominio.Entidades;
 
-namespace Repositorios
+namespace IRepositorios
 {
     public interface IAuditoriaRepositorio
     {
