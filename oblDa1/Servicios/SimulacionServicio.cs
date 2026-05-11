@@ -8,7 +8,6 @@ namespace Servicios
         private readonly IPartidoRepositorio _partidoRepositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
-        private readonly IGrupoRepositorio _grupoRepositorio;
         private const double RankingMaximo = 2500.0;
         private const int MaxGolesBase = 5;
         private const int MinGolesMaximos = 1;
