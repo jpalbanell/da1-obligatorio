@@ -105,7 +105,7 @@ namespace Tests.TestsServicios
         
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-        public void AgregarEquipo_ConCupoCONCАCAFCompleto_LanzaExcepcion()
+        public void AgregarEquipo_ConCupoCONCACAFCompleto_LanzaExcepcion()
         {
             for (int i = 1; i <= 7; i++)
             {
