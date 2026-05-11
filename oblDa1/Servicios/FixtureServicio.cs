@@ -39,6 +39,7 @@ namespace Servicios
 
         public void GenerarFixture(Fixture fixture)
         {
+            _sesionServicio.ValidarRol(Rol.Editor);
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
             ValidarFixtureNoGenerado(fixture);

@@ -150,6 +150,7 @@ namespace Tests
             usuario.Email = "leo@test.com";
             usuario.FechaNacimiento = new DateTime(1990, 1, 1);
             usuario.Contrasena = "Password@1";
+            usuario.Roles.Add(Rol.Editor);
             return usuario;
         }
         
@@ -485,6 +486,7 @@ namespace Tests
                 }
             }
         }
+      
         [TestMethod]
         public void GenerarFixture_ConDatosValidos_CadaEquipoDebeDescansarAlMenos3DiasEntrePartidos()
         {
@@ -521,21 +523,45 @@ namespace Tests
             }
         }
         
-        [TestMethod]
-        public void GenerarFixture_DeberiaRegistrarAuditoriaIncluyendoSemilla()
-        {
-            CargarEquipos(48);
-            CargarEstadios(4);
+      [TestMethod]
+      public void GenerarFixture_DeberiaRegistrarAuditoriaIncluyendoSemilla()
+      {
+          CargarEquipos(48);
+          CargarEstadios(4);
 
-            var fixture = new Fixture();
-            fixture.SemillaFixture = 42;
+          var fixture = new Fixture();
 
-            _sesionServicio.IniciarSesion(CrearUsuarioValido());
-            _servicio.GenerarFixture(fixture);
+          fixture.SemillaFixture = 42;
 
-            var logs = _auditoriaServicio.ObtenerTodos();
-            Assert.IsTrue(logs.Any(l => l.Accion.Contains("42")),
-                "El log de auditoría debe incluir el valor de SemillaFixture");
-        }
+          _sesionServicio.IniciarSesion(CrearUsuarioValido());
+          _servicio.GenerarFixture(fixture);
+
+          var logs = _auditoriaServicio.ObtenerTodos();
+
+          Assert.IsTrue(logs.Any(l => l.Accion.Contains("42")),
+              "El log de auditoría debe incluir el valor de SemillaFixture");
+      }
+
+      [TestMethod]
+      [ExpectedException(typeof(Exception))]
+      public void GenerarFixture_SinRolEditor_DeberiaLanzarExcepcion()
+      {
+          CargarEquipos(48);
+          CargarEstadios(4);
+
+          var fixture = new Fixture();
+
+          fixture.SemillaFixture = 42;
+
+          var usuarioSinRol = new Usuario();
+
+          usuarioSinRol.Nombre = "Juan";
+          usuarioSinRol.Apellido = "Perez";
+          usuarioSinRol.Email = "juan@ejemplo.com";
+          usuarioSinRol.FechaNacimiento = new DateTime(1990, 5, 15);
+          usuarioSinRol.Contrasena = "Password@1";
+          _sesionServicio.IniciarSesion(usuarioSinRol);
+          _servicio.GenerarFixture(fixture);
+      }
     }
 }
