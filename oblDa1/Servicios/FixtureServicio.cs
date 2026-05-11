@@ -18,7 +18,10 @@ namespace Servicios
         
         private int _proximoIdPartido = 1;
         private int _proximoIdGrupo = 1;
-
+        
+        private const int CantidadBombos = 4;
+        private const int TamanoBombo = 12;
+        
         public FixtureServicio(
             IEquipoRepositorio equipoRepositorio,
             IEstadioRepositorio estadioRepositorio,
@@ -122,14 +125,9 @@ namespace Servicios
         private void DistribuirEquiposEnGrupos(List<Equipo> equiposOrdenados)
         {
             var grupos = _grupoRepositorio.ObtenerTodos();
-            var bombos = new List<List<Equipo>>
-            {
-                equiposOrdenados.Skip(0).Take(12).ToList(),
-                equiposOrdenados.Skip(12).Take(12).ToList(),
-                equiposOrdenados.Skip(24).Take(12).ToList(),
-                equiposOrdenados.Skip(36).Take(12).ToList()
-            };
-
+            var bombos = Enumerable.Range(0, CantidadBombos)
+                .Select(i => equiposOrdenados.Skip(i * TamanoBombo).Take(TamanoBombo).ToList())
+                .ToList();
             foreach (var bombo in bombos)
                 AsignarBomboAGrupos(bombo, grupos);
         }
