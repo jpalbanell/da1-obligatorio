@@ -43,8 +43,10 @@ namespace Servicios
         public void ModificarUsuario(Usuario usuario)
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
+            var original = _repositorio.ObtenerPorId(usuario.Id);
             ValidarUsuarioExiste(usuario.Id);
             ValidarEmailUnicoEnEdicion(usuario);
+            usuario.AsignarContrasenaCifrada(original.ObtenerContrasenaCifrada());
             _repositorio.Actualizar(usuario);
             _auditoriaServicio.Registrar($"Edición de usuario: {usuario.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }

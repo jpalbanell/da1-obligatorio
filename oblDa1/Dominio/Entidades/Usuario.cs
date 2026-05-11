@@ -118,6 +118,16 @@ namespace Dominio.Entidades
         {
             return Roles.Contains(rol);
         }
+        
+        public string ObtenerContrasenaCifrada()
+        {
+            return _contrasena;
+        }
+
+        public void AsignarContrasenaCifrada(string contrasenaCifrada)
+        {
+            _contrasena = contrasenaCifrada;
+        }
     }
 }
 
