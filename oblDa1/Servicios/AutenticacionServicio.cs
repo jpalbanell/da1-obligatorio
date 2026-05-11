@@ -47,7 +47,10 @@ namespace Servicios
         public void ReiniciarContrasena(int id)
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
+            var usuarioActual = _sesionServicio.ObtenerUsuarioActual();
             var usuario = ObtenerUsuarioExistente(id);
+            if (usuarioActual.Id == usuario.Id)
+                throw new Exception("No podés reiniciar tu propia contraseña.");
             usuario.Contrasena = GenerarContrasenaDefault();
             _repositorio.Actualizar(usuario);
             _auditoriaServicio.Registrar($"Reinicio de contraseña: {usuario.Email}", _sesionServicio.ObtenerUsuarioActual());

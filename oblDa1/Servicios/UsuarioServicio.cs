@@ -8,7 +8,6 @@ namespace Servicios
         private readonly IUsuarioRepositorio _repositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
-        private int _proximoId = 1;
 
         public UsuarioServicio(IUsuarioRepositorio repositorio,
             IAuditoriaServicio auditoriaServicio,
@@ -23,7 +22,10 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
             ValidarEmailUnico(usuario.Email);
-            usuario.Id = _proximoId++;
+            var maxId = _repositorio.ObtenerTodos().Any() 
+                ? _repositorio.ObtenerTodos().Max(u => u.Id) 
+                : 0;
+            usuario.Id = maxId + 1;
             _repositorio.Agregar(usuario);
             _auditoriaServicio.Registrar($"Alta de usuario: {usuario.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
@@ -41,8 +43,10 @@ namespace Servicios
         public void ModificarUsuario(Usuario usuario)
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
+            var original = _repositorio.ObtenerPorId(usuario.Id);
             ValidarUsuarioExiste(usuario.Id);
             ValidarEmailUnicoEnEdicion(usuario);
+            usuario.AsignarContrasenaCifrada(original.ObtenerContrasenaCifrada());
             _repositorio.Actualizar(usuario);
             _auditoriaServicio.Registrar($"Edición de usuario: {usuario.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }

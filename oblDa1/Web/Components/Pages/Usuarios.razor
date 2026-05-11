@@ -27,6 +27,10 @@
 {
     <div class="alert alert-danger">@_mensajeError</div>
 }
+@if (!string.IsNullOrEmpty(_mensajeExito))
+{
+    <div class="alert alert-success">@_mensajeExito</div>
+}
 
 <table class="table table-striped">
     <thead>
@@ -138,6 +142,7 @@
     private bool _modoEdicion = false;
     private UsuarioRequest _form = new();
     private int _idEditando = 0;
+    private string _mensajeExito = "";
 
     protected override void OnInitialized()
     {
@@ -232,10 +237,12 @@
         {
             AutenticacionServicio.ReiniciarContrasena(id);
             _mensajeError = "";
+            _mensajeExito = "Contraseña reiniciada a: Password@1";
         }
         catch (Exception ex)
         {
             _mensajeError = ex.Message;
+            _mensajeExito = "";
         }
     }
 }

@@ -19,7 +19,8 @@ namespace Web.DTOs
             usuario.Apellido = Apellido;
             usuario.Email = Email;
             usuario.FechaNacimiento = FechaNacimiento;
-            usuario.Contrasena = Contrasena;
+            if (!string.IsNullOrEmpty(Contrasena))
+                usuario.Contrasena = Contrasena;
             if (EsAdministrador) usuario.Roles.Add(Rol.Administrador);
             if (EsEditor) usuario.Roles.Add(Rol.Editor);
             return usuario;
