@@ -235,5 +235,12 @@ namespace Tests
 
             _servicio.EliminarEstadio("Centenario");
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void EliminarEstadio_EstadioInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.EliminarEstadio("EstadioQueNoExiste");
+        }
     }
 }
