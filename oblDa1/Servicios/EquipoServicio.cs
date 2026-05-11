@@ -95,7 +95,7 @@ namespace Servicios
                 throw new Exception("Ya existe un equipo con ese nombre");
         }
 
-        private void ValidarCupoConfederacion(Confederacion confederacion)
+        public void ValidarCupoConfederacion(Confederacion confederacion)
         {
             int cupo = ObtenerCupoConfederacion(confederacion);
             int cantActual = _equipoRepositorio.ObtenerTodos()
