@@ -35,7 +35,7 @@ namespace Servicios
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
             ActualizarPosiciones(partido);
-            PropagrarResultado(partido);
+            PropagarResultado(partido);
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar(
                 $"Simulación de partido: {partidoId} con SemillaSimulation: {semillaSimulation}",
@@ -68,7 +68,7 @@ namespace Servicios
             partido.TieneResultado = true;
             AsignarVencedor(partido, random);
             ActualizarPosiciones(partido);
-            PropagrarResultado(partido);
+            PropagarResultado(partido);
             _partidoRepositorio.Actualizar(partido);
         }
         
@@ -134,7 +134,7 @@ namespace Servicios
             return 0;
         }
         
-        private void PropagrarResultado(Partido partido)
+        private void PropagarResultado(Partido partido)
         {
             if (partido.Vencedor == null) return;
             var siguientes = _partidoRepositorio.ObtenerTodos()

@@ -41,7 +41,7 @@ namespace Servicios
             ValidarRolEditor();
             ValidarPartidoNoBloqueado(partido);
             MarcarResultadoSiCorresponde(partido);
-            PropagrarResultado(partido);
+            PropagarResultado(partido);
             _repositorio.Actualizar(partido);
             _auditoriaServicio.Registrar($"Modificación de partido: {partido.Id}", _sesionServicio.ObtenerUsuarioActual());
         }
@@ -94,7 +94,7 @@ namespace Servicios
                 .ToList();
         }
         
-        private void PropagrarResultado(Partido partido)
+        private void PropagarResultado(Partido partido)
         {
             if (partido.Vencedor == null) return;
             var siguientes = _repositorio.ObtenerTodos()
