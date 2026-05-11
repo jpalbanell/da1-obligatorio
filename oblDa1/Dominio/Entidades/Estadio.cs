@@ -46,7 +46,7 @@ public class Estadio
         set
         {
             ValidarDescripcion(value);
-            _descripcion = value;
+            _descripcion = string.IsNullOrEmpty(value) ? null : value;
         }
     }
 
