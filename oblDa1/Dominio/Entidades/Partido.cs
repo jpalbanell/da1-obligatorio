@@ -137,13 +137,7 @@ namespace Dominio.Entidades
             if (valor < 0)
                 throw new ArgumentException($"{campo} no puede ser negativo");
         }
-
-        private void ValidarEquipoDistintoDeLocal(Equipo equipo)
-        {
-            if (equipo == _equipoLocal)
-                throw new ArgumentException("EquipoVisitante no puede ser igual al EquipoLocal");
-        }
-
+        
         private void ValidarVencedor(Equipo equipo)
         {
             if (equipo != null && _equipoLocal != null && _equipoVisitante != null)

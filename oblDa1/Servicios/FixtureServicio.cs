@@ -179,20 +179,6 @@ namespace Servicios
             return false;
         }
         
-        private Grupo BuscarGrupoDisponible(List<Grupo> grupos, Equipo equipo, int indiceEquipo)
-        {
-            for (int salto = 0; salto < grupos.Count; salto++)
-            {
-                var indiceGrupo = (indiceEquipo + salto) % grupos.Count;
-                var grupoCandidato = grupos[indiceGrupo];
-
-                if (PuedeAgregarseAlGrupo(grupoCandidato, equipo))
-                    return grupoCandidato;
-            }
-
-            throw new Exception($"No se pudo asignar el equipo {equipo.Nombre} a ningún grupo respetando las reglas de confederación.");
-        }
-        
         private bool PuedeAgregarseAlGrupo(Grupo grupo, Equipo equipo)
         {
             if (grupo.ListaPosiciones.Count >= 4)
