@@ -1,6 +1,8 @@
 using Dominio.Entidades;
 using Servicios;
+using IRepositorios;
 using Repositorios;
+using IServicios;
 
 namespace Tests.TestsServicios
 {

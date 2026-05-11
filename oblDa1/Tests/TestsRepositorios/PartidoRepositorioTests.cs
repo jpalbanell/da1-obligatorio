@@ -1,4 +1,5 @@
 ﻿using Dominio.Entidades;
+using IRepositorios;
 using Repositorios;
 
 namespace Tests

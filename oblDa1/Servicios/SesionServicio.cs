@@ -1,4 +1,5 @@
 using Dominio.Entidades;
+using IServicios;
 
 namespace Servicios
 {

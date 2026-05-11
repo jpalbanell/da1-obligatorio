@@ -1,9 +1,7 @@
 ﻿using Dominio.Entidades;
 using Dominio;
-using Repositorios;
-using System.Globalization;
-using System.Text;
-using System.Text.RegularExpressions;
+using IRepositorios;
+using IServicios;
 
 namespace Servicios
 {

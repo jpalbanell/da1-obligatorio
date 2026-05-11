@@ -1,5 +1,6 @@
 using Dominio.Entidades;
-using Repositorios;
+using IRepositorios;
+using IServicios;
 
 namespace Servicios
 {

@@ -1,6 +1,6 @@
 using Dominio.Entidades;
 
-namespace Servicios
+namespace IServicios
 {
     public interface ISesionServicio
     {
