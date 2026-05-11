@@ -53,7 +53,7 @@ namespace Servicios
 
             fixture.EstaGenerado = true;
             _fixtureRepositorio.Guardar(fixture);
-            _auditoriaServicio.Registrar("Generación de fixture", _sesionServicio.ObtenerUsuarioActual());
+            _auditoriaServicio.Registrar($"Generación de fixture con SemillaFixture: {fixture.SemillaFixture}", _sesionServicio.ObtenerUsuarioActual());
         }
         
         private void ValidarCantidadEquipos()

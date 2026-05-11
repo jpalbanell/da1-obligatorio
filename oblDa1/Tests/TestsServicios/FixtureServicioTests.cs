@@ -521,5 +521,21 @@ namespace Tests
             }
         }
         
+        [TestMethod]
+        public void GenerarFixture_DeberiaRegistrarAuditoriaIncluyendoSemilla()
+        {
+            CargarEquipos(48);
+            CargarEstadios(4);
+
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _sesionServicio.IniciarSesion(CrearUsuarioValido());
+            _servicio.GenerarFixture(fixture);
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("42")),
+                "El log de auditoría debe incluir el valor de SemillaFixture");
+        }
     }
 }
