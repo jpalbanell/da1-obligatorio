@@ -64,6 +64,7 @@ namespace Servicios
         public void EliminarUsuario(int id)
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
+            ValidarUsuarioExiste(id);
             _repositorio.Eliminar(id);
             _auditoriaServicio.Registrar($"Eliminación de usuario: {id}", _sesionServicio.ObtenerUsuarioActual());
         }
