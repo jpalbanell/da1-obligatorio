@@ -108,20 +108,13 @@ namespace Servicios
                 .ToList();
             foreach (var siguiente in siguientes)
             {
-                var equipo = siguiente.EsPorPerdedor ? ObtenerPerdedor(partido) : partido.Vencedor;
+                var equipo = siguiente.EsPorPerdedor ? partido.ObtenerPerdedor() : partido.Vencedor;
                 if (siguiente.OrigenLocal?.Id == partido.Id)
                     siguiente.EquipoLocal = equipo;
                 else
                     siguiente.EquipoVisitante = equipo;
                 _repositorio.Actualizar(siguiente);
             }
-        }
-
-        private Equipo ObtenerPerdedor(Partido partido)
-        {
-            return partido.Vencedor == partido.EquipoLocal
-                ? partido.EquipoVisitante
-                : partido.EquipoLocal;
         }
     }
 }
