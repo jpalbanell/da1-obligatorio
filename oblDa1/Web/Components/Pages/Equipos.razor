@@ -164,6 +164,12 @@
             Nav.NavigateTo("/login");
             return;
         }
+        if (!_usuarioActual.TieneRol(Rol.Editor))
+        {
+            _mensajeError = "No tenés permisos para gestionar equipos. Se requiere rol Editor.";
+            _cargado = true;
+            return;
+        }
         CargarEquipos();
         _cargado = true;
     }
