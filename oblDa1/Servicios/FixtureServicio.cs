@@ -160,7 +160,7 @@ namespace Servicios
 
             foreach (var grupo in gruposDisponibles.ToList())
             {
-                if (!PuedeAgregarseAlGrupo(grupo, equipo))
+                if (!grupo.PuedeAgregarEquipo(equipo))
                     continue;
 
                 gruposDisponibles.Remove(grupo);
@@ -174,20 +174,6 @@ namespace Servicios
             }
 
             return false;
-        }
-        
-        private bool PuedeAgregarseAlGrupo(Grupo grupo, Equipo equipo)
-        {
-            if (grupo.ListaPosiciones.Count >= 4)
-                return false;
-
-            var equiposEnGrupo = grupo.ListaPosiciones.Select(p => p.Equipo).ToList();
-            var cantidadMismaConfederacion = equiposEnGrupo.Count(e => e.Confederacion == equipo.Confederacion);
-
-            if (equipo.Confederacion == Confederacion.UEFA)
-                return cantidadMismaConfederacion < 2;
-
-            return cantidadMismaConfederacion == 0;
         }
         
         private void GenerarPartidosPorGrupo(Fixture fixture)
