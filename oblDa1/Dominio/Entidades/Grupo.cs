@@ -21,6 +21,21 @@ namespace Dominio.Entidades
             }
         }
         
+        public bool PuedeAgregarEquipo(Equipo equipo)
+        {
+            if (ListaPosiciones.Count >= 4)
+                return false;
+
+            var cantidadMismaConfederacion = ListaPosiciones
+                .Select(p => p.Equipo)
+                .Count(e => e.Confederacion == equipo.Confederacion);
+
+            if (equipo.Confederacion == Confederacion.UEFA)
+                return cantidadMismaConfederacion < 2;
+
+            return cantidadMismaConfederacion == 0;
+        }
+        
         private void ValidarEtiqueta(string etiqueta)
         {
             if (string.IsNullOrWhiteSpace(etiqueta))
