@@ -5,6 +5,16 @@ namespace Tests
     [TestClass]
     public class PartidoTests
     {
+        private Partido CrearPartidoConEquipos()
+        {
+            var local = new Equipo { Nombre = "Uruguay" };
+            var visitante = new Equipo { Nombre = "Argentina" };
+            var partido = new Partido(1);
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            return partido;
+        }
+        
         [TestMethod]
         public void CrearPartido_ConIdValido_AsignaIdCorrectamente()
         {
@@ -223,6 +233,37 @@ namespace Tests
         {
             var partido = new Partido(1);
             Assert.IsFalse(partido.EstaBloqueado);
+        }
+        
+        [TestMethod]
+        public void ObtenerPerdedor_VencedorEsLocal_DeberiaRetornarVisitante()
+        {
+            var partido = CrearPartidoConEquipos();
+            partido.Vencedor = partido.EquipoLocal;
+
+            var perdedor = partido.ObtenerPerdedor();
+
+            Assert.AreEqual(partido.EquipoVisitante, perdedor);
+        }
+
+        [TestMethod]
+        public void ObtenerPerdedor_VencedorEsVisitante_DeberiaRetornarLocal()
+        {
+            var partido = CrearPartidoConEquipos();
+            partido.Vencedor = partido.EquipoVisitante;
+
+            var perdedor = partido.ObtenerPerdedor();
+
+            Assert.AreEqual(partido.EquipoLocal, perdedor);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ObtenerPerdedor_SinVencedor_DeberiaLanzarExcepcion()
+        {
+            var partido = CrearPartidoConEquipos();
+
+            partido.ObtenerPerdedor();
         }
     }
 }

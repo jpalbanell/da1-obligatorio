@@ -146,5 +146,12 @@ namespace Dominio.Entidades
                     throw new ArgumentException("Vencedor debe ser EquipoLocal o EquipoVisitante");
             }
         }
+        
+        public Equipo ObtenerPerdedor()
+        {
+            if (_vencedor == null)
+                throw new InvalidOperationException("El partido no tiene vencedor asignado.");
+            return _vencedor == _equipoLocal ? _equipoVisitante : _equipoLocal;
+        }
     }
 }
