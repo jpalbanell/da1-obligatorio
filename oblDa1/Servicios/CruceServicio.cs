@@ -116,8 +116,8 @@ namespace Servicios
                 if (!posiciones.ContainsKey(partido.EquipoVisitante))
                     posiciones[partido.EquipoVisitante] = CrearPosicionVacia(partido.EquipoVisitante, grupo);
 
-                ActualizarPosicion(posiciones[partido.EquipoLocal], partido.GolesLocal, partido.GolesVisitante);
-                ActualizarPosicion(posiciones[partido.EquipoVisitante], partido.GolesVisitante, partido.GolesLocal);
+                posiciones[partido.EquipoLocal].AplicarResultado(partido.GolesLocal, partido.GolesVisitante);
+                posiciones[partido.EquipoVisitante].AplicarResultado(partido.GolesVisitante, partido.GolesLocal);
             }
 
             return posiciones.Values.ToList();
@@ -129,14 +129,6 @@ namespace Servicios
             posicion.Equipo = equipo;
             posicion.Grupo = grupo;
             return posicion;
-        }
-
-        private void ActualizarPosicion(PosicionesGrupo posicion, int golesFavor, int golesContra)
-        {
-            posicion.GolesFavor += golesFavor;
-            posicion.GolesContra += golesContra;
-            posicion.DiferenciaGoles = posicion.GolesFavor - posicion.GolesContra;
-            posicion.Puntos += PosicionesGrupo.CalcularPuntos(golesFavor, golesContra);
         }
         
         private List<PosicionesGrupo> OrdenarPosiciones(List<PosicionesGrupo> posiciones, Random random)

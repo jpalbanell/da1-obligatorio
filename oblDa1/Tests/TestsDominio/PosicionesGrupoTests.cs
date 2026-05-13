@@ -5,6 +5,17 @@ namespace Tests;
 [TestClass]
 public class PosicionesGrupoTests
 {
+    private PosicionesGrupo CrearPosicion()
+    {
+        var posicion = new PosicionesGrupo(1);
+        var equipo = new Equipo { Nombre = "Uruguay" };
+        var grupo = new Grupo();
+        grupo.Etiqueta = "A";
+        posicion.Equipo = equipo;
+        posicion.Grupo = grupo;
+        return posicion;
+    }
+    
     [TestMethod]
     public void CrearPosicionesGrupo_ConIdValido_AsignaIdCorrectamente()
     {
@@ -140,5 +151,44 @@ public class PosicionesGrupoTests
     {
         var posicion = new PosicionesGrupo(1);
         posicion.PosicionFinal = 5;
+    }
+    
+    [TestMethod]
+    public void AplicarResultado_Victoria_DeberiaActualizarGolesPuntosYDiferencia()
+    {
+        var posicion = CrearPosicion();
+
+        posicion.AplicarResultado(2, 0);
+
+        Assert.AreEqual(2, posicion.GolesFavor);
+        Assert.AreEqual(0, posicion.GolesContra);
+        Assert.AreEqual(2, posicion.DiferenciaGoles);
+        Assert.AreEqual(3, posicion.Puntos);
+    }
+
+    [TestMethod]
+    public void AplicarResultado_Empate_DeberiaActualizarGolesPuntosYDiferencia()
+    {
+        var posicion = CrearPosicion();
+
+        posicion.AplicarResultado(1, 1);
+
+        Assert.AreEqual(1, posicion.GolesFavor);
+        Assert.AreEqual(1, posicion.GolesContra);
+        Assert.AreEqual(0, posicion.DiferenciaGoles);
+        Assert.AreEqual(1, posicion.Puntos);
+    }
+
+    [TestMethod]
+    public void AplicarResultado_Derrota_DeberiaActualizarGolesPuntosYDiferencia()
+    {
+        var posicion = CrearPosicion();
+
+        posicion.AplicarResultado(0, 2);
+
+        Assert.AreEqual(0, posicion.GolesFavor);
+        Assert.AreEqual(2, posicion.GolesContra);
+        Assert.AreEqual(-2, posicion.DiferenciaGoles);
+        Assert.AreEqual(0, posicion.Puntos);
     }
 }
