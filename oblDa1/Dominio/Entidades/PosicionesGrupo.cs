@@ -102,5 +102,14 @@
             if (golesFavor == golesContra) return 1;
             return 0;
         }
+        
+        public void AplicarResultado(int golesFavor, int golesContra)
+        {
+            GolesFavor += golesFavor;
+            GolesContra += golesContra;
+            DiferenciaGoles = GolesFavor - GolesContra;
+            Puntos += CalcularPuntos(golesFavor, golesContra);
+        }
+        
     }
 }
