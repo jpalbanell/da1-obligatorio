@@ -90,6 +90,8 @@ namespace Dominio.Entidades
         {
             if (fecha == default)
                 throw new ArgumentException("La fecha de nacimiento es obligatoria.");
+            if (fecha >= DateTime.Today)
+                throw new ArgumentException("La fecha de nacimiento debe ser anterior a hoy.");
         }
 
         private void ValidarContrasena(string contrasena)
