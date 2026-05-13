@@ -261,5 +261,30 @@ namespace Tests
 
             Assert.IsFalse(usuario.TieneRol(Rol.Administrador));
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConFechaNacimientoFutura_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.FechaNacimiento = DateTime.Today.AddDays(1);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearUsuario_ConFechaNacimientoHoy_DeberiaLanzarExcepcion()
+        {
+            var usuario = new Usuario();
+            usuario.FechaNacimiento = DateTime.Today;
+        }
+
+        [TestMethod]
+        public void CrearUsuario_ConFechaNacimientoAyer_DeberiaAsignarFecha()
+        {
+            var usuario = new Usuario();
+            var ayer = DateTime.Today.AddDays(-1);
+            usuario.FechaNacimiento = ayer;
+            Assert.AreEqual(ayer, usuario.FechaNacimiento);
+        }
     }
 }
