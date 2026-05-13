@@ -95,14 +95,14 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void Eliminar_ConIdInexistente_DeberiaLanzarExcepcion()
         {
             _repositorio.Eliminar(999);
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void Actualizar_ConUsuarioInexistente_DeberiaLanzarExcepcion()
         {
             var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");

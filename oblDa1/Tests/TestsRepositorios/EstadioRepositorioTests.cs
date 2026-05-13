@@ -89,14 +89,14 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void Eliminar_ConNombreInexistente_DeberiaLanzarExcepcion()
         {
             _repositorio.Eliminar("NoExiste");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void Actualizar_ConEstadioInexistente_DeberiaLanzarExcepcion()
         {
             var estadio = CrearEstadioValido("NoExiste", "Ciudad", 30000);

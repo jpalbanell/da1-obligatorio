@@ -39,13 +39,13 @@ namespace Repositorios
         private void ValidarEstadioExistente(int indice)
         {
             if (indice == -1)
-                throw new Exception("Estadio no encontrado");
+                throw new KeyNotFoundException("Estadio no encontrado");
         }
 
         private void ValidarEstadioNoNulo(Estadio estadio)
         {
             if (estadio == null)
-                throw new Exception("Estadio no encontrado");
+                throw new KeyNotFoundException("Estadio no encontrado");
         }
     }
 }

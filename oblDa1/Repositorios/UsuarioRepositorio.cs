@@ -39,13 +39,13 @@ namespace Repositorios
         private void ValidarUsuarioExistente(int indice)
         {
             if (indice == -1)
-                throw new Exception("Usuario no encontrado");
+                throw new KeyNotFoundException("Usuario no encontrado");
         }
 
         private void ValidarUsuarioNoNulo(Usuario usuario)
         {
             if (usuario == null)
-                throw new Exception("Usuario no encontrado");
+                throw new KeyNotFoundException("Usuario no encontrado");
         }
     }
 }

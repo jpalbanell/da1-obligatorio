@@ -38,14 +38,14 @@ namespace Repositorios
 
         private void ValidarEquipoExistente(int index)
         {
-            if (index == -1)
-                throw new Exception("Equipo no encontrado");
+            if (index == -1) 
+                throw new KeyNotFoundException("Equipo no encontrado");
         }
 
         private void ValidarEquipoNoNulo(Equipo equipo)
         {
-            if (equipo == null)
-                throw new Exception("Equipo no encontrado");
+            if (equipo == null) 
+                throw new KeyNotFoundException("Equipo no encontrado");
         }
     }
 }
