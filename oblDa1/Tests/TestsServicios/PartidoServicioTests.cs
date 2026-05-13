@@ -370,5 +370,35 @@ namespace Tests
             var resultado = _servicio.ObtenerPartido(partido.Id);
             Assert.IsTrue(resultado.TieneResultado);
         }
+        
+        [TestMethod]
+        public void ModificarPartido_CargarResultado_DeberiaActualizarPosicionesDelGrupo()
+        {
+            var partido = CrearPartidoValido();
+            var grupo = partido.Grupo;
+
+            var posLocal = new PosicionesGrupo(1);
+            posLocal.Equipo = partido.EquipoLocal;
+            posLocal.Grupo = grupo;
+            var posVisitante = new PosicionesGrupo(2);
+            posVisitante.Equipo = partido.EquipoVisitante;
+            posVisitante.Grupo = grupo;
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+
+            _servicio.AgregarPartido(partido);
+
+            partido.GolesLocal = 2;
+            partido.GolesVisitante = 1;
+            partido.Vencedor = partido.EquipoLocal;
+            _servicio.ModificarPartido(partido);
+
+            Assert.AreEqual(2, posLocal.GolesFavor);
+            Assert.AreEqual(1, posLocal.GolesContra);
+            Assert.AreEqual(3, posLocal.Puntos);
+            Assert.AreEqual(1, posVisitante.GolesFavor);
+            Assert.AreEqual(2, posVisitante.GolesContra);
+            Assert.AreEqual(0, posVisitante.Puntos);
+        }
     }
 }
