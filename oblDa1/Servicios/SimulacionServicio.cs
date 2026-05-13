@@ -114,16 +114,8 @@ namespace Servicios
 
             if (posLocal == null || posVisitante == null) return;
 
-            posLocal.GolesFavor += partido.GolesLocal;
-            posLocal.GolesContra += partido.GolesVisitante;
-            posLocal.DiferenciaGoles = posLocal.GolesFavor - posLocal.GolesContra;
-
-            posVisitante.GolesFavor += partido.GolesVisitante;
-            posVisitante.GolesContra += partido.GolesLocal;
-            posVisitante.DiferenciaGoles = posVisitante.GolesFavor - posVisitante.GolesContra;
-            
-            posLocal.Puntos += PosicionesGrupo.CalcularPuntos(partido.GolesLocal, partido.GolesVisitante);
-            posVisitante.Puntos += PosicionesGrupo.CalcularPuntos(partido.GolesVisitante, partido.GolesLocal);
+            posLocal.AplicarResultado(partido.GolesLocal, partido.GolesVisitante);
+            posVisitante.AplicarResultado(partido.GolesVisitante, partido.GolesLocal);
         }
         
         private void BloquearFaseAnterior(FaseTorneo faseActual)
