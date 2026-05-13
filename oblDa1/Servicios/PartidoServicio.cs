@@ -42,6 +42,7 @@ namespace Servicios
             ValidarRolEditor();
             ValidarPartidoNoBloqueado(partido);
             MarcarResultadoSiCorresponde(partido);
+            ActualizarPosiciones(partido); 
             PropagarResultado(partido);
             _repositorio.Actualizar(partido);
             _auditoriaServicio.Registrar($"Modificación de partido: {partido.Id}", _sesionServicio.ObtenerUsuarioActual());
@@ -115,6 +116,22 @@ namespace Servicios
                     siguiente.EquipoVisitante = equipo;
                 _repositorio.Actualizar(siguiente);
             }
+        }
+        
+        private void ActualizarPosiciones(Partido partido)
+        {
+            if (partido.Grupo == null) return;
+
+            var posLocal = partido.Grupo.ListaPosiciones
+                .FirstOrDefault(p => p.Equipo.Nombre == partido.EquipoLocal.Nombre);
+
+            var posVisitante = partido.Grupo.ListaPosiciones
+                .FirstOrDefault(p => p.Equipo.Nombre == partido.EquipoVisitante.Nombre);
+
+            if (posLocal == null || posVisitante == null) return;
+
+            posLocal.AplicarResultado(partido.GolesLocal, partido.GolesVisitante);
+            posVisitante.AplicarResultado(partido.GolesVisitante, partido.GolesLocal);
         }
     }
 }
