@@ -10,6 +10,7 @@ namespace Servicios
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
         private int _proximoId = 1;
+        
 
         public PartidoServicio(IPartidoRepositorio repositorio,
             IAuditoriaServicio auditoriaServicio,
@@ -124,14 +125,22 @@ namespace Servicios
 
             var posLocal = partido.Grupo.ListaPosiciones
                 .FirstOrDefault(p => p.Equipo.Nombre == partido.EquipoLocal.Nombre);
-
             var posVisitante = partido.Grupo.ListaPosiciones
                 .FirstOrDefault(p => p.Equipo.Nombre == partido.EquipoVisitante.Nombre);
 
             if (posLocal == null || posVisitante == null) return;
 
+            if (partido.GolesLocalAnterior >= 0 && partido.GolesVisitanteAnterior >= 0)
+            {
+                posLocal.RevertirResultado(partido.GolesLocalAnterior, partido.GolesVisitanteAnterior);
+                posVisitante.RevertirResultado(partido.GolesVisitanteAnterior, partido.GolesLocalAnterior);
+            }
+
             posLocal.AplicarResultado(partido.GolesLocal, partido.GolesVisitante);
             posVisitante.AplicarResultado(partido.GolesVisitante, partido.GolesLocal);
+
+            partido.GolesLocalAnterior = partido.GolesLocal;
+            partido.GolesVisitanteAnterior = partido.GolesVisitante;
         }
     }
 }

@@ -18,6 +18,8 @@ namespace Dominio.Entidades
         public bool EstaBloqueado { get; set; }
         public bool TieneResultado { get; set; } = false;
         public bool EsPorPerdedor { get; set; } = false;
+        public int GolesLocalAnterior { get; set; } = -1;
+        public int GolesVisitanteAnterior { get; set; } = -1;
 
         public string Codigo
         {

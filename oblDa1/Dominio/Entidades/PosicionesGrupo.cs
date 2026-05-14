@@ -111,5 +111,12 @@
             Puntos += CalcularPuntos(golesFavor, golesContra);
         }
         
+        public void RevertirResultado(int golesFavor, int golesContra)
+        {
+            _golesFavor -= golesFavor;
+            _golesContra -= golesContra;
+            DiferenciaGoles = _golesFavor - _golesContra;
+            _puntos -= CalcularPuntos(golesFavor, golesContra);
+        }
     }
 }

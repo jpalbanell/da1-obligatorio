@@ -67,7 +67,7 @@ namespace Tests
             partido.Grupo = CrearGrupoValido("A");
             return partido;
         }
-        
+
         private Usuario CrearUsuarioSinRol()
         {
             var usuario = new Usuario();
@@ -85,7 +85,7 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
-        
+
         [TestMethod]
         public void AgregarPartido_DeberiaAsignarIdAutomaticamente()
         {
@@ -95,7 +95,7 @@ namespace Tests
 
             Assert.AreEqual(1, partido.Id);
         }
-        
+
         [TestMethod]
         public void AgregarPartido_VariosPartidos_DeberiaAsignarIdsIncrementales()
         {
@@ -108,7 +108,7 @@ namespace Tests
             Assert.AreEqual(1, partido1.Id);
             Assert.AreEqual(2, partido2.Id);
         }
-        
+
         [TestMethod]
         public void ObtenerPartido_ConIdExistente_DeberiaRetornarlo()
         {
@@ -119,14 +119,14 @@ namespace Tests
 
             Assert.AreEqual("P001", resultado.Codigo);
         }
-        
+
         [TestMethod]
         public void ObtenerPartido_ConIdInexistente_DeberiaRetornarNull()
         {
             var resultado = _servicio.ObtenerPartido(999);
             Assert.IsNull(resultado);
         }
-        
+
         [TestMethod]
         public void ObtenerTodos_ConVariosPartidos_DeberiaRetornarTodos()
         {
@@ -139,7 +139,7 @@ namespace Tests
 
             Assert.AreEqual(2, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ModificarPartido_CambiarFecha_DeberiaActualizar()
         {
@@ -152,7 +152,7 @@ namespace Tests
             var resultado = _servicio.ObtenerPartido(partido.Id);
             Assert.AreEqual(new DateTime(2026, 6, 10), resultado.Fecha);
         }
-        
+
         [TestMethod]
         public void ModificarPartido_CambiarEstadio_DeberiaActualizar()
         {
@@ -166,7 +166,7 @@ namespace Tests
             var resultado = _servicio.ObtenerPartido(partido.Id);
             Assert.AreEqual("Maracaná", resultado.Estadio.Nombre);
         }
-        
+
         [TestMethod]
         public void ModificarPartido_CargarResultado_DeberiaActualizar()
         {
@@ -183,7 +183,7 @@ namespace Tests
             Assert.AreEqual(1, resultado.GolesVisitante);
             Assert.AreEqual(partido.EquipoLocal, resultado.Vencedor);
         }
-         
+
         [TestMethod]
         public void ObtenerPorFecha_ConFechaExistente_DeberiaRetornarPartidos()
         {
@@ -198,7 +198,7 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ObtenerPorEstadio_ConEstadioExistente_DeberiaRetornarPartidos()
         {
@@ -213,7 +213,7 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ObtenerPorGrupo_ConGrupoExistente_DeberiaRetornarPartidos()
         {
@@ -228,7 +228,7 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ObtenerPorFase_ConFaseExistente_DeberiaRetornarPartidos()
         {
@@ -243,7 +243,7 @@ namespace Tests
 
             Assert.AreEqual(1, resultado.Count);
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(KeyNotFoundException))]
         public void ModificarPartido_ConPartidoInexistente_DeberiaLanzarExcepcion()
@@ -253,7 +253,7 @@ namespace Tests
 
             _servicio.ModificarPartido(partido);
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void ModificarPartido_PartidoBloqueado_LanzaExcepcion()
@@ -264,7 +264,7 @@ namespace Tests
 
             _servicio.ModificarPartido(partido);
         }
-        
+
         [TestMethod]
         public void ObtenerPorEstadio_PartidoSinEstadio_NoLanzaExcepcion()
         {
@@ -275,6 +275,7 @@ namespace Tests
 
             Assert.AreEqual(0, resultado.Count);
         }
+
         [TestMethod]
         public void ObtenerPorGrupo_PartidoSinGrupo_NoLanzaExcepcion()
         {
@@ -285,7 +286,7 @@ namespace Tests
 
             Assert.AreEqual(0, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ModificarPartido_ConDatosValidos_RegistraLogDeAuditoria()
         {
@@ -297,7 +298,7 @@ namespace Tests
 
             Assert.AreEqual(2, _auditoriaRepositorio.ObtenerTodos().Count);
         }
-        
+
         [TestMethod]
         public void ModificarPartido_ConGolesCargados_DeberiaMarcarTieneResultado()
         {
@@ -312,7 +313,7 @@ namespace Tests
             var resultado = _servicio.ObtenerPartido(partido.Id);
             Assert.IsTrue(resultado.TieneResultado);
         }
-        
+
         [TestMethod]
         public void AgregarPartido_DeberiaRegistrarAuditoria()
         {
@@ -322,7 +323,7 @@ namespace Tests
 
             Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(UnauthorizedAccessException))]
         public void ModificarPartido_SinRolEditor_DeberiaLanzarExcepcion()
@@ -333,7 +334,7 @@ namespace Tests
 
             _servicio.ModificarPartido(partido);
         }
-        
+
         [TestMethod]
         public void ModificarPartido_ConResultado_PropagaVencedorAlSiguientePartido()
         {
@@ -357,7 +358,7 @@ namespace Tests
 
             Assert.AreEqual(partidoOrigen.EquipoLocal, partidoSiguiente.EquipoLocal);
         }
-        
+
         [TestMethod]
         public void ModificarPartido_ConEmpate_DeberiaMarcarTieneResultado()
         {
@@ -370,7 +371,7 @@ namespace Tests
             var resultado = _servicio.ObtenerPartido(partido.Id);
             Assert.IsTrue(resultado.TieneResultado);
         }
-        
+
         [TestMethod]
         public void ModificarPartido_CargarResultado_DeberiaActualizarPosicionesDelGrupo()
         {
@@ -398,6 +399,115 @@ namespace Tests
             Assert.AreEqual(3, posLocal.Puntos);
             Assert.AreEqual(1, posVisitante.GolesFavor);
             Assert.AreEqual(2, posVisitante.GolesContra);
+            Assert.AreEqual(0, posVisitante.Puntos);
+        }
+        
+        [TestMethod]
+        public void ModificarPartido_CambiarResultadoExistente_DeberiaRevertirYAplicarNuevo()
+        {
+            var partido = CrearPartidoValido();
+            var grupo = partido.Grupo;
+
+            var posLocal = new PosicionesGrupo(1);
+            posLocal.Equipo = partido.EquipoLocal;
+            posLocal.Grupo = grupo;
+            var posVisitante = new PosicionesGrupo(2);
+            posVisitante.Equipo = partido.EquipoVisitante;
+            posVisitante.Grupo = grupo;
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+
+            _servicio.AgregarPartido(partido);
+
+            partido.GolesLocal = 1;
+            partido.GolesVisitante = 1;
+            _servicio.ModificarPartido(partido);
+
+            partido.GolesLocalAnterior = 1;
+            partido.GolesVisitanteAnterior = 1;
+            partido.GolesLocal = 2;
+            partido.GolesVisitante = 0;
+            partido.Vencedor = partido.EquipoLocal;
+            _servicio.ModificarPartido(partido);
+
+            Assert.AreEqual(2, posLocal.GolesFavor);
+            Assert.AreEqual(0, posLocal.GolesContra);
+            Assert.AreEqual(3, posLocal.Puntos);
+            Assert.AreEqual(0, posVisitante.GolesFavor);
+            Assert.AreEqual(2, posVisitante.GolesContra);
+            Assert.AreEqual(0, posVisitante.Puntos);
+        }
+        
+        [TestMethod]
+        public void ModificarPartido_CambiarResultadoDosVeces_DeberiaQuedarConUltimoResultado()
+        {
+            var partido = CrearPartidoValido();
+            var grupo = partido.Grupo;
+
+            var posLocal = new PosicionesGrupo(1);
+            posLocal.Equipo = partido.EquipoLocal;
+            posLocal.Grupo = grupo;
+            var posVisitante = new PosicionesGrupo(2);
+            posVisitante.Equipo = partido.EquipoVisitante;
+            posVisitante.Grupo = grupo;
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+
+            _servicio.AgregarPartido(partido);
+
+            partido.GolesLocal = 1;
+            partido.GolesVisitante = 1;
+            _servicio.ModificarPartido(partido);
+
+            partido.GolesLocalAnterior = 1;
+            partido.GolesVisitanteAnterior = 1;
+            partido.GolesLocal = 2;
+            partido.GolesVisitante = 0;
+            partido.Vencedor = partido.EquipoLocal;
+            _servicio.ModificarPartido(partido);
+
+            partido.GolesLocalAnterior = 2;
+            partido.GolesVisitanteAnterior = 0;
+            partido.GolesLocal = 0;
+            partido.GolesVisitante = 3;
+            partido.Vencedor = partido.EquipoVisitante;
+            _servicio.ModificarPartido(partido);
+
+            Assert.AreEqual(0, posLocal.GolesFavor);
+            Assert.AreEqual(3, posLocal.GolesContra);
+            Assert.AreEqual(0, posLocal.Puntos);
+            Assert.AreEqual(3, posVisitante.GolesFavor);
+            Assert.AreEqual(0, posVisitante.GolesContra);
+            Assert.AreEqual(3, posVisitante.Puntos);
+        }
+        
+        [TestMethod]
+        public void ModificarPartido_SinResultadoPrevio_DeberiaAplicarResultadoNormalmente()
+        {
+            var partido = CrearPartidoValido();
+            var grupo = partido.Grupo;
+
+            var posLocal = new PosicionesGrupo(1);
+            posLocal.Equipo = partido.EquipoLocal;
+            posLocal.Grupo = grupo;
+            var posVisitante = new PosicionesGrupo(2);
+            posVisitante.Equipo = partido.EquipoVisitante;
+            posVisitante.Grupo = grupo;
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+
+            _servicio.AgregarPartido(partido);
+
+            partido.GolesLocal = 3;
+            partido.GolesVisitante = 2;
+            partido.Vencedor = partido.EquipoLocal;
+            _servicio.ModificarPartido(partido);
+
+            Assert.AreEqual(3, posLocal.GolesFavor);
+            Assert.AreEqual(2, posLocal.GolesContra);
+            Assert.AreEqual(3, posLocal.Puntos);
+            Assert.AreEqual(2, posVisitante.GolesFavor);
+            Assert.AreEqual(3, posVisitante.GolesContra);
             Assert.AreEqual(0, posVisitante.Puntos);
         }
     }
