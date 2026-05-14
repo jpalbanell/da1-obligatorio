@@ -113,7 +113,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void ImportarEquipos_SinRolEditor_DeberiaLanzarExcepcion()
         {
             var usuarioSinRol = new Usuario();

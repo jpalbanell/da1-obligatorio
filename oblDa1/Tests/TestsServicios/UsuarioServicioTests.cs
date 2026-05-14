@@ -186,7 +186,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void AgregarUsuario_SinRolAdministrador_DeberiaLanzarExcepcion()
         {
             var usuarioEditor = new Usuario();

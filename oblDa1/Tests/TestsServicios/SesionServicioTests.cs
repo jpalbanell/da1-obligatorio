@@ -53,14 +53,14 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void ValidarRol_SinSesionActiva_DeberiaLanzarExcepcion()
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void ValidarRol_ConRolNoAsignado_DeberiaLanzarExcepcion()
         {
             var usuario = new Usuario();

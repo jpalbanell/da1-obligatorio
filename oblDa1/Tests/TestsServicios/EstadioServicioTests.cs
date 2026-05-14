@@ -179,7 +179,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void AgregarEstadio_SinRolAdministrador_DeberiaLanzarExcepcion()
         {
             var usuario = new Usuario();
@@ -200,7 +200,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void ModificarEstadio_SinRolAdministrador_DeberiaLanzarExcepcion()
         {
             var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
@@ -220,7 +220,7 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void EliminarEstadio_SinRolAdministrador_DeberiaLanzarExcepcion()
         {
             var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);

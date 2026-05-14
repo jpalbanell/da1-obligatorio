@@ -71,14 +71,14 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void Login_ConEmailInexistente_DeberiaLanzarExcepcion()
         {
             _autenticacionServicio.Login("noexiste@ejemplo.com", "Abcdef1@");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void Login_ConContrasenaIncorrecta_DeberiaLanzarExcepcion()
         {
             var _usuarioAdmin = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
@@ -101,7 +101,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void CambiarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
         {
             _autenticacionServicio.CambiarContrasena(999, "NuevaPass@1");
@@ -120,7 +120,7 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void ReiniciarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
         {
             _autenticacionServicio.ReiniciarContrasena(999);
@@ -177,7 +177,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void ReiniciarContrasena_SinRolAdministrador_DeberiaLanzarExcepcion()
         {
             var _usuarioAdminObjetivo = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
@@ -203,7 +203,7 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void ReiniciarContrasena_PropiaContrasena_DeberiaLanzarExcepcion()
         {
             _autenticacionServicio.ReiniciarContrasena(_usuarioAdmin.Id);

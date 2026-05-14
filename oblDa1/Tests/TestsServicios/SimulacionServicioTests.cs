@@ -259,7 +259,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void SimularPartido_SinRolEditor_DeberiaLanzarExcepcion()
         {
             var partido = CrearPartidoConEquipos(1500, 1200, 1);
@@ -270,7 +270,7 @@ namespace Tests.TestsServicios
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void SimularFase_SinRolEditor_DeberiaLanzarExcepcion()
         {
             _sesionServicio.IniciarSesion(CrearUsuarioSinRol());

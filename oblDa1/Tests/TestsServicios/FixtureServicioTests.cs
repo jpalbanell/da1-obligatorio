@@ -604,7 +604,7 @@ namespace Tests
       }
 
       [TestMethod]
-      [ExpectedException(typeof(Exception))]
+      [ExpectedException(typeof(UnauthorizedAccessException))]
       public void GenerarFixture_SinRolEditor_DeberiaLanzarExcepcion()
       {
           CargarEquipos(48);

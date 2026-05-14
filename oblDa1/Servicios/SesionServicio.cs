@@ -28,9 +28,9 @@ namespace Servicios
         {
             var usuario = ObtenerUsuarioActual();
             if (usuario == null)
-                throw new Exception("No hay una sesión activa.");
+                throw new InvalidOperationException("No hay una sesión activa.");
             if (!usuario.TieneRol(rolRequerido))
-                throw new Exception("No tiene permisos para realizar esta acción.");
+                throw new UnauthorizedAccessException("No tiene permisos para realizar esta acción.");
         }
     }
 }

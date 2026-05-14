@@ -35,9 +35,9 @@ namespace Servicios
         {
             var usuarioEnSesion = _sesionServicio.ObtenerUsuarioActual();
             if (usuarioEnSesion == null)
-                throw new Exception("No hay sesión activa.");
+                throw new InvalidOperationException("No hay sesión activa.");
             if (usuarioEnSesion.Id != id)
-                throw new Exception("No podés cambiar la contraseña de otro usuario.");
+                throw new UnauthorizedAccessException("No podés cambiar la contraseña de otro usuario.");
             
             var usuario = ObtenerUsuarioExistente(id);
             usuario.Contrasena = nuevaContrasena;
@@ -51,7 +51,7 @@ namespace Servicios
             var usuarioActual = _sesionServicio.ObtenerUsuarioActual();
             var usuario = ObtenerUsuarioExistente(id);
             if (usuarioActual.Id == usuario.Id)
-                throw new Exception("No podés reiniciar tu propia contraseña.");
+                throw new UnauthorizedAccessException("No podés reiniciar tu propia contraseña.");
             usuario.Contrasena = GenerarContrasenaDefault();
             _repositorio.Actualizar(usuario);
             _auditoriaServicio.Registrar($"Reinicio de contraseña: {usuario.Email}", _sesionServicio.ObtenerUsuarioActual());
@@ -66,7 +66,7 @@ namespace Servicios
         {
             var usuario = _repositorio.ObtenerPorId(id);
             if (usuario == null)
-                throw new Exception("Usuario no encontrado.");
+                throw new KeyNotFoundException("Usuario no encontrado.");
             return usuario;
         }
         
@@ -75,14 +75,14 @@ namespace Servicios
             var usuario = _repositorio.ObtenerTodos()
                 .FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             if (usuario == null)
-                throw new Exception("Credenciales inválidas.");
+                throw new UnauthorizedAccessException("Credenciales inválidas.");
             return usuario;
         }
         
         private void ValidarContrasena(Usuario usuario, string contrasena)
         {
             if (!usuario.VerificarContrasena(contrasena))
-                throw new Exception("Credenciales inválidas.");
+                throw new UnauthorizedAccessException("Credenciales inválidas.");
         }
     }
 }
