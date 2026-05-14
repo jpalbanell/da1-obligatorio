@@ -63,20 +63,20 @@ namespace Servicios
         {
             var equipos = _equipoRepositorio.ObtenerTodos();
             if (equipos.Count != 48)
-                throw new Exception("Se necesitan exactamente 48 equipos para generar el fixture.");
+                throw new InvalidOperationException("Se necesitan exactamente 48 equipos para generar el fixture.");
         }
         
         private void ValidarCantidadEstadios()
         {
             var estadios = _estadioRepositorio.ObtenerTodos();
             if (estadios.Count < 4)
-                throw new Exception("Se necesitan al menos 4 estadios para generar el fixture.");
+                throw new InvalidOperationException("Se necesitan al menos 4 estadios para generar el fixture.");
         }
         
         private void ValidarFixtureNoGenerado(Fixture fixture)
         {
             if (fixture.EstaGenerado)
-                throw new Exception("El fixture ya fue generado.");
+                throw new InvalidOperationException("El fixture ya fue generado.");
         }
         
         private void CrearGrupos()
@@ -137,7 +137,7 @@ namespace Servicios
             var asignaciones = new List<(Equipo, Grupo)>();
 
             if (!AsignarBomboConBacktracking(bombo, 0, gruposDisponibles, asignaciones))
-                throw new Exception("No se encontró una distribución válida para el bombo actual.");
+                throw new InvalidOperationException("No se encontró una distribución válida para el bombo actual.");
 
             foreach (var (equipo, grupo) in asignaciones)
             {

@@ -125,7 +125,7 @@ namespace Tests.TestsServicios
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarCruces_SinFixtureGenerado_DeberiaLanzarExcepcion()
         {
             var fixture = new Fixture();
@@ -137,7 +137,7 @@ namespace Tests.TestsServicios
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarCruces_CrucesYaGenerados_DeberiaLanzarExcepcion()
         {
             var fixture = new Fixture();
@@ -150,7 +150,7 @@ namespace Tests.TestsServicios
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarCruces_ConPartidosSinResultado_DeberiaLanzarExcepcion()
         {
             var fixture = new Fixture();
@@ -374,7 +374,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarCruces_ConPartidosEnRepositorioSinResultado_DeberiaLanzarExcepcion()
         {
             var fixture = new Fixture();

@@ -80,13 +80,13 @@ namespace Servicios
         private void ValidarFixtureGenerado(Fixture fixture)
         {
             if (fixture == null || !fixture.EstaGenerado)
-                throw new Exception("No se puede generar cruces si el fixture no fue generado.");
+                throw new InvalidOperationException("No se puede generar cruces si el fixture no fue generado.");
         }
         
         private void ValidarCrucesNoGenerados(Fixture fixture)
         {
             if (fixture.CrucesGenerados)
-                throw new Exception("Los cruces ya fueron generados.");
+                throw new InvalidOperationException("Los cruces ya fueron generados.");
         }
         
         private void ValidarTodosLosPartidosTienenResultado()
@@ -96,12 +96,12 @@ namespace Servicios
                 .ToList();
 
             if (partidosFaseGrupos.Count == 0)
-                throw new Exception("No hay partidos de fase de grupos cargados.");
+                throw new InvalidOperationException("No hay partidos de fase de grupos cargados.");
 
             foreach (var partido in partidosFaseGrupos)
             {
                 if (!partido.TieneResultado)
-                    throw new Exception($"El partido {partido.Codigo} no tiene resultado cargado.");
+                    throw new InvalidOperationException($"El partido {partido.Codigo} no tiene resultado cargado.");
             }
         }
         
@@ -400,7 +400,7 @@ namespace Servicios
                 .ToList();
 
             if (estadios.Count == 0)
-                throw new Exception("No hay estadios cargados.");
+                throw new InvalidOperationException("No hay estadios cargados.");
 
             return estadios[indice % estadios.Count];
         }

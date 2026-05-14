@@ -207,7 +207,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarFixture_SinEquipos_DeberiaLanzarExcepcion()
         {
             var fixture = new Fixture();
@@ -218,7 +218,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarFixture_Sin4Estadios_DeberiaLanzarExcepcion()
         {
             CargarEquipos(48);
@@ -231,7 +231,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarFixture_YaGenerado_DeberiaLanzarExcepcion()
         {
             CargarEquipos(48);

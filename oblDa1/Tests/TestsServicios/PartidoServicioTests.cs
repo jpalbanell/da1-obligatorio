@@ -255,7 +255,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void ModificarPartido_PartidoBloqueado_LanzaExcepcion()
         {
             var partido = new Partido(1);
@@ -324,7 +324,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void ModificarPartido_SinRolEditor_DeberiaLanzarExcepcion()
         {
             var partido = CrearPartidoValido();

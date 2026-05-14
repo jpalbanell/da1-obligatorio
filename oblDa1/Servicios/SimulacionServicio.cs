@@ -74,7 +74,7 @@ namespace Servicios
         private void ValidarEquipos(Partido partido)
         {
             if (partido.EquipoLocal == null || partido.EquipoVisitante == null)
-                throw new Exception("No se puede simular el partido: aún no hay equipos asignados. Simulá primero las fases anteriores.");
+                throw new InvalidOperationException("No se puede simular el partido: aún no hay equipos asignados. Simulá primero las fases anteriores.");
         }
 
         private int GenerarGoles(int rankingFifa, Random random)
@@ -99,7 +99,7 @@ namespace Servicios
         private void ValidarPartidoExistente(Partido partido)
         {
             if (partido == null)
-                throw new Exception("Partido no encontrado");
+                throw new KeyNotFoundException("Partido no encontrado");
         }
         
         private void ActualizarPosiciones(Partido partido)
