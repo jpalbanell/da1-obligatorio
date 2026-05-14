@@ -92,7 +92,7 @@ namespace Servicios
         private void ValidarCantidadDeColumnas(string[] columnas)
         {
             if (columnas.Length != CantidadColumnasEsperadas)
-                throw new Exception($"Se esperaban {CantidadColumnasEsperadas} columnas pero se encontraron {columnas.Length}.");
+                throw new FormatException($"Se esperaban {CantidadColumnasEsperadas} columnas pero se encontraron {columnas.Length}.");
         }
 
         private string LeerNombre(string[] columnas)
@@ -106,7 +106,7 @@ namespace Servicios
         {
             var valorConfederacion = columnas[ColumnaConfederacion].Trim();
             if (!Enum.TryParse<Confederacion>(valorConfederacion, out var confederacion))
-                throw new Exception($"La confederación '{valorConfederacion}' no es válida.");
+                throw new ArgumentException($"La confederación '{valorConfederacion}' no es válida.");
             return confederacion;
         }
 
@@ -114,7 +114,7 @@ namespace Servicios
         {
             var valorRanking = columnas[ColumnaRankingFifa].Trim();
             if (!int.TryParse(valorRanking, out var ranking))
-                throw new Exception($"El ranking '{valorRanking}' no es un número válido.");
+                throw new FormatException($"El ranking '{valorRanking}' no es un número válido.");
             return ranking;
         }
 
@@ -122,7 +122,7 @@ namespace Servicios
         {
             var equipoExistente = _equipoRepositorio.ObtenerPorNombre(nombre);
             if (equipoExistente != null)
-                throw new Exception($"Ya existe un equipo con el nombre '{nombre}'.");
+                throw new InvalidOperationException($"Ya existe un equipo con el nombre '{nombre}'.");
         }
 
         private void GuardarEquipo(Equipo equipo)
