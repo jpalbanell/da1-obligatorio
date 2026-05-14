@@ -12,7 +12,7 @@ namespace Web.DTOs
         public Fixture ToEntity()
         {
             if (!DateTime.TryParse(FechaInicioTorneo, out var fecha))
-                throw new Exception("La fecha de inicio debe tener el formato AAAA-MM-DD. Ejemplo: 2026-06-01");
+                throw new ArgumentException("La fecha de inicio debe tener el formato AAAA-MM-DD. Ejemplo: 2026-06-01");
 
             var fixture = new Fixture();
             fixture.SemillaFixture = SemillaFixture;

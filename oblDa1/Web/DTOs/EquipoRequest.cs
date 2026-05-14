@@ -11,7 +11,7 @@ namespace Web.DTOs
         public Equipo ToEntity()
         {
             if (string.IsNullOrEmpty(Confederacion) || Confederacion == "")
-                throw new Exception("Debe seleccionar una confederación.");
+                throw new ArgumentException("Debe seleccionar una confederación.");
             
             var equipo = new Equipo();
             equipo.Nombre = Nombre;
