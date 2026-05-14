@@ -48,7 +48,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AgregarEquipo_ConNombreDuplicado_LanzaExcepcion()
         {
             var equipo1 = new Equipo();
@@ -66,7 +66,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AgregarEquipo_ConCupoUEFACompleto_LanzaExcepcion()
         {
             for (int i = 1; i <= 16; i++)
@@ -86,7 +86,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AgregarEquipo_ConCupoCONMEBOLCompleto_LanzaExcepcion()
         {
             for (int i = 1; i <= 7; i++)
@@ -106,7 +106,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AgregarEquipo_ConCupoCONCACAFCompleto_LanzaExcepcion()
         {
             for (int i = 1; i <= 7; i++)
@@ -126,7 +126,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AgregarEquipo_ConCupoCAFCompleto_LanzaExcepcion()
         {
             for (int i = 1; i <= 9; i++)
@@ -146,7 +146,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AgregarEquipo_ConCupoAFCCompleto_LanzaExcepcion()
         {
             for (int i = 1; i <= 8; i++)
@@ -166,7 +166,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AgregarEquipo_ConCupoOFCCompleto_LanzaExcepcion()
         {
             var equipo = new Equipo();
@@ -198,7 +198,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void EditarEquipo_ConNombreDuplicadoDeOtroEquipo_LanzaExcepcion()
         {
             var equipo1 = new Equipo();
@@ -247,7 +247,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void EliminarEquipo_EquipoInexistente_LanzaExcepcion()
         {
             _equipoServicio.EliminarEquipo("Uruguay");
@@ -469,7 +469,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void EditarEquipo_CambiandoConfederacionACupoLleno_DeberiaLanzarExcepcion()
         {
             for (int i = 1; i <= 7; i++)
@@ -512,7 +512,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void EditarEquipo_CambiandoNombreYConfederacionACupoLleno_DeberiaLanzarExcepcion()
         {
             for (int i = 1; i <= 7; i++)

@@ -47,7 +47,7 @@ namespace Servicios
             int cantActual = _equipoRepositorio.ObtenerTodos()
                 .Count(e => e.Confederacion == equipo.Confederacion);
             if (cantActual >= cupo)
-                throw new Exception("Cupo de confederación completo");
+                throw new InvalidOperationException("Cupo de confederación completo");
         }
 
         public void EliminarEquipo(string nombre)
@@ -79,21 +79,21 @@ namespace Servicios
                 Confederacion.CAF => 9,
                 Confederacion.AFC => 8,
                 Confederacion.OFC => 1,
-                _ => throw new Exception("Confederación inválida")
+                _ => throw new ArgumentException("Confederación inválida")
             };
         }
         
         private void ValidarNombreUnico(string nombre)
         {
             if (_equipoRepositorio.ObtenerPorNombre(nombre) != null)
-                throw new Exception("Ya existe un equipo con ese nombre");
+                throw new InvalidOperationException("Ya existe un equipo con ese nombre");
         }
 
         private void ValidarNombreUnicoEnEdicion(Equipo equipo, string nombreOriginal)
         {
             if (equipo.Nombre.Equals(nombreOriginal, StringComparison.OrdinalIgnoreCase)) return;
             if (_equipoRepositorio.ObtenerPorNombre(equipo.Nombre) != null)
-                throw new Exception("Ya existe un equipo con ese nombre");
+                throw new InvalidOperationException("Ya existe un equipo con ese nombre");
         }
 
         public void ValidarCupoConfederacion(Confederacion confederacion)
@@ -102,13 +102,13 @@ namespace Servicios
             int cantActual = _equipoRepositorio.ObtenerTodos()
                 .Count(e => e.Confederacion == confederacion);
             if (cantActual >= cupo)
-                throw new Exception("Cupo de confederación completo");
+                throw new InvalidOperationException("Cupo de confederación completo");
         }
         
         private void ValidarEquipoExistente(string nombre)
         {
             if (_equipoRepositorio.ObtenerPorNombre(nombre) == null)
-                throw new Exception("No existe un equipo con ese nombre");
+                throw new KeyNotFoundException("No existe un equipo con ese nombre");
         }
         
         public void CompletarEquiposAutomaticamente(int semillaCompletar)

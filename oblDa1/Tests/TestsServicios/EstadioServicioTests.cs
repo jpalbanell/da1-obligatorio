@@ -55,7 +55,7 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AgregarEstadio_ConNombreDuplicado_DeberiaLanzarExcepcion()
         {
             var estadio1 = CrearEstadioValido("Centenario", "Montevideo", 60000);
@@ -122,13 +122,13 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void EliminarEstadio_ConNombreInexistente_DeberiaLanzarExcepcion()
         {
             _servicio.EliminarEstadio("NoExiste");
         }
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void ModificarEstadio_ConNombreDuplicadoDeOtroEstadio_LanzaExcepcion()
         {
             var estadio1 = CrearEstadioValido("Centenario", "Montevideo", 60000);
@@ -140,7 +140,7 @@ namespace Tests
             _servicio.ModificarEstadio(estadio2, "Maracana");
         }
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void ModificarEstadio_EstadioInexistente_LanzaExcepcion()
         {
             var estadio = new Estadio();
@@ -239,7 +239,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void EliminarEstadio_EstadioInexistente_DeberiaLanzarExcepcion()
         {
             _servicio.EliminarEstadio("EstadioQueNoExiste");
