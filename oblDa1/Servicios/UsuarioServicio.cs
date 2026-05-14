@@ -53,7 +53,7 @@ namespace Servicios
         private void ValidarUsuarioExiste(int id)
         {
             if (_repositorio.ObtenerPorId(id) == null)
-                throw new Exception("Usuario no encontrado.");
+                throw new KeyNotFoundException("Usuario no encontrado.");
         }
 
         private void ValidarEmailUnicoEnEdicion(Usuario usuario)
@@ -61,7 +61,7 @@ namespace Servicios
             var existente = _repositorio.ObtenerTodos()
                 .FirstOrDefault(u => u.Email.Equals(usuario.Email, StringComparison.OrdinalIgnoreCase));
             if (existente != null && existente.Id != usuario.Id)
-                throw new Exception("Ya existe un usuario con ese email.");
+                throw new InvalidOperationException("Ya existe un usuario con ese email.");
         }
 
         public void EliminarUsuario(int id)
@@ -77,7 +77,7 @@ namespace Servicios
             var existente = _repositorio.ObtenerTodos()
                 .Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             if (existente)
-                throw new Exception("Ya existe un usuario con ese email.");
+                throw new InvalidOperationException("Ya existe un usuario con ese email.");
         }
         
     }

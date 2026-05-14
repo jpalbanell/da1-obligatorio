@@ -138,14 +138,14 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void EliminarUsuario_ConIdInexistente_DeberiaLanzarExcepcion()
         {
             _servicio.EliminarUsuario(999);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AgregarUsuario_ConEmailDuplicado_DeberiaLanzarExcepcion()
         {
             var usuario1 = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
@@ -209,7 +209,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void ModificarUsuario_ConUsuarioInexistente_DeberiaLanzarExcepcion()
         {
             var usuario = new Usuario();
@@ -224,7 +224,7 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void ModificarUsuario_ConEmailDeOtroUsuario_DeberiaLanzarExcepcion()
         {
             var usuario1 = new Usuario();
