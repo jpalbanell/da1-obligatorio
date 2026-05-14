@@ -93,7 +93,7 @@ namespace Tests.TestsServicios
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void SimularPartido_PartidoInexistente_LanzaExcepcion()
         {
             _simulacionServicio.SimularPartido(999, 42);
@@ -553,7 +553,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void SimularPartido_ConEquipoLocalNulo_DeberiaLanzarExcepcion()
         {
             var partido = new Partido(1);
@@ -567,7 +567,7 @@ namespace Tests.TestsServicios
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void SimularPartido_ConEquipoVisitanteNulo_DeberiaLanzarExcepcion()
         {
             var partido = new Partido(1);

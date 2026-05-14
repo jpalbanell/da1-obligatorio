@@ -51,7 +51,7 @@ namespace Servicios
         {
             var usuario = _sesionServicio.ObtenerUsuarioActual();
             if (!usuario.TieneRol(Rol.Editor))
-                throw new Exception("Se requiere rol Editor para modificar partidos.");
+                throw new UnauthorizedAccessException("Se requiere rol Editor para modificar partidos.");
         }
 
         private void MarcarResultadoSiCorresponde(Partido partido)
@@ -63,7 +63,7 @@ namespace Servicios
         private void ValidarPartidoNoBloqueado(Partido partido)
         {
             if (partido.EstaBloqueado)
-                throw new Exception("No se puede editar un partido bloqueado");
+                throw new InvalidOperationException("No se puede editar un partido bloqueado");
         }
         
         public List<Partido> ObtenerPorFecha(DateTime fecha)
