@@ -32,8 +32,7 @@ namespace Repositorios
         private void ValidarPartidoExistente(int indice)
         {
             if (indice == -1)
-                throw new Exception("Partido no encontrado");
+                throw new KeyNotFoundException("Partido no encontrado");
         }
-        
     }
 }

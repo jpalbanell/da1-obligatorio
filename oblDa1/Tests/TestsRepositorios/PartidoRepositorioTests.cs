@@ -68,7 +68,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void Actualizar_ConPartidoInexistente_DeberiaLanzarExcepcion()
         {
             var partido = new Partido(999);

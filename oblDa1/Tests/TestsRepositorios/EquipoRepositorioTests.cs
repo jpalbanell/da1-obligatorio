@@ -60,7 +60,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void Actualizar_EquipoInexistente_LanzaExcepcion()
         {
             var equipo = new Equipo();
@@ -82,7 +82,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void Eliminar_EquipoInexistente_LanzaExcepcion()
         {
             _equipoRepositorio.Eliminar("Uruguay");

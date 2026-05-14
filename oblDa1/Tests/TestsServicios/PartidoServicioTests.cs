@@ -245,7 +245,7 @@ namespace Tests
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(KeyNotFoundException))]
         public void ModificarPartido_ConPartidoInexistente_DeberiaLanzarExcepcion()
         {
             var partido = CrearPartidoValido();
