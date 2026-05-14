@@ -116,7 +116,6 @@ public void AgregarUsuario(Usuario usuario)
 
 Este proyecto adopta las siguientes skills del repositorio `github/awesome-copilot`:
 
-- **git-commit:** asistencia para generar mensajes de commit consistentes con Conventional Commits, alineados con las convenciones del proyecto.
 - **create-readme:** generación del README del repositorio siguiendo un formato estándar.
 
 Las skills se aplican en la fase final del proyecto para consolidar consistencia en los commits y documentación del repositorio.
