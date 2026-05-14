@@ -336,7 +336,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void GenerarCruces_SinRolEditor_DeberiaLanzarExcepcion()
         {
             var fixture = new Fixture();

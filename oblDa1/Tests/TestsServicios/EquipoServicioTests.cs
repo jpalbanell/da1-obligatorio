@@ -421,7 +421,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void AgregarEquipo_SinRolAdministrador_DeberiaLanzarExcepcion()
         {
             var usuarioEditor = new Usuario();
@@ -453,7 +453,7 @@ namespace Tests.TestsServicios
         }
         
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
         public void CompletarEquiposAutomaticamente_SinRolAdministrador_DeberiaLanzarExcepcion()
         {
             var usuarioEditor = new Usuario();
