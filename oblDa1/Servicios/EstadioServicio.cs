@@ -40,7 +40,7 @@ namespace Servicios
         private void ValidarEstadioExiste(string nombre)
         {
             if (_repositorio.ObtenerPorNombre(nombre) == null)
-                throw new Exception("Estadio no encontrado.");
+                throw new KeyNotFoundException("Estadio no encontrado.");
         }
 
         public void ModificarEstadio(Estadio estadio, string nombreOriginal)
@@ -57,7 +57,7 @@ namespace Servicios
             if (nombreNuevo == nombreOriginal) return;
             var existente = _repositorio.ObtenerPorNombre(nombreNuevo);
             if (existente != null)
-                throw new Exception("Ya existe un estadio con ese nombre.");
+                throw new InvalidOperationException("Ya existe un estadio con ese nombre.");
         }
 
         public void EliminarEstadio(string nombre)
@@ -72,7 +72,7 @@ namespace Servicios
         {
             var existente = _repositorio.ObtenerPorNombre(nombre);
             if (existente != null)
-                throw new Exception("Ya existe un estadio con ese nombre.");
+                throw new InvalidOperationException("Ya existe un estadio con ese nombre.");
         }
     }
 }
