@@ -108,6 +108,11 @@
         }
 
         _partido = PartidoServicio.ObtenerPartido(Id);
+        if (_partido.TieneResultado)
+        {
+            _partido.GolesLocalAnterior = _partido.GolesLocal;
+            _partido.GolesVisitanteAnterior = _partido.GolesVisitante;
+        }
         if (_partido != null)
         {
             _form = EditarPartidoRequest.FromEntity(_partido);
