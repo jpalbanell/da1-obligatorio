@@ -183,6 +183,11 @@ namespace Dominio.Entidades
         
         public void RegistrarResultado(int golesLocal, int golesVisitante, Random random = null)
         {
+            if (TieneResultado)
+            {
+                GolesLocalAnterior = GolesLocal;
+                GolesVisitanteAnterior = GolesVisitante;
+            }
             GolesLocal = golesLocal;
             GolesVisitante = golesVisitante;
             TieneResultado = true;

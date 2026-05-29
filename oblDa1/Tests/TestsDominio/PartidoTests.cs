@@ -448,5 +448,70 @@ namespace Tests
 
             Assert.IsTrue(partido.TieneResultado);
         }
+        
+        [TestMethod]
+public void RegistrarResultado_LocalGana_DeterminaVencedorLocal()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+    partido.RegistrarResultado(2, 0);
+
+    Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
+}
+
+[TestMethod]
+public void RegistrarResultado_VisitanteGana_DeterminaVencedorVisitante()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+    partido.RegistrarResultado(0, 3);
+
+    Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+}
+
+[TestMethod]
+public void RegistrarResultado_EmpateEnGrupos_VencedorEsNull()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+    partido.Fase = FaseTorneo.FaseGrupos;
+
+    partido.RegistrarResultado(1, 1);
+
+    Assert.IsNull(partido.Vencedor);
+}
+
+[TestMethod]
+public void RegistrarResultado_SegundoResultado_GuardaGolesAnteriores()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+    partido.RegistrarResultado(2, 1);
+    partido.RegistrarResultado(3, 2);
+
+    Assert.AreEqual(2, partido.GolesLocalAnterior);
+    Assert.AreEqual(1, partido.GolesVisitanteAnterior);
+}
+
+[TestMethod]
+public void RegistrarResultado_PrimerResultado_GolesAnterioresSonMenosUno()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+    partido.RegistrarResultado(2, 1);
+
+    Assert.AreEqual(-1, partido.GolesLocalAnterior);
+    Assert.AreEqual(-1, partido.GolesVisitanteAnterior);
+}
+        
     }
 }
