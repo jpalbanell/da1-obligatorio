@@ -165,5 +165,10 @@ namespace Dominio.Entidades
         {
             return EquipoLocal != null && EquipoVisitante != null;
         }
+        
+        public bool EsEmpate()
+        {
+            return TieneResultado && GolesLocal == GolesVisitante;
+        }
     }
 }
