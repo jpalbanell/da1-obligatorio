@@ -59,5 +59,10 @@ namespace Dominio.Entidades
         {
             return ListaPosiciones.Select(p => p.Equipo).ToList();
         }
+        
+        public PosicionesGrupo ObtenerPosicionDeEquipo(string nombreEquipo)
+        {
+            return ListaPosiciones.FirstOrDefault(p => p.Equipo.Nombre == nombreEquipo);
+        }
     }
 }

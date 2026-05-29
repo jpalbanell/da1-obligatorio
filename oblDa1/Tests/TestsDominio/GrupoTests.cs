@@ -182,5 +182,30 @@ namespace Tests
 
             Assert.AreEqual(0, equipos.Count);
         }
+        
+        [TestMethod]
+        public void ObtenerPosicionDeEquipo_EquipoExiste_RetornaPosicion()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var equipo = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            grupo.AgregarEquipo(equipo);
+
+            var posicion = grupo.ObtenerPosicionDeEquipo("Uruguay");
+
+            Assert.IsNotNull(posicion);
+            Assert.AreEqual(equipo, posicion.Equipo);
+        }
+
+        [TestMethod]
+        public void ObtenerPosicionDeEquipo_EquipoNoExiste_RetornaNull()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+
+            var posicion = grupo.ObtenerPosicionDeEquipo("Uruguay");
+
+            Assert.IsNull(posicion);
+        }
     }
 }
