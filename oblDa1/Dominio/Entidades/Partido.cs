@@ -160,5 +160,10 @@ namespace Dominio.Entidades
         {
             return !EstaBloqueado;
         }
+        
+        public bool TieneEquiposCompletos()
+        {
+            return EquipoLocal != null && EquipoVisitante != null;
+        }
     }
 }
