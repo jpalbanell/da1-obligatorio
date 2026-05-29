@@ -177,6 +177,8 @@ namespace Dominio.Entidades
                 Vencedor = EquipoLocal;
             else if (GolesVisitante > GolesLocal)
                 Vencedor = EquipoVisitante;
+            else if (Fase != FaseTorneo.FaseGrupos && random != null)
+                Vencedor = random.Next(2) == 0 ? EquipoLocal : EquipoVisitante;
         }
     }
 }
