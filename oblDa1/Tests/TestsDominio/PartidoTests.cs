@@ -388,5 +388,20 @@ namespace Tests
 
             Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
         }
+        
+        [TestMethod]
+        public void DeterminarVencedor_EmpateEnFaseGrupos_VencedorEsNull()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.GolesLocal = 1;
+            partido.GolesVisitante = 1;
+            partido.Fase = FaseTorneo.FaseGrupos;
+
+            partido.DeterminarVencedor();
+
+            Assert.IsNull(partido.Vencedor);
+        }
     }
 }
