@@ -83,5 +83,32 @@ namespace Dominio.Entidades
             posLocal.AplicarResultado(partido.GolesLocal, partido.GolesVisitante);
             posVisitante.AplicarResultado(partido.GolesVisitante, partido.GolesLocal);
         }
+        
+        public List<Partido> GenerarPartidosFaseGrupos()
+        {
+            var equipos = ObtenerEquipos();
+            var cruces = new (int, int)[]
+            {
+                (0, 3), (1, 2),
+                (0, 2), (1, 3),
+                (0, 1), (2, 3)
+            };
+
+            var partidos = new List<Partido>();
+            for (int i = 0; i < cruces.Length; i++)
+            {
+                var (local, visitante) = cruces[i];
+                var partido = new Partido();
+                partido.EquipoLocal = equipos[local];
+                partido.EquipoVisitante = equipos[visitante];
+                partido.Grupo = this;
+                partido.Fase = FaseTorneo.FaseGrupos;
+                partido.Codigo = $"G{Etiqueta}-{i + 1}";
+                ListaPartidos.Add(partido);
+                partidos.Add(partido);
+            }
+            return partidos;
+        }
+
     }
 }
