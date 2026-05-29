@@ -276,5 +276,16 @@ namespace Tests
 
             Assert.IsTrue(resultado);
         }
+        
+        [TestMethod]
+        public void PuedeModificarse_PartidoBloqueado_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.EstaBloqueado = true;
+
+            var resultado = partido.PuedeModificarse();
+
+            Assert.IsFalse(resultado);
+        }
     }
 }
