@@ -116,5 +116,18 @@ namespace Tests
 
             Assert.IsTrue(resultado);
         }
+        
+        [TestMethod]
+        public void AgregarEquipo_GrupoVacio_AgregaPosicionConEquipo()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var equipo = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+
+            grupo.AgregarEquipo(equipo);
+
+            Assert.AreEqual(1, grupo.ListaPosiciones.Count);
+            Assert.AreEqual(equipo, grupo.ListaPosiciones[0].Equipo);
+        }
     }
 }

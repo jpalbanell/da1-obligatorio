@@ -43,5 +43,16 @@ namespace Dominio.Entidades
             if (!EtiquetasValidas.Contains(etiqueta))
                 throw new ArgumentException("La etiqueta debe ser una letra entre A y L.");
         }
+        
+        public void AgregarEquipo(Equipo equipo)
+        {
+            if (!PuedeAgregarEquipo(equipo))
+                throw new InvalidOperationException("No se puede agregar el equipo al grupo.");
+    
+            var posicion = new PosicionesGrupo();
+            posicion.Equipo = equipo;
+            posicion.Grupo = this;
+            ListaPosiciones.Add(posicion);
+        }
     }
 }
