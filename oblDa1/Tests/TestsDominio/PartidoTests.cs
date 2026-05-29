@@ -265,5 +265,16 @@ namespace Tests
 
             partido.ObtenerPerdedor();
         }
+        
+        [TestMethod]
+        public void PuedeModificarse_PartidoNoBloqueado_RetornaTrue()
+        {
+            var partido = new Partido(1);
+            partido.EstaBloqueado = false;
+
+            var resultado = partido.PuedeModificarse();
+
+            Assert.IsTrue(resultado);
+        }
     }
 }

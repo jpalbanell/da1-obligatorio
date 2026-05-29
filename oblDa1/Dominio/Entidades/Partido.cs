@@ -155,5 +155,10 @@ namespace Dominio.Entidades
                 throw new InvalidOperationException("El partido no tiene vencedor asignado.");
             return _vencedor == _equipoLocal ? _equipoVisitante : _equipoLocal;
         }
+        
+        public bool PuedeModificarse()
+        {
+            return !EstaBloqueado;
+        }
     }
 }
