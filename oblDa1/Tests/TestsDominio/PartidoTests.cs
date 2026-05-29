@@ -374,5 +374,19 @@ namespace Tests
 
             Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
         }
+        
+        [TestMethod]
+        public void DeterminarVencedor_VisitanteTieneMasGoles_VencedorEsVisitante()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.GolesLocal = 0;
+            partido.GolesVisitante = 3;
+
+            partido.DeterminarVencedor();
+
+            Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+        }
     }
 }
