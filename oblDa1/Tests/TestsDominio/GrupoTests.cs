@@ -129,5 +129,30 @@ namespace Tests
             Assert.AreEqual(1, grupo.ListaPosiciones.Count);
             Assert.AreEqual(equipo, grupo.ListaPosiciones[0].Equipo);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_GrupoLleno_LanzaExcepcion()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(new Equipo { Nombre = "E1", Confederacion = Confederacion.CAF, RankingFifa = 500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "E2", Confederacion = Confederacion.AFC, RankingFifa = 500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "E3", Confederacion = Confederacion.OFC, RankingFifa = 500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "E4", Confederacion = Confederacion.CONCACAF, RankingFifa = 500 });
+
+            grupo.AgregarEquipo(new Equipo { Nombre = "E5", Confederacion = Confederacion.CONMEBOL, RankingFifa = 500 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_CupoConfederacionExcedido_LanzaExcepcion()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(new Equipo { Nombre = "E1", Confederacion = Confederacion.CONMEBOL, RankingFifa = 500 });
+
+            grupo.AgregarEquipo(new Equipo { Nombre = "E2", Confederacion = Confederacion.CONMEBOL, RankingFifa = 500 });
+        }
     }
 }
