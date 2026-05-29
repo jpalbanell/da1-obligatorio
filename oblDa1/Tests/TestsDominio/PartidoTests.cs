@@ -360,5 +360,19 @@ namespace Tests
 
             Assert.IsFalse(resultado);
         }
+        
+        [TestMethod]
+        public void DeterminarVencedor_LocalTieneMasGoles_VencedorEsLocal()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.GolesLocal = 2;
+            partido.GolesVisitante = 1;
+
+            partido.DeterminarVencedor();
+
+            Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
+        }
     }
 }

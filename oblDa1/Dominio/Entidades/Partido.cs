@@ -170,5 +170,13 @@ namespace Dominio.Entidades
         {
             return TieneResultado && GolesLocal == GolesVisitante;
         }
+        
+        public void DeterminarVencedor(Random random = null)
+        {
+            if (GolesLocal > GolesVisitante)
+                Vencedor = EquipoLocal;
+            else if (GolesVisitante > GolesLocal)
+                Vencedor = EquipoVisitante;
+        }
     }
 }
