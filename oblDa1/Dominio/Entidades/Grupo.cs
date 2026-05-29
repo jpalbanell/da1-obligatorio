@@ -64,5 +64,24 @@ namespace Dominio.Entidades
         {
             return ListaPosiciones.FirstOrDefault(p => p.Equipo.Nombre == nombreEquipo);
         }
+        
+        public void ActualizarPosiciones(Partido partido)
+        {
+            if (partido == null) return;
+
+            var posLocal = ObtenerPosicionDeEquipo(partido.EquipoLocal.Nombre);
+            var posVisitante = ObtenerPosicionDeEquipo(partido.EquipoVisitante.Nombre);
+
+            if (posLocal == null || posVisitante == null) return;
+
+            if (partido.GolesLocalAnterior >= 0)
+            {
+                posLocal.RevertirResultado(partido.GolesLocalAnterior, partido.GolesVisitanteAnterior);
+                posVisitante.RevertirResultado(partido.GolesVisitanteAnterior, partido.GolesLocalAnterior);
+            }
+
+            posLocal.AplicarResultado(partido.GolesLocal, partido.GolesVisitante);
+            posVisitante.AplicarResultado(partido.GolesVisitante, partido.GolesLocal);
+        }
     }
 }

@@ -207,5 +207,26 @@ namespace Tests
 
             Assert.IsNull(posicion);
         }
+        
+        [TestMethod]
+        public void ActualizarPosiciones_VictoriaLocal_ActualizaPuntosDeAmbos()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var local = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            var visitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+            grupo.AgregarEquipo(local);
+            grupo.AgregarEquipo(visitante);
+
+            var partido = new Partido(1);
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            partido.RegistrarResultado(2, 0);
+
+            grupo.ActualizarPosiciones(partido);
+
+            Assert.AreEqual(3, grupo.ObtenerPosicionDeEquipo("Uruguay").Puntos);
+            Assert.AreEqual(0, grupo.ObtenerPosicionDeEquipo("Alemania").Puntos);
+        }
     }
 }
