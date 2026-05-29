@@ -299,5 +299,27 @@ namespace Tests
 
             Assert.IsTrue(resultado);
         }
+        
+        [TestMethod]
+        public void TieneEquiposCompletos_FaltaEquipoLocal_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+            var resultado = partido.TieneEquiposCompletos();
+
+            Assert.IsFalse(resultado);
+        }
+
+        [TestMethod]
+        public void TieneEquiposCompletos_FaltaEquipoVisitante_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+
+            var resultado = partido.TieneEquiposCompletos();
+
+            Assert.IsFalse(resultado);
+        }
     }
 }
