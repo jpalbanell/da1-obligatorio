@@ -54,5 +54,10 @@ namespace Dominio.Entidades
             posicion.Grupo = this;
             ListaPosiciones.Add(posicion);
         }
+        
+        public List<Equipo> ObtenerEquipos()
+        {
+            return ListaPosiciones.Select(p => p.Equipo).ToList();
+        }
     }
 }

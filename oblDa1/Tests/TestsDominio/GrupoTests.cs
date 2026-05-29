@@ -154,5 +154,33 @@ namespace Tests
 
             grupo.AgregarEquipo(new Equipo { Nombre = "E2", Confederacion = Confederacion.CONMEBOL, RankingFifa = 500 });
         }
+        
+        [TestMethod]
+        public void ObtenerEquipos_GrupoConEquipos_RetornaListaDeEquipos()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var equipo1 = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            var equipo2 = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+            grupo.AgregarEquipo(equipo1);
+            grupo.AgregarEquipo(equipo2);
+
+            var equipos = grupo.ObtenerEquipos();
+
+            Assert.AreEqual(2, equipos.Count);
+            Assert.IsTrue(equipos.Contains(equipo1));
+            Assert.IsTrue(equipos.Contains(equipo2));
+        }
+
+        [TestMethod]
+        public void ObtenerEquipos_GrupoVacio_RetornaListaVacia()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+
+            var equipos = grupo.ObtenerEquipos();
+
+            Assert.AreEqual(0, equipos.Count);
+        }
     }
 }
