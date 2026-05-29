@@ -334,5 +334,31 @@ namespace Tests
 
             Assert.IsTrue(resultado);
         }
+        
+        [TestMethod]
+        public void EsEmpate_DiferentesGoles_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.GolesLocal = 2;
+            partido.GolesVisitante = 1;
+            partido.TieneResultado = true;
+
+            var resultado = partido.EsEmpate();
+
+            Assert.IsFalse(resultado);
+        }
+
+        [TestMethod]
+        public void EsEmpate_MismosGolesPeroSinResultado_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.GolesLocal = 0;
+            partido.GolesVisitante = 0;
+            partido.TieneResultado = false;
+
+            var resultado = partido.EsEmpate();
+
+            Assert.IsFalse(resultado);
+        }
     }
 }
