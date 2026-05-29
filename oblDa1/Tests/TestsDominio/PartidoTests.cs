@@ -421,5 +421,20 @@ namespace Tests
                 partido.Vencedor == partido.EquipoVisitante
             );
         }
+        
+        [TestMethod]
+        public void DeterminarVencedor_EmpateEnEliminatoriaSinRandom_VencedorEsNull()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.GolesLocal = 1;
+            partido.GolesVisitante = 1;
+            partido.Fase = FaseTorneo.Octavos;
+
+            partido.DeterminarVencedor();
+
+            Assert.IsNull(partido.Vencedor);
+        }
     }
 }
