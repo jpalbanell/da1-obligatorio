@@ -436,5 +436,17 @@ namespace Tests
 
             Assert.IsNull(partido.Vencedor);
         }
+        
+        [TestMethod]
+        public void RegistrarResultado_PrimerResultado_MarcaTieneResultado()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+            partido.RegistrarResultado(2, 1);
+
+            Assert.IsTrue(partido.TieneResultado);
+        }
     }
 }

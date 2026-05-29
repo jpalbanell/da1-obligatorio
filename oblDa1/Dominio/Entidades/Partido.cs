@@ -180,5 +180,13 @@ namespace Dominio.Entidades
             else if (Fase != FaseTorneo.FaseGrupos && random != null)
                 Vencedor = random.Next(2) == 0 ? EquipoLocal : EquipoVisitante;
         }
+        
+        public void RegistrarResultado(int golesLocal, int golesVisitante, Random random = null)
+        {
+            GolesLocal = golesLocal;
+            GolesVisitante = golesVisitante;
+            TieneResultado = true;
+            DeterminarVencedor(random);
+        }
     }
 }
