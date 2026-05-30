@@ -21,5 +21,7 @@
                 (lista[indiceI], lista[indiceJ]) = (lista[indiceJ], lista[indiceI]);
             }
         }
+        
+        
     }
 }

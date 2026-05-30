@@ -57,5 +57,19 @@ namespace Tests
             Assert.AreEqual(5, lista[4]);
             CollectionAssert.AreEquivalent(new List<int> { 2, 3 }, new List<int> { lista[1], lista[2] });
         }
+        
+        [TestMethod]
+        public void BarajarSubLista_MismaSemilla_ProduceMismoResultado()
+        {
+            var lista1 = new List<int> { 1, 2, 3, 4, 5 };
+            var lista2 = new List<int> { 1, 2, 3, 4, 5 };
+            var indices = new List<int> { 0, 1, 2, 3, 4 };
+
+            BarajadorDeterministico.BarajarSubLista(lista1, indices, new Random(42));
+            BarajadorDeterministico.BarajarSubLista(lista2, indices, new Random(42));
+
+            CollectionAssert.AreEqual(lista1, lista2);
+            CollectionAssert.AreNotEqual(lista1, new List<int> { 1, 2, 3, 4, 5 });
+        }
     }
 }
