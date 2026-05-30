@@ -86,6 +86,8 @@ namespace Servicios
                 .FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             if (usuario == null)
                 throw new UnauthorizedAccessException("Credenciales inválidas.");
+            if (!usuario.VerificarContrasena(contrasena))
+                throw new UnauthorizedAccessException("Credenciales inválidas.");
             return usuario;
         }
     }
