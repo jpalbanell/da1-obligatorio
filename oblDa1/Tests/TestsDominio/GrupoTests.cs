@@ -116,5 +116,262 @@ namespace Tests
 
             Assert.IsTrue(resultado);
         }
+        
+        [TestMethod]
+        public void AgregarEquipo_GrupoVacio_AgregaPosicionConEquipo()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var equipo = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+
+            grupo.AgregarEquipo(equipo);
+
+            Assert.AreEqual(1, grupo.ListaPosiciones.Count);
+            Assert.AreEqual(equipo, grupo.ListaPosiciones[0].Equipo);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_GrupoLleno_LanzaExcepcion()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(new Equipo { Nombre = "E1", Confederacion = Confederacion.CAF, RankingFifa = 500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "E2", Confederacion = Confederacion.AFC, RankingFifa = 500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "E3", Confederacion = Confederacion.OFC, RankingFifa = 500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "E4", Confederacion = Confederacion.CONCACAF, RankingFifa = 500 });
+
+            grupo.AgregarEquipo(new Equipo { Nombre = "E5", Confederacion = Confederacion.CONMEBOL, RankingFifa = 500 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_CupoConfederacionExcedido_LanzaExcepcion()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(new Equipo { Nombre = "E1", Confederacion = Confederacion.CONMEBOL, RankingFifa = 500 });
+
+            grupo.AgregarEquipo(new Equipo { Nombre = "E2", Confederacion = Confederacion.CONMEBOL, RankingFifa = 500 });
+        }
+        
+        [TestMethod]
+        public void ObtenerEquipos_GrupoConEquipos_RetornaListaDeEquipos()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var equipo1 = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            var equipo2 = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+            grupo.AgregarEquipo(equipo1);
+            grupo.AgregarEquipo(equipo2);
+
+            var equipos = grupo.ObtenerEquipos();
+
+            Assert.AreEqual(2, equipos.Count);
+            Assert.IsTrue(equipos.Contains(equipo1));
+            Assert.IsTrue(equipos.Contains(equipo2));
+        }
+
+        [TestMethod]
+        public void ObtenerEquipos_GrupoVacio_RetornaListaVacia()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+
+            var equipos = grupo.ObtenerEquipos();
+
+            Assert.AreEqual(0, equipos.Count);
+        }
+        
+        [TestMethod]
+        public void ObtenerPosicionDeEquipo_EquipoExiste_RetornaPosicion()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var equipo = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            grupo.AgregarEquipo(equipo);
+
+            var posicion = grupo.ObtenerPosicionDeEquipo("Uruguay");
+
+            Assert.IsNotNull(posicion);
+            Assert.AreEqual(equipo, posicion.Equipo);
+        }
+
+        [TestMethod]
+        public void ObtenerPosicionDeEquipo_EquipoNoExiste_RetornaNull()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+
+            var posicion = grupo.ObtenerPosicionDeEquipo("Uruguay");
+
+            Assert.IsNull(posicion);
+        }
+        
+        [TestMethod]
+        public void ActualizarPosiciones_VictoriaLocal_ActualizaPuntosDeAmbos()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var local = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            var visitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+            grupo.AgregarEquipo(local);
+            grupo.AgregarEquipo(visitante);
+
+            var partido = new Partido(1);
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            partido.RegistrarResultado(2, 0);
+
+            grupo.ActualizarPosiciones(partido);
+
+            Assert.AreEqual(3, grupo.ObtenerPosicionDeEquipo("Uruguay").Puntos);
+            Assert.AreEqual(0, grupo.ObtenerPosicionDeEquipo("Alemania").Puntos);
+        }
+        
+        [TestMethod]
+    public void ActualizarPosiciones_Empate_SumaUnPuntoACadaUno()
+    {
+        var grupo = new Grupo();
+        grupo.Etiqueta = "A";
+        var local = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+        var visitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+        grupo.AgregarEquipo(local);
+        grupo.AgregarEquipo(visitante);
+
+        var partido = new Partido(1);
+        partido.EquipoLocal = local;
+        partido.EquipoVisitante = visitante;
+        partido.RegistrarResultado(1, 1);
+
+        grupo.ActualizarPosiciones(partido);
+
+        Assert.AreEqual(1, grupo.ObtenerPosicionDeEquipo("Uruguay").Puntos);
+        Assert.AreEqual(1, grupo.ObtenerPosicionDeEquipo("Alemania").Puntos);
+    }
+
+        [TestMethod]
+        public void ActualizarPosiciones_SegundoResultado_RevierteYAplicaNuevo()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var local = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            var visitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+            grupo.AgregarEquipo(local);
+            grupo.AgregarEquipo(visitante);
+
+            var partido = new Partido(1);
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            partido.RegistrarResultado(2, 0);
+            grupo.ActualizarPosiciones(partido);
+
+            partido.RegistrarResultado(0, 1);
+            grupo.ActualizarPosiciones(partido);
+
+            Assert.AreEqual(0, grupo.ObtenerPosicionDeEquipo("Uruguay").Puntos);
+            Assert.AreEqual(3, grupo.ObtenerPosicionDeEquipo("Alemania").Puntos);
+        }
+
+        [TestMethod]
+        public void ActualizarPosiciones_PartidoSinGrupo_NoLanzaExcepcion()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+            partido.RegistrarResultado(2, 0);
+
+            grupo.ActualizarPosiciones(partido);
+
+            Assert.AreEqual(0, grupo.ListaPosiciones.Count);
+        }
+        
+                
+        [TestMethod]
+        public void GenerarPartidosFaseGrupos_GrupoConCuatroEquipos_GeneraSeisPartidos()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Mexico", Confederacion = Confederacion.CONCACAF, RankingFifa = 1200 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Japon", Confederacion = Confederacion.AFC, RankingFifa = 1100 });
+
+            var partidos = grupo.GenerarPartidosFaseGrupos();
+
+            Assert.AreEqual(6, partidos.Count);
+        }
+        
+        [TestMethod]
+        public void GenerarPartidosFaseGrupos_Partidos_TienenFaseGrupos()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Mexico", Confederacion = Confederacion.CONCACAF, RankingFifa = 1200 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Japon", Confederacion = Confederacion.AFC, RankingFifa = 1100 });
+
+            var partidos = grupo.GenerarPartidosFaseGrupos();
+
+            Assert.IsTrue(partidos.All(p => p.Fase == FaseTorneo.FaseGrupos));
+        }
+
+        [TestMethod]
+        public void GenerarPartidosFaseGrupos_Partidos_TienenCodigoCorrecto()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Mexico", Confederacion = Confederacion.CONCACAF, RankingFifa = 1200 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Japon", Confederacion = Confederacion.AFC, RankingFifa = 1100 });
+
+            var partidos = grupo.GenerarPartidosFaseGrupos();
+
+            Assert.AreEqual("GA-1", partidos[0].Codigo);
+            Assert.AreEqual("GA-6", partidos[5].Codigo);
+        }
+
+        [TestMethod]
+        public void GenerarPartidosFaseGrupos_Partidos_SeAgreaganAListaPartidos()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Mexico", Confederacion = Confederacion.CONCACAF, RankingFifa = 1200 });
+            grupo.AgregarEquipo(new Equipo { Nombre = "Japon", Confederacion = Confederacion.AFC, RankingFifa = 1100 });
+
+            grupo.GenerarPartidosFaseGrupos();
+
+            Assert.AreEqual(6, grupo.ListaPartidos.Count);
+        }
+
+        [TestMethod]
+        public void GenerarPartidosFaseGrupos_CadaEquipoJuegaTresPartidos()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var uruguay = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            var alemania = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+            var mexico = new Equipo { Nombre = "Mexico", Confederacion = Confederacion.CONCACAF, RankingFifa = 1200 };
+            var japon = new Equipo { Nombre = "Japon", Confederacion = Confederacion.AFC, RankingFifa = 1100 };
+            grupo.AgregarEquipo(uruguay);
+            grupo.AgregarEquipo(alemania);
+            grupo.AgregarEquipo(mexico);
+            grupo.AgregarEquipo(japon);
+
+            var partidos = grupo.GenerarPartidosFaseGrupos();
+
+            foreach (var equipo in new[] { uruguay, alemania, mexico, japon })
+            {
+                int cantPartidos = partidos.Count(p => p.EquipoLocal == equipo || p.EquipoVisitante == equipo);
+                Assert.AreEqual(3, cantPartidos);
+            }
+        }
     }
 }

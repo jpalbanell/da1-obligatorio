@@ -155,5 +155,43 @@ namespace Dominio.Entidades
                 throw new InvalidOperationException("El partido no tiene vencedor asignado.");
             return _vencedor == _equipoLocal ? _equipoVisitante : _equipoLocal;
         }
+        
+        public bool PuedeModificarse()
+        {
+            return !EstaBloqueado;
+        }
+        
+        public bool TieneEquiposCompletos()
+        {
+            return EquipoLocal != null && EquipoVisitante != null;
+        }
+        
+        public bool EsEmpate()
+        {
+            return TieneResultado && GolesLocal == GolesVisitante;
+        }
+        
+        public void DeterminarVencedor(Random random = null)
+        {
+            if (GolesLocal > GolesVisitante)
+                Vencedor = EquipoLocal;
+            else if (GolesVisitante > GolesLocal)
+                Vencedor = EquipoVisitante;
+            else if (Fase != FaseTorneo.FaseGrupos && random != null)
+                Vencedor = random.Next(2) == 0 ? EquipoLocal : EquipoVisitante;
+        }
+        
+        public void RegistrarResultado(int golesLocal, int golesVisitante, Random random = null)
+        {
+            if (TieneResultado)
+            {
+                GolesLocalAnterior = GolesLocal;
+                GolesVisitanteAnterior = GolesVisitante;
+            }
+            GolesLocal = golesLocal;
+            GolesVisitante = golesVisitante;
+            TieneResultado = true;
+            DeterminarVencedor(random);
+        }
     }
 }

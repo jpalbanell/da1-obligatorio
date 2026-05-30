@@ -265,5 +265,253 @@ namespace Tests
 
             partido.ObtenerPerdedor();
         }
+        
+        [TestMethod]
+        public void PuedeModificarse_PartidoNoBloqueado_RetornaTrue()
+        {
+            var partido = new Partido(1);
+            partido.EstaBloqueado = false;
+
+            var resultado = partido.PuedeModificarse();
+
+            Assert.IsTrue(resultado);
+        }
+        
+        [TestMethod]
+        public void PuedeModificarse_PartidoBloqueado_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.EstaBloqueado = true;
+
+            var resultado = partido.PuedeModificarse();
+
+            Assert.IsFalse(resultado);
+        }
+        
+        [TestMethod]
+        public void TieneEquiposCompletos_AmbosEquiposAsignados_RetornaTrue()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+            var resultado = partido.TieneEquiposCompletos();
+
+            Assert.IsTrue(resultado);
+        }
+        
+        [TestMethod]
+        public void TieneEquiposCompletos_FaltaEquipoLocal_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+            var resultado = partido.TieneEquiposCompletos();
+
+            Assert.IsFalse(resultado);
+        }
+
+        [TestMethod]
+        public void TieneEquiposCompletos_FaltaEquipoVisitante_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+
+            var resultado = partido.TieneEquiposCompletos();
+
+            Assert.IsFalse(resultado);
+        }
+        
+        [TestMethod]
+        public void EsEmpate_MismosGolesYTieneResultado_RetornaTrue()
+        {
+            var partido = new Partido(1);
+            partido.GolesLocal = 1;
+            partido.GolesVisitante = 1;
+            partido.TieneResultado = true;
+
+            var resultado = partido.EsEmpate();
+
+            Assert.IsTrue(resultado);
+        }
+        
+        [TestMethod]
+        public void EsEmpate_DiferentesGoles_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.GolesLocal = 2;
+            partido.GolesVisitante = 1;
+            partido.TieneResultado = true;
+
+            var resultado = partido.EsEmpate();
+
+            Assert.IsFalse(resultado);
+        }
+
+        [TestMethod]
+        public void EsEmpate_MismosGolesPeroSinResultado_RetornaFalse()
+        {
+            var partido = new Partido(1);
+            partido.GolesLocal = 0;
+            partido.GolesVisitante = 0;
+            partido.TieneResultado = false;
+
+            var resultado = partido.EsEmpate();
+
+            Assert.IsFalse(resultado);
+        }
+        
+        [TestMethod]
+        public void DeterminarVencedor_LocalTieneMasGoles_VencedorEsLocal()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.GolesLocal = 2;
+            partido.GolesVisitante = 1;
+
+            partido.DeterminarVencedor();
+
+            Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
+        }
+        
+        [TestMethod]
+        public void DeterminarVencedor_VisitanteTieneMasGoles_VencedorEsVisitante()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.GolesLocal = 0;
+            partido.GolesVisitante = 3;
+
+            partido.DeterminarVencedor();
+
+            Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+        }
+        
+        [TestMethod]
+        public void DeterminarVencedor_EmpateEnFaseGrupos_VencedorEsNull()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.GolesLocal = 1;
+            partido.GolesVisitante = 1;
+            partido.Fase = FaseTorneo.FaseGrupos;
+
+            partido.DeterminarVencedor();
+
+            Assert.IsNull(partido.Vencedor);
+        }
+        
+        [TestMethod]
+        public void DeterminarVencedor_EmpateEnEliminatoria_VencedorEsAlgunEquipo()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.GolesLocal = 1;
+            partido.GolesVisitante = 1;
+            partido.Fase = FaseTorneo.Octavos;
+
+            partido.DeterminarVencedor(new Random(42));
+
+            Assert.IsTrue(
+                partido.Vencedor == partido.EquipoLocal ||
+                partido.Vencedor == partido.EquipoVisitante
+            );
+        }
+        
+        [TestMethod]
+        public void DeterminarVencedor_EmpateEnEliminatoriaSinRandom_VencedorEsNull()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.GolesLocal = 1;
+            partido.GolesVisitante = 1;
+            partido.Fase = FaseTorneo.Octavos;
+
+            partido.DeterminarVencedor();
+
+            Assert.IsNull(partido.Vencedor);
+        }
+        
+        [TestMethod]
+        public void RegistrarResultado_PrimerResultado_MarcaTieneResultado()
+        {
+            var partido = new Partido(1);
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+            partido.RegistrarResultado(2, 1);
+
+            Assert.IsTrue(partido.TieneResultado);
+        }
+        
+        [TestMethod]
+public void RegistrarResultado_LocalGana_DeterminaVencedorLocal()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+    partido.RegistrarResultado(2, 0);
+
+    Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
+}
+
+[TestMethod]
+public void RegistrarResultado_VisitanteGana_DeterminaVencedorVisitante()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+    partido.RegistrarResultado(0, 3);
+
+    Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+}
+
+[TestMethod]
+public void RegistrarResultado_EmpateEnGrupos_VencedorEsNull()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+    partido.Fase = FaseTorneo.FaseGrupos;
+
+    partido.RegistrarResultado(1, 1);
+
+    Assert.IsNull(partido.Vencedor);
+}
+
+[TestMethod]
+public void RegistrarResultado_SegundoResultado_GuardaGolesAnteriores()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+    partido.RegistrarResultado(2, 1);
+    partido.RegistrarResultado(3, 2);
+
+    Assert.AreEqual(2, partido.GolesLocalAnterior);
+    Assert.AreEqual(1, partido.GolesVisitanteAnterior);
+}
+
+[TestMethod]
+public void RegistrarResultado_PrimerResultado_GolesAnterioresSonMenosUno()
+{
+    var partido = new Partido(1);
+    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+
+    partido.RegistrarResultado(2, 1);
+
+    Assert.AreEqual(-1, partido.GolesLocalAnterior);
+    Assert.AreEqual(-1, partido.GolesVisitanteAnterior);
+}
+        
     }
 }

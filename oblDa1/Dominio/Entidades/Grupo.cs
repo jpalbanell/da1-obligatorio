@@ -43,5 +43,72 @@ namespace Dominio.Entidades
             if (!EtiquetasValidas.Contains(etiqueta))
                 throw new ArgumentException("La etiqueta debe ser una letra entre A y L.");
         }
+        
+        public void AgregarEquipo(Equipo equipo)
+        {
+            if (!PuedeAgregarEquipo(equipo))
+                throw new InvalidOperationException("No se puede agregar el equipo al grupo.");
+    
+            var posicion = new PosicionesGrupo();
+            posicion.Equipo = equipo;
+            posicion.Grupo = this;
+            ListaPosiciones.Add(posicion);
+        }
+        
+        public List<Equipo> ObtenerEquipos()
+        {
+            return ListaPosiciones.Select(p => p.Equipo).ToList();
+        }
+        
+        public PosicionesGrupo ObtenerPosicionDeEquipo(string nombreEquipo)
+        {
+            return ListaPosiciones.FirstOrDefault(p => p.Equipo.Nombre == nombreEquipo);
+        }
+        
+        public void ActualizarPosiciones(Partido partido)
+        {
+            if (partido == null) return;
+
+            var posLocal = ObtenerPosicionDeEquipo(partido.EquipoLocal.Nombre);
+            var posVisitante = ObtenerPosicionDeEquipo(partido.EquipoVisitante.Nombre);
+
+            if (posLocal == null || posVisitante == null) return;
+
+            if (partido.GolesLocalAnterior >= 0)
+            {
+                posLocal.RevertirResultado(partido.GolesLocalAnterior, partido.GolesVisitanteAnterior);
+                posVisitante.RevertirResultado(partido.GolesVisitanteAnterior, partido.GolesLocalAnterior);
+            }
+
+            posLocal.AplicarResultado(partido.GolesLocal, partido.GolesVisitante);
+            posVisitante.AplicarResultado(partido.GolesVisitante, partido.GolesLocal);
+        }
+        
+        public List<Partido> GenerarPartidosFaseGrupos()
+        {
+            var equipos = ObtenerEquipos();
+            var cruces = new (int, int)[]
+            {
+                (0, 3), (1, 2),
+                (0, 2), (1, 3),
+                (0, 1), (2, 3)
+            };
+
+            var partidos = new List<Partido>();
+            for (int i = 0; i < cruces.Length; i++)
+            {
+                var (local, visitante) = cruces[i];
+                var partido = new Partido();
+                partido.EquipoLocal = equipos[local];
+                partido.EquipoVisitante = equipos[visitante];
+                partido.Grupo = this;
+                partido.Fase = FaseTorneo.FaseGrupos;
+                partido.Codigo = $"G{Etiqueta}-{i + 1}";
+                ListaPartidos.Add(partido);
+                partidos.Add(partido);
+            }
+            return partidos;
+        }
+
     }
 }

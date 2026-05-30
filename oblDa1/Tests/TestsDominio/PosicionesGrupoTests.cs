@@ -191,4 +191,24 @@ public class PosicionesGrupoTests
         Assert.AreEqual(-2, posicion.DiferenciaGoles);
         Assert.AreEqual(0, posicion.Puntos);
     }
+    
+    [TestMethod]
+    public void EtiquetaGrupo_ConGrupoAsignado_RetornaEtiquetaDelGrupo()
+    {
+        var posicion = new PosicionesGrupo(1);
+        var grupo = new Grupo();
+        grupo.Etiqueta = "B";
+        posicion.Grupo = grupo;
+        posicion.Equipo = new Equipo { Nombre = "Uruguay" };
+
+        Assert.AreEqual("B", posicion.EtiquetaGrupo);
+    }
+
+    [TestMethod]
+    public void EtiquetaGrupo_SinGrupoAsignado_RetornaNull()
+    {
+        var posicion = new PosicionesGrupo(1);
+
+        Assert.IsNull(posicion.EtiquetaGrupo);
+    }
 }

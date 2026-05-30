@@ -11,6 +11,8 @@
 
         public int Id { get; set; }
         public int DiferenciaGoles { get; set; }
+        
+        public string EtiquetaGrupo => Grupo?.Etiqueta;
 
         public Equipo Equipo
         {
