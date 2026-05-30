@@ -274,5 +274,16 @@ namespace Tests
             _servicio.AgregarUsuario(usuario);
             _servicio.Login("juan@ejemplo.com", "Incorrecta@1");
         }
+        
+        [TestMethod]
+        public void Login_ConCredencialesValidas_DeberiaIniciarSesion()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            Assert.AreEqual("Juan", _sesionServicio.ObtenerUsuarioActual().Nombre);
+        }
     }
 }

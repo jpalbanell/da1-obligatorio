@@ -88,6 +88,7 @@ namespace Servicios
                 throw new UnauthorizedAccessException("Credenciales inválidas.");
             if (!usuario.VerificarContrasena(contrasena))
                 throw new UnauthorizedAccessException("Credenciales inválidas.");
+            _sesionServicio.IniciarSesion(usuario);
             return usuario;
         }
     }
