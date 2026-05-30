@@ -258,5 +258,12 @@ namespace Tests
             Assert.IsNotNull(resultado);
             Assert.AreEqual("Juan", resultado.Nombre);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void Login_ConEmailInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.Login("noexiste@ejemplo.com", "Abcdef1@");
+        }
     }
 }

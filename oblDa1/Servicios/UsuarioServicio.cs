@@ -82,8 +82,11 @@ namespace Servicios
         
         public Usuario Login(string email, string contrasena)
         {
-            return _repositorio.ObtenerTodos()
-                                .FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            var usuario = _repositorio.ObtenerTodos()
+                .FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            if (usuario == null)
+                throw new UnauthorizedAccessException("Credenciales inválidas.");
+            return usuario;
         }
     }
 }
