@@ -33,5 +33,16 @@ namespace Tests
             BarajadorDeterministico.Barajar(lista, new Random(42));
             Assert.AreEqual(99, lista[0]);
         }
+        
+        [TestMethod]
+        public void Barajar_ContieneLosMismosElementos()
+        {
+            var original = new List<int> { 1, 2, 3, 4, 5 };
+            var lista = new List<int> { 1, 2, 3, 4, 5 };
+
+            BarajadorDeterministico.Barajar(lista, new Random(42));
+
+            CollectionAssert.AreEquivalent(original, lista);
+        }
     }
 }
