@@ -25,5 +25,13 @@ namespace Tests
             BarajadorDeterministico.Barajar(lista, new Random(42));
             Assert.AreEqual(0, lista.Count);
         }
+        
+        [TestMethod]
+        public void Barajar_ListaUnElemento_QuedaIgual()
+        {
+            var lista = new List<int> { 99 };
+            BarajadorDeterministico.Barajar(lista, new Random(42));
+            Assert.AreEqual(99, lista[0]);
+        }
     }
 }
