@@ -92,5 +92,12 @@ namespace Servicios
             _auditoriaServicio.Registrar($"Login exitoso: {usuario.Email}", usuario);
             return usuario;
         }
+        
+        public void CambiarContrasena(int id, string nuevaContrasena)
+        {
+            var usuario = _repositorio.ObtenerPorId(id);
+            usuario.Contrasena = nuevaContrasena;
+            _repositorio.Actualizar(usuario);
+        }
     }
 }

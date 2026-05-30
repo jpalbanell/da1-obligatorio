@@ -309,5 +309,18 @@ namespace Tests
             Assert.IsNotNull(resultado);
             Assert.AreEqual("Juan", resultado.Nombre);
         }
+        
+        [TestMethod]
+        public void CambiarContrasena_ConContrasenaValida_DeberiaActualizar()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+            _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            _servicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
+            var resultado = _servicio.Login("juan@ejemplo.com", "NuevaPass@1");
+
+            Assert.IsNotNull(resultado);
+        }
     }
 }
