@@ -285,5 +285,17 @@ namespace Tests
 
             Assert.AreEqual("Juan", _sesionServicio.ObtenerUsuarioActual().Nombre);
         }
+        
+        [TestMethod]
+        public void Login_ConCredencialesValidas_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("juan@ejemplo.com")));
+        }
     }
 }
