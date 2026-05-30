@@ -80,5 +80,10 @@ namespace Servicios
                 throw new InvalidOperationException("Ya existe un usuario con ese email.");
         }
         
+        public Usuario Login(string email, string contrasena)
+        {
+            return _repositorio.ObtenerTodos()
+                                .FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }
