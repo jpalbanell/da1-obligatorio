@@ -322,5 +322,12 @@ namespace Tests
 
             Assert.IsNotNull(resultado);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void CambiarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.CambiarContrasena(999, "NuevaPass@1");
+        }
     }
 }

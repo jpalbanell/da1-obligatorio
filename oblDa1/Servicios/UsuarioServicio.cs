@@ -96,6 +96,8 @@ namespace Servicios
         public void CambiarContrasena(int id, string nuevaContrasena)
         {
             var usuario = _repositorio.ObtenerPorId(id);
+            if (usuario == null)
+                throw new KeyNotFoundException("Usuario no encontrado.");
             usuario.Contrasena = nuevaContrasena;
             _repositorio.Actualizar(usuario);
         }
