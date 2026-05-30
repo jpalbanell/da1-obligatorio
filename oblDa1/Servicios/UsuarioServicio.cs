@@ -9,6 +9,7 @@ namespace Servicios
         private readonly IUsuarioRepositorio _repositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
+        private const string ContrasenaPorDefecto = "Password@1";
 
         public UsuarioServicio(IUsuarioRepositorio repositorio,
             IAuditoriaServicio auditoriaServicio,
@@ -101,6 +102,15 @@ namespace Servicios
             usuario.Contrasena = nuevaContrasena;
             _repositorio.Actualizar(usuario);
             _auditoriaServicio.Registrar($"Cambio de contraseña: {usuario.Email}", _sesionServicio.ObtenerUsuarioActual());
+        }
+        
+        public void ReiniciarContrasena(int id)
+        {
+            var usuario = _repositorio.ObtenerPorId(id);
+            if (usuario == null)
+                throw new KeyNotFoundException("Usuario no encontrado.");
+            usuario.Contrasena = ContrasenaPorDefecto;
+            _repositorio.Actualizar(usuario);
         }
     }
 }

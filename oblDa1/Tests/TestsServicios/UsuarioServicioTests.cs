@@ -342,5 +342,17 @@ namespace Tests
             var logs = _auditoriaServicio.ObtenerTodos();
             Assert.IsTrue(logs.Any(l => l.Accion.Contains("contraseña") && l.Accion.Contains("juan@ejemplo.com")));
         }
+        
+        [TestMethod]
+        public void ReiniciarContrasena_ConUsuarioExistente_DeberiaAsignarContrasenaPorDefecto()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.ReiniciarContrasena(usuario.Id);
+            var resultado = _servicio.Login("juan@ejemplo.com", "Password@1");
+
+            Assert.IsNotNull(resultado);
+        }
     }
 }
