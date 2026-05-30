@@ -100,6 +100,7 @@ namespace Servicios
                 throw new KeyNotFoundException("Usuario no encontrado.");
             usuario.Contrasena = nuevaContrasena;
             _repositorio.Actualizar(usuario);
+            _auditoriaServicio.Registrar($"Cambio de contraseña: {usuario.Email}", _sesionServicio.ObtenerUsuarioActual());
         }
     }
 }

@@ -329,5 +329,18 @@ namespace Tests
         {
             _servicio.CambiarContrasena(999, "NuevaPass@1");
         }
+        
+        [TestMethod]
+        public void CambiarContrasena_ConUsuarioExistente_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+            _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            _servicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("contraseña") && l.Accion.Contains("juan@ejemplo.com")));
+        }
     }
 }
