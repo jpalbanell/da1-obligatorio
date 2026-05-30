@@ -17,5 +17,13 @@ namespace Tests
             CollectionAssert.AreEqual(lista1, lista2);
             CollectionAssert.AreNotEqual(lista1, new List<int> { 1, 2, 3, 4, 5 });
         }
+        
+        [TestMethod]
+        public void Barajar_ListaVacia_NoLanzaExcepcion()
+        {
+            var lista = new List<int>();
+            BarajadorDeterministico.Barajar(lista, new Random(42));
+            Assert.AreEqual(0, lista.Count);
+        }
     }
 }
