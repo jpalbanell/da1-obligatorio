@@ -106,6 +106,7 @@ namespace Servicios
         
         public void ReiniciarContrasena(int id)
         {
+            _sesionServicio.ValidarRol(Rol.Administrador);
             var usuario = _repositorio.ObtenerPorId(id);
             if (usuario == null)
                 throw new KeyNotFoundException("Usuario no encontrado.");

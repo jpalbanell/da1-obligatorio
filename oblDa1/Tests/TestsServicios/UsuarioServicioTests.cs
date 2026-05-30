@@ -361,5 +361,19 @@ namespace Tests
         {
             _servicio.ReiniciarContrasena(999);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ReiniciarContrasena_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var usuarioObjetivo = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuarioObjetivo);
+
+            var usuarioEditor = CrearUsuarioValido("Editor", "Editor", "editor@ejemplo.com");
+            usuarioEditor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuarioEditor);
+
+            _servicio.ReiniciarContrasena(usuarioObjetivo.Id);
+        }
     }
 }
