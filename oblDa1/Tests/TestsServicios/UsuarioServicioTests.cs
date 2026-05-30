@@ -297,5 +297,17 @@ namespace Tests
             var logs = _auditoriaServicio.ObtenerTodos();
             Assert.IsTrue(logs.Any(l => l.Accion.Contains("juan@ejemplo.com")));
         }
+        
+        [TestMethod]
+        public void Login_ConEmailEnDistintaCapitalizacion_DeberiaFuncionar()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            var resultado = _servicio.Login("JUAN@EJEMPLO.COM", "Abcdef1@");
+
+            Assert.IsNotNull(resultado);
+            Assert.AreEqual("Juan", resultado.Nombre);
+        }
     }
 }
