@@ -354,5 +354,12 @@ namespace Tests
 
             Assert.IsNotNull(resultado);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void ReiniciarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.ReiniciarContrasena(999);
+        }
     }
 }
