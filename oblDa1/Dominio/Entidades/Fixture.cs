@@ -51,5 +51,11 @@
                 throw new InvalidOperationException("Ya existe un estadio con ese nombre.");
             Estadios.Add(estadio);
         }
+        
+        public void EliminarEstadio(string nombre)
+        {
+            var estadio = Estadios.FirstOrDefault(e => e.Nombre == nombre);
+            Estadios.Remove(estadio);
+        }
     }
 }

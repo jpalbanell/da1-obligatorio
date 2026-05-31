@@ -164,5 +164,20 @@ namespace Tests
             fixture.AgregarEstadio(estadio);
             fixture.AgregarEstadio(estadio);
         }
+        
+        [TestMethod]
+        public void EliminarEstadio_Existe_EliminaCorrectamente()
+        {
+            var fixture = new Fixture();
+            var estadio = new Estadio();
+            estadio.Nombre = "Centenario";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 60000;
+            fixture.AgregarEstadio(estadio);
+
+            fixture.EliminarEstadio("Centenario");
+
+            Assert.AreEqual(0, fixture.Estadios.Count);
+        }
     }
 }
