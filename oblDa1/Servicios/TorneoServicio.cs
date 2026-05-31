@@ -36,11 +36,18 @@ namespace Servicios
         public void AgregarEquipo(Equipo equipo)
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
-            var fixture = _fixtureRepositorio.Obtener() ?? new Fixture();
+            var fixture = ObtenerOCrearFixture();
             fixture.AgregarEquipo(equipo);
             _equipoRepositorio.Agregar(equipo);
+            _fixtureRepositorio.Guardar(fixture);
             _auditoriaServicio.Registrar($"Alta de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
         }
+
+        private Fixture ObtenerOCrearFixture()
+        {
+            return _fixtureRepositorio.Obtener() ?? new Fixture();
+        }
+        
         public List<Equipo> ObtenerTodos()
         {
             return _equipoRepositorio.ObtenerTodos();
