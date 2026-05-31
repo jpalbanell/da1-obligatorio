@@ -65,6 +65,19 @@ namespace Tests
             return estadio;
         }
         
+        private void IniciarSesionComoEditor()
+        {
+            _sesionServicio.CerrarSesion();
+            var editor = new Usuario();
+            editor.Nombre = "Editor";
+            editor.Apellido = "Test";
+            editor.Email = "editor@test.com";
+            editor.FechaNacimiento = new DateTime(1990, 1, 1);
+            editor.Contrasena = "Password@1";
+            editor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(editor);
+        }
+        
         [TestMethod]
         public void AgregarEquipo_RolAdminYEquipoValido_AgregaCorrectamente()
         {
@@ -284,6 +297,60 @@ namespace Tests
 
             var resultado = _torneoServicio.ObtenerEstadio("Centenario Editado");
             Assert.IsNotNull(resultado);
+        }
+        
+        [TestMethod]
+        public void ImportarEquipos_CsvValido_ImportaCorrectamente()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nArgentina,CONMEBOL,1600";
+
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(2, resultado.EquiposImportados);
+            Assert.AreEqual(0, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_FilaConError_RegistraError()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMal,ConfederacionInvalida,999";
+
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(1, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_NombreDuplicado_RegistraError()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nUruguay,CONMEBOL,1600";
+
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(1, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ImportarEquipos_SinRolEditor_LanzaExcepcion()
+        {
+            _sesionServicio.CerrarSesion();
+            var admin = new Usuario();
+            admin.Nombre = "Admin";
+            admin.Apellido = "Test";
+            admin.Email = "admin2@test.com";
+            admin.FechaNacimiento = new DateTime(1990, 1, 1);
+            admin.Contrasena = "Password@1";
+            admin.Roles.Add(Rol.Administrador);
+            _sesionServicio.IniciarSesion(admin);
+
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500";
+            _torneoServicio.ImportarEquipos(csv);
         }
     }
     

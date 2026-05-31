@@ -17,5 +17,6 @@ namespace IServicios
         void EliminarEstadio(string nombre);
         Estadio ObtenerEstadio(string nombre);
         List<Estadio> ObtenerTodosEstadios();
+        ResultadoImportacion ImportarEquipos(string contenidoCsv);
     }
 }
