@@ -375,5 +375,17 @@ namespace Tests
 
             _servicio.ReiniciarContrasena(usuarioObjetivo.Id);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ReiniciarContrasena_PropiaContrasena_DeberiaLanzarExcepcion()
+        {
+            var admin = CrearUsuarioValido("Admin", "Dos", "admindos@ejemplo.com");
+            admin.Roles.Add(Rol.Administrador);
+            _servicio.AgregarUsuario(admin);
+            _servicio.Login("admindos@ejemplo.com", "Abcdef1@");
+
+            _servicio.ReiniciarContrasena(admin.Id);
+        }
     }
 }

@@ -110,6 +110,9 @@ namespace Servicios
             var usuario = _repositorio.ObtenerPorId(id);
             if (usuario == null)
                 throw new KeyNotFoundException("Usuario no encontrado.");
+            var usuarioActual = _sesionServicio.ObtenerUsuarioActual();
+            if (usuarioActual.Id == usuario.Id)
+                throw new UnauthorizedAccessException("No podés reiniciar tu propia contraseña.");
             usuario.Contrasena = ContrasenaPorDefecto;
             _repositorio.Actualizar(usuario);
         }
