@@ -334,13 +334,7 @@ namespace Servicios
                     .Select(x => x.Indice)
                     .ToList();
 
-                for (int i = indices.Count - 1; i > 0; i--)
-                {
-                    int j = random.Next(0, i + 1);
-                    var temp = equipos[indices[i]];
-                    equipos[indices[i]] = equipos[indices[j]];
-                    equipos[indices[j]] = temp;
-                }
+                BarajadorDeterministico.BarajarSubLista(equipos, indices, random);
             }
 
             return equipos;
@@ -429,6 +423,39 @@ namespace Servicios
             return _fixtureRepositorio.Obtener();
         }
 
-        public void GenerarCruces(int semillaCrucesFase){}
+        public void GenerarCruces(int semillaCrucesFase)
+        {
+            _sesionServicio.ValidarRol(Rol.Editor);
+            var fixture = _fixtureRepositorio.Obtener();
+            ValidarFixtureGenerado(fixture);
+            ValidarCrucesNoGenerados(fixture);
+            ValidarTodosLosPartidosTienenResultado();
+        }
+
+        private void ValidarFixtureGenerado(Fixture fixture)
+        {
+            if (fixture == null || !fixture.EstaGenerado)
+                throw new InvalidOperationException("No se puede generar cruces si el fixture no fue generado.");
+        }
+
+        private void ValidarCrucesNoGenerados(Fixture fixture)
+        {
+            if (fixture.CrucesGenerados)
+                throw new InvalidOperationException("Los cruces ya fueron generados.");
+        }
+
+        private void ValidarTodosLosPartidosTienenResultado()
+        {
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.FaseGrupos)
+                .ToList();
+
+            if (partidos.Count == 0)
+                throw new InvalidOperationException("No hay partidos de fase de grupos cargados.");
+
+            foreach (var partido in partidos)
+                if (!partido.TieneResultado)
+                    throw new InvalidOperationException($"El partido {partido.Codigo} no tiene resultado cargado.");
+        }
     }
 }
