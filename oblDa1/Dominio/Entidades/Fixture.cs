@@ -12,6 +12,8 @@
 
         public void AgregarEquipo(Equipo equipo)
         {
+            if (Equipos.Any(e => e.Nombre == equipo.Nombre))
+                throw new InvalidOperationException("Ya existe un equipo con ese nombre.");
             Equipos.Add(equipo);
         }
     }

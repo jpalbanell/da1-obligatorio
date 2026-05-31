@@ -60,5 +60,14 @@ namespace Tests
 
             Assert.AreEqual(1, fixture.Equipos.Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_NombreDuplicado_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+            fixture.AgregarEquipo(CrearEquipoValido("Uruguay"));
+            fixture.AgregarEquipo(CrearEquipoValido("Uruguay"));
+        }
     }
 }
