@@ -111,6 +111,58 @@ namespace Tests
             equipoExtra.RankingFifa = 1500;
             _torneoServicio.AgregarEquipo(equipoExtra);
         }
+        
+        [TestMethod]
+        public void EditarEquipo_RolAdminYDatosValidos_EditaCorrectamente()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+
+            var equipoEditado = new Equipo();
+            equipoEditado.Nombre = "Uruguay Editado";
+            equipoEditado.Confederacion = Confederacion.CONMEBOL;
+            equipoEditado.RankingFifa = 1600;
+
+            _torneoServicio.EditarEquipo(equipoEditado, "Uruguay");
+
+            var resultado = _torneoServicio.ObtenerPorNombre("Uruguay Editado");
+            Assert.IsNotNull(resultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void EditarEquipo_SinRolAdmin_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            _sesionServicio.CerrarSesion();
+            var editor = new Usuario();
+            editor.Nombre = "Editor";
+            editor.Apellido = "Test";
+            editor.Email = "editor@test.com";
+            editor.FechaNacimiento = new DateTime(1990, 1, 1);
+            editor.Contrasena = "Password@1";
+            editor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(editor);
+
+            _torneoServicio.EditarEquipo(CrearEquipoValido(), "Uruguay");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void EditarEquipo_NombreDuplicado_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            var equipo2 = new Equipo();
+            equipo2.Nombre = "Argentina";
+            equipo2.Confederacion = Confederacion.CONMEBOL;
+            equipo2.RankingFifa = 1600;
+            _torneoServicio.AgregarEquipo(equipo2);
+
+            var equipoEditado = new Equipo();
+            equipoEditado.Nombre = "Argentina";
+            equipoEditado.Confederacion = Confederacion.CONMEBOL;
+            equipoEditado.RankingFifa = 1500;
+            _torneoServicio.EditarEquipo(equipoEditado, "Uruguay");
+        }
     }
     
 

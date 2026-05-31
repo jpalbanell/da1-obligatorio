@@ -52,5 +52,20 @@ namespace Servicios
         {
             return _equipoRepositorio.ObtenerTodos();
         }
+        
+        public void EditarEquipo(Equipo equipo, string nombreOriginal)
+        {
+            _sesionServicio.ValidarRol(Rol.Administrador);
+            var fixture = ObtenerOCrearFixture();
+            fixture.EditarEquipo(equipo, nombreOriginal);
+            _equipoRepositorio.Actualizar(equipo, nombreOriginal);
+            _fixtureRepositorio.Guardar(fixture);
+            _auditoriaServicio.Registrar($"Edición de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        public Equipo ObtenerPorNombre(string nombre)
+        {
+            return _equipoRepositorio.ObtenerPorNombre(nombre);
+        }
     }
 }
