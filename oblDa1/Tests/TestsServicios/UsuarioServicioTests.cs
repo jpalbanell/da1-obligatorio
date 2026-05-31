@@ -387,5 +387,17 @@ namespace Tests
 
             _servicio.ReiniciarContrasena(admin.Id);
         }
+        
+        [TestMethod]
+        public void ReiniciarContrasena_ConUsuarioExistente_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.ReiniciarContrasena(usuario.Id);
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("reinicio", StringComparison.OrdinalIgnoreCase) && l.Accion.Contains("juan@ejemplo.com")));
+        }
     }
 }

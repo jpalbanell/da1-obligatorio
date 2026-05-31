@@ -115,6 +115,7 @@ namespace Servicios
                 throw new UnauthorizedAccessException("No podés reiniciar tu propia contraseña.");
             usuario.Contrasena = ContrasenaPorDefecto;
             _repositorio.Actualizar(usuario);
+            _auditoriaServicio.Registrar($"Reinicio de contraseña: {usuario.Email}", _sesionServicio.ObtenerUsuarioActual());
         }
     }
 }
