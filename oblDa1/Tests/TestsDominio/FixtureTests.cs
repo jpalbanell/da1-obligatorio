@@ -91,5 +91,14 @@ namespace Tests
 
             Assert.AreEqual(0, fixture.Equipos.Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void EliminarEquipo_NoExiste_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+
+            fixture.EliminarEquipo("Uruguay");
+        }
     }
 }
