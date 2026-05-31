@@ -226,5 +226,15 @@ namespace Tests
                 for (int i = 0; i < cantidad; i++)
                     fixture.AgregarEquipo(CrearEquipoValido($"{conf}_{i}", conf));
         }
+        
+        [TestMethod]
+        public void PuedeGenerarse_MenosEquipos_RetornaFalse()
+        {
+            var fixture = new Fixture();
+            fixture.AgregarEquipo(CrearEquipoValido("Uruguay"));
+            CargarEstadios(fixture);
+
+            Assert.IsFalse(fixture.PuedeGenerarse());
+        }
     }
 }
