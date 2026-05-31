@@ -246,5 +246,158 @@ namespace Tests
             usuario2.Email = "juan@ejemplo.com";
             _servicio.ModificarUsuario(usuario2);
         }
+        
+        [TestMethod]
+        public void Login_ConCredencialesValidas_DeberiaRetornarUsuario()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            var resultado = _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            Assert.IsNotNull(resultado);
+            Assert.AreEqual("Juan", resultado.Nombre);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void Login_ConEmailInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.Login("noexiste@ejemplo.com", "Abcdef1@");
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void Login_ConContrasenaIncorrecta_DeberiaLanzarExcepcion()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+            _servicio.Login("juan@ejemplo.com", "Incorrecta@1");
+        }
+        
+        [TestMethod]
+        public void Login_ConCredencialesValidas_DeberiaIniciarSesion()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            Assert.AreEqual("Juan", _sesionServicio.ObtenerUsuarioActual().Nombre);
+        }
+        
+        [TestMethod]
+        public void Login_ConCredencialesValidas_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("juan@ejemplo.com")));
+        }
+        
+        [TestMethod]
+        public void Login_ConEmailEnDistintaCapitalizacion_DeberiaFuncionar()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            var resultado = _servicio.Login("JUAN@EJEMPLO.COM", "Abcdef1@");
+
+            Assert.IsNotNull(resultado);
+            Assert.AreEqual("Juan", resultado.Nombre);
+        }
+        
+        [TestMethod]
+        public void CambiarContrasena_ConContrasenaValida_DeberiaActualizar()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+            _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            _servicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
+            var resultado = _servicio.Login("juan@ejemplo.com", "NuevaPass@1");
+
+            Assert.IsNotNull(resultado);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void CambiarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.CambiarContrasena(999, "NuevaPass@1");
+        }
+        
+        [TestMethod]
+        public void CambiarContrasena_ConUsuarioExistente_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+            _servicio.Login("juan@ejemplo.com", "Abcdef1@");
+
+            _servicio.CambiarContrasena(usuario.Id, "NuevaPass@1");
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("contraseña") && l.Accion.Contains("juan@ejemplo.com")));
+        }
+        
+        [TestMethod]
+        public void ReiniciarContrasena_ConUsuarioExistente_DeberiaAsignarContrasenaPorDefecto()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.ReiniciarContrasena(usuario.Id);
+            var resultado = _servicio.Login("juan@ejemplo.com", "Password@1");
+
+            Assert.IsNotNull(resultado);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void ReiniciarContrasena_ConUsuarioInexistente_DeberiaLanzarExcepcion()
+        {
+            _servicio.ReiniciarContrasena(999);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ReiniciarContrasena_SinRolAdministrador_DeberiaLanzarExcepcion()
+        {
+            var usuarioObjetivo = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuarioObjetivo);
+
+            var usuarioEditor = CrearUsuarioValido("Editor", "Editor", "editor@ejemplo.com");
+            usuarioEditor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuarioEditor);
+
+            _servicio.ReiniciarContrasena(usuarioObjetivo.Id);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ReiniciarContrasena_PropiaContrasena_DeberiaLanzarExcepcion()
+        {
+            var admin = CrearUsuarioValido("Admin", "Dos", "admindos@ejemplo.com");
+            admin.Roles.Add(Rol.Administrador);
+            _servicio.AgregarUsuario(admin);
+            _servicio.Login("admindos@ejemplo.com", "Abcdef1@");
+
+            _servicio.ReiniciarContrasena(admin.Id);
+        }
+        
+        [TestMethod]
+        public void ReiniciarContrasena_ConUsuarioExistente_DeberiaRegistrarEnAuditoria()
+        {
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            _servicio.AgregarUsuario(usuario);
+
+            _servicio.ReiniciarContrasena(usuario.Id);
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.IsTrue(logs.Any(l => l.Accion.Contains("reinicio", StringComparison.OrdinalIgnoreCase) && l.Accion.Contains("juan@ejemplo.com")));
+        }
     }
 }

@@ -9,6 +9,7 @@ namespace Servicios
         private readonly IUsuarioRepositorio _repositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
+        private const string ContrasenaPorDefecto = "Password@1";
 
         public UsuarioServicio(IUsuarioRepositorio repositorio,
             IAuditoriaServicio auditoriaServicio,
@@ -80,5 +81,41 @@ namespace Servicios
                 throw new InvalidOperationException("Ya existe un usuario con ese email.");
         }
         
+        public Usuario Login(string email, string contrasena)
+        {
+            var usuario = _repositorio.ObtenerTodos()
+                .FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            if (usuario == null)
+                throw new UnauthorizedAccessException("Credenciales inválidas.");
+            if (!usuario.VerificarContrasena(contrasena))
+                throw new UnauthorizedAccessException("Credenciales inválidas.");
+            _sesionServicio.IniciarSesion(usuario);
+            _auditoriaServicio.Registrar($"Login exitoso: {usuario.Email}", usuario);
+            return usuario;
+        }
+        
+        public void CambiarContrasena(int id, string nuevaContrasena)
+        {
+            var usuario = _repositorio.ObtenerPorId(id);
+            if (usuario == null)
+                throw new KeyNotFoundException("Usuario no encontrado.");
+            usuario.Contrasena = nuevaContrasena;
+            _repositorio.Actualizar(usuario);
+            _auditoriaServicio.Registrar($"Cambio de contraseña: {usuario.Email}", _sesionServicio.ObtenerUsuarioActual());
+        }
+        
+        public void ReiniciarContrasena(int id)
+        {
+            _sesionServicio.ValidarRol(Rol.Administrador);
+            var usuario = _repositorio.ObtenerPorId(id);
+            if (usuario == null)
+                throw new KeyNotFoundException("Usuario no encontrado.");
+            var usuarioActual = _sesionServicio.ObtenerUsuarioActual();
+            if (usuarioActual.Id == usuario.Id)
+                throw new UnauthorizedAccessException("No podés reiniciar tu propia contraseña.");
+            usuario.Contrasena = ContrasenaPorDefecto;
+            _repositorio.Actualizar(usuario);
+            _auditoriaServicio.Registrar($"Reinicio de contraseña: {usuario.Email}", _sesionServicio.ObtenerUsuarioActual());
+        }
     }
 }
