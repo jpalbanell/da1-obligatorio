@@ -5,6 +5,15 @@ namespace Tests
     [TestClass]
     public class FixtureTests
     {
+        private Equipo CrearEquipoValido(string nombre, Confederacion confederacion = Confederacion.CAF)
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = nombre;
+            equipo.Confederacion = confederacion;
+            equipo.RankingFifa = 500;
+            return equipo;
+        }
+        
         [TestMethod]
         public void CrearFixture_ConSemillaValida_DeberiaAsignarSemilla()
         {
@@ -39,6 +48,17 @@ namespace Tests
         {
             var fixture = new Fixture();
             Assert.IsFalse(fixture.EstaGenerado);
+        }
+        
+        [TestMethod]
+        public void AgregarEquipo_FixtureVacio_AgregaCorrectamente()
+        {
+            var fixture = new Fixture();
+            var equipo = CrearEquipoValido("Uruguay");
+
+            fixture.AgregarEquipo(equipo);
+
+            Assert.AreEqual(1, fixture.Equipos.Count);
         }
     }
 }

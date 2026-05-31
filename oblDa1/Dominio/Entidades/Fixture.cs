@@ -8,5 +8,11 @@
         public int SeparacionEntreFechas { get; set; } = 3;
         public bool EstaGenerado { get; set; } = false;
         public bool CrucesGenerados { get; set; } = false;
+        public List<Equipo> Equipos { get; private set; } = new List<Equipo>();
+
+        public void AgregarEquipo(Equipo equipo)
+        {
+            Equipos.Add(equipo);
+        }
     }
 }
