@@ -14,7 +14,14 @@
         {
             if (Equipos.Any(e => e.Nombre == equipo.Nombre))
                 throw new InvalidOperationException("Ya existe un equipo con ese nombre.");
+    
+            var cantidadConfederacion = Equipos.Count(e => e.Confederacion == equipo.Confederacion);
+            if (cantidadConfederacion >= equipo.Confederacion.CupoMaximo())
+                throw new InvalidOperationException($"El cupo de {equipo.Confederacion} está completo.");
+    
             Equipos.Add(equipo);
         }
+        
+        
     }
 }

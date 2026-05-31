@@ -69,5 +69,18 @@ namespace Tests
             fixture.AgregarEquipo(CrearEquipoValido("Uruguay"));
             fixture.AgregarEquipo(CrearEquipoValido("Uruguay"));
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_CupoConfederacionCompleto_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+            for (int i = 0; i < Confederacion.OFC.CupoMaximo(); i++)
+                fixture.AgregarEquipo(CrearEquipoValido($"OFC_{i}", Confederacion.OFC));
+
+            fixture.AgregarEquipo(CrearEquipoValido("OFC_Extra", Confederacion.OFC));
+        }
+        
+        
     }
 }
