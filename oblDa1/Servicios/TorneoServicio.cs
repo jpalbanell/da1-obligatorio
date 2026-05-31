@@ -113,5 +113,46 @@ namespace Servicios
             resumen.Append("Rangos: 300-2500.");
             _auditoriaServicio.Registrar(resumen.ToString(), _sesionServicio.ObtenerUsuarioActual());
         }
+        
+        public void AgregarEstadio(Estadio estadio)
+        {
+            _sesionServicio.ValidarRol(Rol.Administrador);
+            var fixture = ObtenerOCrearFixture();
+            fixture.AgregarEstadio(estadio);
+            _estadioRepositorio.Agregar(estadio);
+            _fixtureRepositorio.Guardar(fixture);
+            _auditoriaServicio.Registrar($"Alta de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        public void ModificarEstadio(Estadio estadio, string nombreOriginal)
+        {
+            _sesionServicio.ValidarRol(Rol.Administrador);
+            var fixture = ObtenerOCrearFixture();
+            fixture.EliminarEstadio(nombreOriginal);
+            fixture.AgregarEstadio(estadio);
+            _estadioRepositorio.Actualizar(estadio, nombreOriginal);
+            _fixtureRepositorio.Guardar(fixture);
+            _auditoriaServicio.Registrar($"Edición de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        public void EliminarEstadio(string nombre)
+        {
+            _sesionServicio.ValidarRol(Rol.Administrador);
+            var fixture = ObtenerOCrearFixture();
+            fixture.EliminarEstadio(nombre);
+            _estadioRepositorio.Eliminar(nombre);
+            _fixtureRepositorio.Guardar(fixture);
+            _auditoriaServicio.Registrar($"Eliminación de estadio: {nombre}", _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        public Estadio ObtenerEstadio(string nombre)
+        {
+            return _estadioRepositorio.ObtenerPorNombre(nombre);
+        }
+
+        public List<Estadio> ObtenerTodosEstadios()
+        {
+            return _estadioRepositorio.ObtenerTodos();
+        }
     }
 }

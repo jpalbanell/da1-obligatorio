@@ -56,6 +56,15 @@ namespace Tests
             return equipo;
         }
         
+        private Estadio CrearEstadioValido()
+        {
+            var estadio = new Estadio();
+            estadio.Nombre = "Centenario";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 25000;
+            return estadio;
+        }
+        
         [TestMethod]
         public void AgregarEquipo_RolAdminYEquipoValido_AgregaCorrectamente()
         {
@@ -207,6 +216,74 @@ namespace Tests
 
             var equipos = _torneoServicio.ObtenerTodos();
             Assert.AreEqual(48, equipos.Count);
+        }
+        
+        [TestMethod]
+        public void AgregarEstadio_RolAdminYEstadioValido_AgregaCorrectamente()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+
+            var estadios = _torneoServicio.ObtenerTodosEstadios();
+            Assert.AreEqual(1, estadios.Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void AgregarEstadio_SinRolAdmin_LanzaExcepcion()
+        {
+            _sesionServicio.CerrarSesion();
+            var editor = new Usuario();
+            editor.Nombre = "Editor";
+            editor.Apellido = "Test";
+            editor.Email = "editor@test.com";
+            editor.FechaNacimiento = new DateTime(1990, 1, 1);
+            editor.Contrasena = "Password@1";
+            editor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(editor);
+
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEstadio_NombreDuplicado_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+        }
+
+        [TestMethod]
+        public void EliminarEstadio_Existe_EliminaCorrectamente()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+
+            _torneoServicio.EliminarEstadio("Centenario");
+
+            var resultado = _torneoServicio.ObtenerEstadio("Centenario");
+            Assert.IsNull(resultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void EliminarEstadio_NoExiste_LanzaExcepcion()
+        {
+            _torneoServicio.EliminarEstadio("Centenario");
+        }
+
+        [TestMethod]
+        public void ModificarEstadio_DatosValidos_ModificaCorrectamente()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+
+            var estadioEditado = new Estadio();
+            estadioEditado.Nombre = "Centenario Editado";
+            estadioEditado.Ciudad = "Montevideo";
+            estadioEditado.Capacidad = 25000;
+
+            _torneoServicio.ModificarEstadio(estadioEditado, "Centenario");
+
+            var resultado = _torneoServicio.ObtenerEstadio("Centenario Editado");
+            Assert.IsNotNull(resultado);
         }
     }
     
