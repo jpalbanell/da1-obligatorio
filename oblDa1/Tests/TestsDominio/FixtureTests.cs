@@ -14,6 +14,15 @@ namespace Tests
             return equipo;
         }
         
+        private Estadio CrearEstadioValido(string nombre)
+        {
+            var estadio = new Estadio();
+            estadio.Nombre = nombre;
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 60000;
+            return estadio;
+        }
+        
         [TestMethod]
         public void CrearFixture_ConSemillaValida_DeberiaAsignarSemilla()
         {
@@ -187,6 +196,35 @@ namespace Tests
             var fixture = new Fixture();
 
             fixture.EliminarEstadio("Centenario");
+        }
+        
+        [TestMethod]
+        public void PuedeGenerarse_48Equipos4Estadios_RetornaTrue()
+        {
+            var fixture = new Fixture();
+            CargarEquipos(fixture);
+            CargarEstadios(fixture);
+
+            Assert.IsTrue(fixture.PuedeGenerarse());
+        }
+        
+        private void CargarEstadios(Fixture fixture, int cantidad = 4)
+        {
+            for (int i = 0; i < cantidad; i++)
+                fixture.AgregarEstadio(CrearEstadioValido($"Estadio_{i}"));
+        }
+        
+        private void CargarEquipos(Fixture fixture)
+        {
+            var cupos = new Dictionary<Confederacion, int>
+            {
+                { Confederacion.UEFA, 16 }, { Confederacion.CONMEBOL, 7 },
+                { Confederacion.CONCACAF, 7 }, { Confederacion.CAF, 9 },
+                { Confederacion.AFC, 8 }, { Confederacion.OFC, 1 }
+            };
+            foreach (var (conf, cantidad) in cupos)
+                for (int i = 0; i < cantidad; i++)
+                    fixture.AgregarEquipo(CrearEquipoValido($"{conf}_{i}", conf));
         }
     }
 }

@@ -59,5 +59,10 @@
                 throw new KeyNotFoundException($"No existe un estadio con el nombre {nombre}.");
             Estadios.Remove(estadio);
         }
+        
+        public bool PuedeGenerarse()
+        {
+            return Equipos.Count == 48 && Estadios.Count >= 4;
+        }
     }
 }
