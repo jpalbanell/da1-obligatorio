@@ -8,5 +8,8 @@ namespace IServicios
         List<Equipo> ObtenerTodos();
         void EditarEquipo(Equipo equipo, string nombreOriginal);
         Equipo ObtenerPorNombre(string nombre);
+        
+        void EliminarEquipo(string nombre);
+        void CompletarEquiposAutomaticamente(int semillaCompletar);
     }
 }

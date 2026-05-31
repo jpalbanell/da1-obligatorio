@@ -163,6 +163,51 @@ namespace Tests
             equipoEditado.RankingFifa = 1500;
             _torneoServicio.EditarEquipo(equipoEditado, "Uruguay");
         }
+        
+        [TestMethod]
+        public void EliminarEquipo_RolAdminYEquipoExiste_EliminaCorrectamente()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+
+            _torneoServicio.EliminarEquipo("Uruguay");
+
+            var resultado = _torneoServicio.ObtenerPorNombre("Uruguay");
+            Assert.IsNull(resultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void EliminarEquipo_SinRolAdmin_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            _sesionServicio.CerrarSesion();
+            var editor = new Usuario();
+            editor.Nombre = "Editor";
+            editor.Apellido = "Test";
+            editor.Email = "editor@test.com";
+            editor.FechaNacimiento = new DateTime(1990, 1, 1);
+            editor.Contrasena = "Password@1";
+            editor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(editor);
+
+            _torneoServicio.EliminarEquipo("Uruguay");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void EliminarEquipo_NoExiste_LanzaExcepcion()
+        {
+            _torneoServicio.EliminarEquipo("Uruguay");
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_RolAdmin_Completa48Equipos()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+
+            var equipos = _torneoServicio.ObtenerTodos();
+            Assert.AreEqual(48, equipos.Count);
+        }
     }
     
 
