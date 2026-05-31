@@ -2,7 +2,7 @@
 @using Dominio.Entidades
 @using IServicios
 @using Web.DTOs
-@inject IAutenticacionServicio AutenticacionServicio
+@inject IUsuarioServicio UsuarioServicio
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
 
@@ -35,7 +35,7 @@
     {
         try
         {
-            AutenticacionServicio.Login(_loginRequest.Email, _loginRequest.Contrasena);
+            UsuarioServicio.Login(_loginRequest.Email, _loginRequest.Contrasena);
             Nav.NavigateTo("/");
         }
         catch (Exception ex)

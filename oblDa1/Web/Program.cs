@@ -27,7 +27,6 @@ builder.Services.AddScoped<IPartidoServicio, PartidoServicio>();
 builder.Services.AddScoped<IAuditoriaServicio, AuditoriaServicio>();
 builder.Services.AddScoped<ISimulacionServicio, SimulacionServicio>();
 builder.Services.AddScoped<ISesionServicio, SesionServicio>();
-builder.Services.AddScoped<IAutenticacionServicio, AutenticacionServicio>();
 builder.Services.AddScoped<IFixtureServicio, FixtureServicio>();
 builder.Services.AddScoped<ICruceServicio, CruceServicio>();
 builder.Services.AddScoped<IImportacionServicio, ImportacionFacilidadComprensionServicio>();

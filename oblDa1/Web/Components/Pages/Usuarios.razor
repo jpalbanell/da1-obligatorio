@@ -5,7 +5,6 @@
 @inject IUsuarioServicio UsuarioServicio
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
-@inject IAutenticacionServicio AutenticacionServicio
 
 <h3>Usuarios</h3>
 
@@ -235,7 +234,7 @@
     {
         try
         {
-            AutenticacionServicio.ReiniciarContrasena(id);
+            UsuarioServicio.ReiniciarContrasena(id);
             _mensajeError = "";
             _mensajeExito = "Contraseña reiniciada a: Password@1";
         }
