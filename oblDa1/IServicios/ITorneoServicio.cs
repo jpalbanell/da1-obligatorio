@@ -27,5 +27,10 @@ namespace IServicios
         void SimularPartido(int partidoId, int semillaSimulation);
         void SimularFase(FaseTorneo fase, int semillaSimulation);
         Partido ObtenerPartido(int id);
+        List<Partido> ObtenerTodosPartidos();
+        List<Partido> ObtenerPartidosPorFase(FaseTorneo fase);
+        List<Partido> ObtenerPartidosPorFecha(DateTime fecha);
+        List<Partido> ObtenerPartidosPorGrupo(string etiquetaGrupo);
+        List<Partido> ObtenerPartidosPorEstadio(string nombreEstadio);
     }
 }

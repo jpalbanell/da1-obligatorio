@@ -837,5 +837,41 @@ namespace Servicios
         {
             return _partidoRepositorio.ObtenerPorId(id);
         }
+        
+            
+        public List<Partido> ObtenerTodosPartidos()
+        {
+            return _partidoRepositorio.ObtenerTodos();
+        }
+
+        public List<Partido> ObtenerPartidosPorFase(FaseTorneo fase)
+        {
+            return _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == fase)
+                .ToList();
+        }
+
+        public List<Partido> ObtenerPartidosPorFecha(DateTime fecha)
+        {
+            return _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fecha.Date == fecha.Date)
+                .ToList();
+        }
+
+        public List<Partido> ObtenerPartidosPorGrupo(string etiquetaGrupo)
+        {
+            return _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Grupo != null && p.Grupo.Etiqueta == etiquetaGrupo)
+                .ToList();
+        }
+
+        public List<Partido> ObtenerPartidosPorEstadio(string nombreEstadio)
+        {
+            return _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Estadio != null &&
+                            p.Estadio.Nombre.Equals(nombreEstadio, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
     }
+
 }

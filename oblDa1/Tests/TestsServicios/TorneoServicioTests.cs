@@ -549,6 +549,61 @@ namespace Tests
             var resultado = _torneoServicio.ObtenerPartido(partido.Id);
             Assert.IsTrue(resultado.TieneResultado);
         }
+        
+        [TestMethod]
+        public void ObtenerTodosPartidos_ConPartidos_RetornaLista()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerTodosPartidos();
+
+            Assert.AreEqual(1, partidos.Count);
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorFase_FaseGrupos_RetornaPartidosDeFase()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerPartidosPorFase(FaseTorneo.FaseGrupos);
+
+            Assert.AreEqual(1, partidos.Count);
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorFecha_FechaValida_RetornaPartidos()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerPartidosPorFecha(new DateTime(2026, 6, 1));
+
+            Assert.AreEqual(1, partidos.Count);
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorGrupo_GrupoValido_RetornaPartidos()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerPartidosPorGrupo("A");
+
+            Assert.AreEqual(1, partidos.Count);
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorEstadio_EstadioValido_RetornaPartidos()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerPartidosPorEstadio("Centenario");
+
+            Assert.AreEqual(1, partidos.Count);
+        }
     }
     
 
