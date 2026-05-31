@@ -81,6 +81,15 @@ namespace Tests
             fixture.AgregarEquipo(CrearEquipoValido("OFC_Extra", Confederacion.OFC));
         }
         
-        
+        [TestMethod]
+        public void EliminarEquipo_Existe_EliminaCorrectamente()
+        {
+            var fixture = new Fixture();
+            fixture.AgregarEquipo(CrearEquipoValido("Uruguay"));
+
+            fixture.EliminarEquipo("Uruguay");
+
+            Assert.AreEqual(0, fixture.Equipos.Count);
+        }
     }
 }

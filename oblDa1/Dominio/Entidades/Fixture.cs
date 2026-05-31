@@ -22,6 +22,12 @@
             Equipos.Add(equipo);
         }
         
-        
+        public void EliminarEquipo(string nombre)
+        {
+            var equipo = Equipos.FirstOrDefault(e => e.Nombre == nombre);
+            if (equipo == null)
+                throw new KeyNotFoundException($"No existe un equipo con el nombre {nombre}.");
+            Equipos.Remove(equipo);
+        }
     }
 }
