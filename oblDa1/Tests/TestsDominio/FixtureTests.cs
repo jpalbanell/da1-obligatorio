@@ -23,6 +23,35 @@ namespace Tests
             return estadio;
         }
         
+        private List<List<Partido>> CrearPartidosPorGrupo(int cantidadGrupos = 1)
+        {
+            var resultado = new List<List<Partido>>();
+            for (int g = 0; g < cantidadGrupos; g++)
+            {
+                var equipos = new List<Equipo>();
+                for (int i = 0; i < 4; i++)
+                {
+                    var equipo = new Equipo();
+                    equipo.Nombre = $"Equipo_G{g}_{i}";
+                    equipo.Confederacion = Confederacion.CAF;
+                    equipo.RankingFifa = 500;
+                    equipos.Add(equipo);
+                }
+                var cruces = new (int, int)[] { (0,3),(1,2),(0,2),(1,3),(0,1),(2,3) };
+                var partidos = new List<Partido>();
+                for (int i = 0; i < cruces.Length; i++)
+                {
+                    var partido = new Partido();
+                    partido.EquipoLocal = equipos[cruces[i].Item1];
+                    partido.EquipoVisitante = equipos[cruces[i].Item2];
+                    partidos.Add(partido);
+                }
+                resultado.Add(partidos);
+            }
+            return resultado;
+        }
+
+        
         [TestMethod]
         public void CrearFixture_ConSemillaValida_DeberiaAsignarSemilla()
         {
@@ -245,6 +274,22 @@ namespace Tests
             CargarEstadios(fixture, 3);
 
             Assert.IsFalse(fixture.PuedeGenerarse());
+        }
+        
+        [TestMethod]
+        public void AsignarFechas_MaxPartidosPorDiaRespetado()
+        {
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+            var partidosPorGrupo = CrearPartidosPorGrupo(4);
+
+            fixture.AsignarFechasAPartidos(partidosPorGrupo);
+
+            var todosLosPartidos = partidosPorGrupo.SelectMany(p => p).ToList();
+            var agrupadosPorDia = todosLosPartidos.GroupBy(p => p.Fecha.Date);
+            foreach (var dia in agrupadosPorDia)
+                Assert.IsTrue(dia.Count() <= fixture.MaxPartidosPorDia,
+                    $"El día {dia.Key:dd/MM} tiene {dia.Count()} partidos, máximo es {fixture.MaxPartidosPorDia}");
         }
     }
 }
