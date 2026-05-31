@@ -100,5 +100,17 @@ namespace Tests
 
             fixture.EliminarEquipo("Uruguay");
         }
+        
+        [TestMethod]
+        public void EditarEquipo_NombreValido_EditaCorrectamente()
+        {
+            var fixture = new Fixture();
+            fixture.AgregarEquipo(CrearEquipoValido("Uruguay"));
+            var equipoEditado = CrearEquipoValido("Uruguay2");
+
+            fixture.EditarEquipo(equipoEditado, "Uruguay");
+
+            Assert.AreEqual("Uruguay2", fixture.Equipos[0].Nombre);
+        }
     }
 }
