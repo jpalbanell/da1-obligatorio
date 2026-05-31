@@ -124,5 +124,17 @@ namespace Tests
 
             fixture.EditarEquipo(equipoEditado, "Uruguay");
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void EditarEquipo_CambioConfederacionSinCupo_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+            fixture.AgregarEquipo(CrearEquipoValido("OFC_1", Confederacion.OFC));
+            fixture.AgregarEquipo(CrearEquipoValido("CAF_1", Confederacion.CAF));
+            var equipoEditado = CrearEquipoValido("CAF_1", Confederacion.OFC);
+
+            fixture.EditarEquipo(equipoEditado, "CAF_1");
+        }
     }
 }
