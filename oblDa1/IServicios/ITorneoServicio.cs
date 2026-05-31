@@ -18,5 +18,9 @@ namespace IServicios
         Estadio ObtenerEstadio(string nombre);
         List<Estadio> ObtenerTodosEstadios();
         ResultadoImportacion ImportarEquipos(string contenidoCsv);
+        
+        void GenerarFixture(Fixture fixture);
+        List<Grupo> ObtenerGrupos();
+        Fixture ObtenerFixture();
     }
 }

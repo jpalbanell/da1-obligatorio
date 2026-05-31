@@ -352,6 +352,49 @@ namespace Tests
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500";
             _torneoServicio.ImportarEquipos(csv);
         }
+        
+        [TestMethod]
+        public void GenerarFixture_CondicionesValidas_GeneraFixture()
+        {
+            // Completar equipos como admin
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+
+            // Agregar estadios como admin
+            for (int i = 1; i <= 4; i++)
+            {
+                var estadio = new Estadio();
+                estadio.Nombre = $"Estadio {i}";
+                estadio.Ciudad = "Montevideo";
+                estadio.Capacidad = 25000;
+                _torneoServicio.AgregarEstadio(estadio);
+            }
+
+            // Generar fixture como editor
+            IniciarSesionComoEditor();
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _torneoServicio.GenerarFixture(fixture);
+
+            Assert.IsTrue(fixture.EstaGenerado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void GenerarFixture_SinRolEditor_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+            _torneoServicio.GenerarFixture(fixture);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarFixture_MenosDe48Equipos_LanzaExcepcion()
+        {
+            IniciarSesionComoEditor();
+            var fixture = new Fixture();
+            _torneoServicio.GenerarFixture(fixture);
+        }
     }
     
 
