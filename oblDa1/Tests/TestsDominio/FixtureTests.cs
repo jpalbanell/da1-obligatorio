@@ -321,5 +321,23 @@ namespace Tests
                 }
             }
         }
+        
+        [TestMethod]
+        public void AsignarFechas_UltimaJornadaSimultanea()
+        {
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+            var partidosPorGrupo = CrearPartidosPorGrupo(4);
+
+            fixture.AsignarFechasAPartidos(partidosPorGrupo);
+
+            foreach (var partidos in partidosPorGrupo)
+            {
+                var fechaPartidoA = partidos[4].Fecha.Date;
+                var fechaPartidoB = partidos[5].Fecha.Date;
+                Assert.AreEqual(fechaPartidoA, fechaPartidoB,
+                    "Los dos partidos de la última jornada deben jugarse el mismo día");
+            }
+        }
     }
 }
