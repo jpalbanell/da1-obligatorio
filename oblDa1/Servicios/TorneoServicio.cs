@@ -494,11 +494,12 @@ namespace Servicios
             BarajadorDeterministico.Barajar(mejoresTerceros, random);
             BarajadorDeterministico.Barajar(cuatroRestantesPrimeros, random);
             BarajadorDeterministico.Barajar(cuatroSegundosMenorPuntaje, random);
+            BarajadorDeterministico.Barajar(ochoSegundosRestantes, random);
 
             var emparejamientos = new List<(PosicionesGrupo, PosicionesGrupo, string)>();
             emparejamientos.AddRange(EmparejarListas(ochoMejoresPrimeros, mejoresTerceros, "A", 1));
             emparejamientos.AddRange(EmparejarListas(cuatroRestantesPrimeros, cuatroSegundosMenorPuntaje, "B", 1));
-            emparejamientos.AddRange(EmparejarEntreSi(ochoSegundosRestantes, "E", 1));
+            emparejamientos.AddRange(EmparejarEntreSi(ochoSegundosRestantes, "B", 5));
             return emparejamientos;
         }
 
