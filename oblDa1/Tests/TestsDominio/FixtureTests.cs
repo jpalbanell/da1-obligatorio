@@ -136,5 +136,19 @@ namespace Tests
 
             fixture.EditarEquipo(equipoEditado, "CAF_1");
         }
+        
+        [TestMethod]
+        public void AgregarEstadio_NombreUnico_AgregaCorrectamente()
+        {
+            var fixture = new Fixture();
+            var estadio = new Estadio();
+            estadio.Nombre = "Centenario";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 60000;
+
+            fixture.AgregarEstadio(estadio);
+
+            Assert.AreEqual(1, fixture.Estadios.Count);
+        }
     }
 }

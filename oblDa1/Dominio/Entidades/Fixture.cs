@@ -9,6 +9,7 @@
         public bool EstaGenerado { get; set; } = false;
         public bool CrucesGenerados { get; set; } = false;
         public List<Equipo> Equipos { get; private set; } = new List<Equipo>();
+        public List<Estadio> Estadios { get; private set; } = new List<Estadio>();
 
         public void AgregarEquipo(Equipo equipo)
         {
@@ -42,6 +43,11 @@
                 throw new InvalidOperationException($"El cupo de {equipo.Confederacion} está completo.");
             var indice = Equipos.IndexOf(equipoExistente);
             Equipos[indice] = equipo;
+        }
+        
+        public void AgregarEstadio(Estadio estadio)
+        {
+            Estadios.Add(estadio);
         }
     }
 }
