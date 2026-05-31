@@ -47,6 +47,8 @@
         
         public void AgregarEstadio(Estadio estadio)
         {
+            if (Estadios.Any(e => e.Nombre == estadio.Nombre))
+                throw new InvalidOperationException("Ya existe un estadio con ese nombre.");
             Estadios.Add(estadio);
         }
     }

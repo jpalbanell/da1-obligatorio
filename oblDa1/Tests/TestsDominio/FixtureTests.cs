@@ -150,5 +150,19 @@ namespace Tests
 
             Assert.AreEqual(1, fixture.Estadios.Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEstadio_NombreDuplicado_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+            var estadio = new Estadio();
+            estadio.Nombre = "Centenario";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 60000;
+
+            fixture.AgregarEstadio(estadio);
+            fixture.AgregarEstadio(estadio);
+        }
     }
 }
