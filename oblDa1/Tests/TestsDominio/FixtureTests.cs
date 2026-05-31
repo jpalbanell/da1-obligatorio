@@ -291,5 +291,35 @@ namespace Tests
                 Assert.IsTrue(dia.Count() <= fixture.MaxPartidosPorDia,
                     $"El día {dia.Key:dd/MM} tiene {dia.Count()} partidos, máximo es {fixture.MaxPartidosPorDia}");
         }
+        
+        [TestMethod]
+        public void AsignarFechas_RespetoDescansoEntrePartidos()
+        {
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+            var partidosPorGrupo = CrearPartidosPorGrupo(4);
+
+            fixture.AsignarFechasAPartidos(partidosPorGrupo);
+
+            var todosLosPartidos = partidosPorGrupo.SelectMany(p => p).ToList();
+            var equipos = todosLosPartidos
+                .SelectMany(p => new[] { p.EquipoLocal.Nombre, p.EquipoVisitante.Nombre })
+                .Distinct();
+
+            foreach (var equipo in equipos)
+            {
+                var partidosDelEquipo = todosLosPartidos
+                    .Where(p => p.EquipoLocal.Nombre == equipo || p.EquipoVisitante.Nombre == equipo)
+                    .OrderBy(p => p.Fecha)
+                    .ToList();
+
+                for (int i = 0; i < partidosDelEquipo.Count - 1; i++)
+                {
+                    var dias = (partidosDelEquipo[i + 1].Fecha.Date - partidosDelEquipo[i].Fecha.Date).Days;
+                    Assert.IsTrue(dias >= fixture.SeparacionEntreFechas,
+                        $"Equipo {equipo}: solo {dias} días entre partidos, mínimo {fixture.SeparacionEntreFechas}");
+                }
+            }
+        }
     }
 }
