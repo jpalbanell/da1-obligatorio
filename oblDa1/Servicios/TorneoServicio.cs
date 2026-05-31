@@ -32,5 +32,18 @@ namespace Servicios
             _auditoriaServicio = auditoriaServicio;
             _sesionServicio = sesionServicio;
         }
+        
+        public void AgregarEquipo(Equipo equipo)
+        {
+            _sesionServicio.ValidarRol(Rol.Administrador);
+            var fixture = _fixtureRepositorio.Obtener() ?? new Fixture();
+            fixture.AgregarEquipo(equipo);
+            _equipoRepositorio.Agregar(equipo);
+            _auditoriaServicio.Registrar($"Alta de equipo: {equipo.Nombre}", _sesionServicio.ObtenerUsuarioActual());
+        }
+        public List<Equipo> ObtenerTodos()
+        {
+            return _equipoRepositorio.ObtenerTodos();
+        }
     }
 }
