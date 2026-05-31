@@ -55,6 +55,8 @@
         public void EliminarEstadio(string nombre)
         {
             var estadio = Estadios.FirstOrDefault(e => e.Nombre == nombre);
+            if (estadio == null)
+                throw new KeyNotFoundException($"No existe un estadio con el nombre {nombre}.");
             Estadios.Remove(estadio);
         }
     }

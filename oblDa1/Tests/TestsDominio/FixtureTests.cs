@@ -179,5 +179,14 @@ namespace Tests
 
             Assert.AreEqual(0, fixture.Estadios.Count);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void EliminarEstadio_NoExiste_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+
+            fixture.EliminarEstadio("Centenario");
+        }
     }
 }
