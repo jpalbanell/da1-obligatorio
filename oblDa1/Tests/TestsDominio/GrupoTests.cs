@@ -373,5 +373,23 @@ namespace Tests
                 Assert.AreEqual(3, cantPartidos);
             }
         }
+        
+        [TestMethod]
+        public void ObtenerPosicionesOrdenadas_VariasPosiciones_RetornaOrdenadas()
+        {
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            var e1 = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            var e2 = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+            grupo.AgregarEquipo(e1);
+            grupo.AgregarEquipo(e2);
+            grupo.ObtenerPosicionDeEquipo("Uruguay").AplicarResultado(2, 0);
+            grupo.ObtenerPosicionDeEquipo("Alemania").AplicarResultado(0, 2);
+
+            var ordenadas = grupo.ObtenerPosicionesOrdenadas(new Random(42));
+
+            Assert.AreEqual("Uruguay", ordenadas[0].Equipo.Nombre);
+            Assert.AreEqual("Alemania", ordenadas[1].Equipo.Nombre);
+        }
     }
 }

@@ -22,5 +22,7 @@ namespace IServicios
         void GenerarFixture(Fixture fixture);
         List<Grupo> ObtenerGrupos();
         Fixture ObtenerFixture();
+        
+        void GenerarCruces(int semillaCrucesFase);
     }
 }

@@ -395,6 +395,42 @@ namespace Tests
             var fixture = new Fixture();
             _torneoServicio.GenerarFixture(fixture);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void GenerarCruces_SinRolEditor_LanzaExcepcion()
+        {
+            _torneoServicio.GenerarCruces(42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarCruces_FixtureNoGenerado_LanzaExcepcion()
+        {
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarCruces_PartidosSinResultado_LanzaExcepcion()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            for (int i = 1; i <= 4; i++)
+            {
+                var estadio = new Estadio();
+                estadio.Nombre = $"Estadio {i}";
+                estadio.Ciudad = "Montevideo";
+                estadio.Capacidad = 25000;
+                _torneoServicio.AgregarEstadio(estadio);
+            }
+            IniciarSesionComoEditor();
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+            _torneoServicio.GenerarFixture(fixture);
+
+            _torneoServicio.GenerarCruces(42);
+        }
     }
     
 

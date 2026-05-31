@@ -428,5 +428,7 @@ namespace Servicios
         {
             return _fixtureRepositorio.Obtener();
         }
+
+        public void GenerarCruces(int semillaCrucesFase){}
     }
 }
