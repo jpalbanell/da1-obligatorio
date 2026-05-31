@@ -455,42 +455,6 @@ namespace Tests
             _torneoServicio.GenerarCruces(42);
         }
         
-        [TestMethod]
-        public void RegistrarResultado_RolEditorYPartidoValido_RegistraCorrectamente()
-        {
-            var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
-
-            _torneoServicio.RegistrarResultado(partido.Id, 2, 1);
-
-            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
-            Assert.AreEqual(2, resultado.GolesLocal);
-            Assert.AreEqual(1, resultado.GolesVisitante);
-            Assert.IsTrue(resultado.TieneResultado);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(UnauthorizedAccessException))]
-        public void RegistrarResultado_SinRolEditor_LanzaExcepcion()
-        {
-            var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-
-            _torneoServicio.RegistrarResultado(partido.Id, 2, 1);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void RegistrarResultado_PartidoBloqueado_LanzaExcepcion()
-        {
-            var partido = CrearPartidoValido();
-            partido.EstaBloqueado = true;
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
-
-            _torneoServicio.RegistrarResultado(partido.Id, 2, 1);
-        }
 
         [TestMethod]
         public void SimularPartido_RolEditorYPartidoValido_SimulaCorrectamente()
@@ -603,6 +567,79 @@ namespace Tests
             var partidos = _torneoServicio.ObtenerPartidosPorEstadio("Centenario");
 
             Assert.AreEqual(1, partidos.Count);
+        }
+        
+        [TestMethod]
+        public void EditarPartido_CambiarFechaYEstadio_ActualizaCorrectamente()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            var nuevoEstadio = new Estadio { Nombre = "Nuevo Estadio", Ciudad = "Montevideo", Capacidad = 30000 };
+            _estadioRepositorio.Agregar(nuevoEstadio);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, new DateTime(2026, 6, 15), "Nuevo Estadio", false, 0, 0);
+
+            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
+            Assert.AreEqual(new DateTime(2026, 6, 15), resultado.Fecha);
+            Assert.AreEqual("Nuevo Estadio", resultado.Estadio.Nombre);
+        }
+
+        [TestMethod]
+        public void EditarPartido_ConResultado_RegistraResultadoYActualizaPosiciones()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            var grupo = partido.Grupo;
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 2, 0);
+
+            Assert.AreEqual(3, grupo.ObtenerPosicionDeEquipo("Uruguay").Puntos);
+            Assert.AreEqual(0, grupo.ObtenerPosicionDeEquipo("Alemania").Puntos);
+        }
+
+        [TestMethod]
+        public void EditarPartido_CambiarResultadoExistente_RevierteYAplicaNuevo()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            var grupo = partido.Grupo;
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 3, 0);
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 0, 1);
+
+            Assert.AreEqual(0, grupo.ObtenerPosicionDeEquipo("Uruguay").Puntos);
+            Assert.AreEqual(3, grupo.ObtenerPosicionDeEquipo("Alemania").Puntos);
+            Assert.AreEqual(0, grupo.ObtenerPosicionDeEquipo("Uruguay").GolesFavor);
+            Assert.AreEqual(1, grupo.ObtenerPosicionDeEquipo("Uruguay").GolesContra);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void EditarPartido_SinRolEditor_LanzaExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", false, 0, 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void EditarPartido_PartidoBloqueado_LanzaExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            partido.EstaBloqueado = true;
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", false, 0, 0);
         }
     }
     

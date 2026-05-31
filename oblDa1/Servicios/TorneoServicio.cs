@@ -733,7 +733,8 @@ namespace Servicios
         private const int MaxGolesBase = 5;
         private const int MinGolesMaximos = 1;
 
-        public void RegistrarResultado(int partidoId, int golesLocal, int golesVisitante)
+        public void EditarPartido(int partidoId, DateTime fecha, string nombreEstadio,
+            bool cargarResultado, int golesLocal, int golesVisitante)
         {
             _sesionServicio.ValidarRol(Rol.Editor);
             var partido = _partidoRepositorio.ObtenerPorId(partidoId);
@@ -742,9 +743,19 @@ namespace Servicios
             if (!partido.PuedeModificarse())
                 throw new InvalidOperationException("No se puede editar un partido bloqueado.");
 
-            partido.RegistrarResultado(golesLocal, golesVisitante);
-            partido.Grupo?.ActualizarPosiciones(partido);
-            PropagarResultado(partido);
+            partido.Fecha = fecha;
+            var estadio = _estadioRepositorio.ObtenerPorNombre(nombreEstadio);
+            if (estadio == null)
+                throw new InvalidOperationException("Estadio no encontrado.");
+            partido.Estadio = estadio;
+
+            if (cargarResultado)
+            {
+                partido.RegistrarResultado(golesLocal, golesVisitante);
+                partido.Grupo?.ActualizarPosiciones(partido);
+                PropagarResultado(partido);
+            }
+
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar(
                 $"Modificación de partido: {partido.Id}",

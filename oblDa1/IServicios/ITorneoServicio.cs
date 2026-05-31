@@ -23,7 +23,7 @@ namespace IServicios
         List<Grupo> ObtenerGrupos();
         Fixture ObtenerFixture();
         void GenerarCruces(int semillaCrucesFase);
-        void RegistrarResultado(int partidoId, int golesLocal, int golesVisitante);
+        void EditarPartido(int partidoId, DateTime fecha, string nombreEstadio, bool cargarResultado, int golesLocal, int golesVisitante);
         void SimularPartido(int partidoId, int semillaSimulation);
         void SimularFase(FaseTorneo fase, int semillaSimulation);
         Partido ObtenerPartido(int id);
