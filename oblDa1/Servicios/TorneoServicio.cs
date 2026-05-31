@@ -727,5 +727,115 @@ namespace Servicios
                 if (!partido.TieneResultado)
                     throw new InvalidOperationException($"El partido {partido.Codigo} no tiene resultado cargado.");
         }
+        
+        private const double RankingMaximo = 2500.0;
+        private const int MaxGolesBase = 5;
+        private const int MinGolesMaximos = 1;
+
+        public void RegistrarResultado(int partidoId, int golesLocal, int golesVisitante)
+        {
+            _sesionServicio.ValidarRol(Rol.Editor);
+            var partido = _partidoRepositorio.ObtenerPorId(partidoId);
+            if (partido == null)
+                throw new KeyNotFoundException("Partido no encontrado.");
+            if (!partido.PuedeModificarse())
+                throw new InvalidOperationException("No se puede editar un partido bloqueado.");
+
+            partido.RegistrarResultado(golesLocal, golesVisitante);
+            partido.Grupo?.ActualizarPosiciones(partido);
+            PropagarResultado(partido);
+            _partidoRepositorio.Actualizar(partido);
+            _auditoriaServicio.Registrar(
+                $"Modificación de partido: {partido.Id}",
+                _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        public void SimularPartido(int partidoId, int semillaSimulation)
+        {
+            _sesionServicio.ValidarRol(Rol.Editor);
+            var partido = _partidoRepositorio.ObtenerPorId(partidoId);
+            if (partido == null)
+                throw new KeyNotFoundException("Partido no encontrado.");
+            if (!partido.TieneEquiposCompletos())
+                throw new InvalidOperationException("No se puede simular: faltan equipos asignados.");
+
+            var random = new Random(semillaSimulation + partidoId);
+            var golesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
+            var golesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
+
+            partido.RegistrarResultado(golesLocal, golesVisitante, random);
+            partido.Grupo?.ActualizarPosiciones(partido);
+            PropagarResultado(partido);
+            _partidoRepositorio.Actualizar(partido);
+            _auditoriaServicio.Registrar(
+                $"Simulación de partido: {partidoId} con SemillaSimulation: {semillaSimulation}",
+                _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        public void SimularFase(FaseTorneo fase, int semillaSimulation)
+        {
+            _sesionServicio.ValidarRol(Rol.Editor);
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == fase && !p.TieneResultado)
+                .ToList();
+
+            BloquearFaseAnterior(fase);
+
+            foreach (var partido in partidos)
+            {
+                if (!partido.TieneEquiposCompletos()) continue;
+                var random = new Random(semillaSimulation + partido.Id);
+                var golesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
+                var golesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
+                partido.RegistrarResultado(golesLocal, golesVisitante, random);
+                partido.Grupo?.ActualizarPosiciones(partido);
+                PropagarResultado(partido);
+                _partidoRepositorio.Actualizar(partido);
+            }
+
+            _auditoriaServicio.Registrar(
+                $"Simulación de fase: {fase} con SemillaSimulation: {semillaSimulation}",
+                _sesionServicio.ObtenerUsuarioActual());
+        }
+
+        private int GenerarGoles(int rankingFifa, Random random)
+        {
+            double fuerza = rankingFifa / RankingMaximo;
+            int maxGoles = Math.Max(MinGolesMaximos, (int)(fuerza * MaxGolesBase));
+            return random.Next(0, maxGoles + 1);
+        }
+
+        private void PropagarResultado(Partido partido)
+        {
+            if (partido.Vencedor == null) return;
+            var siguientes = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.OrigenLocal?.Id == partido.Id || p.OrigenVisitante?.Id == partido.Id)
+                .ToList();
+            foreach (var siguiente in siguientes)
+            {
+                var equipo = siguiente.EsPorPerdedor ? partido.ObtenerPerdedor() : partido.Vencedor;
+                if (siguiente.OrigenLocal?.Id == partido.Id)
+                    siguiente.EquipoLocal = equipo;
+                else
+                    siguiente.EquipoVisitante = equipo;
+                _partidoRepositorio.Actualizar(siguiente);
+            }
+        }
+
+        private void BloquearFaseAnterior(FaseTorneo faseActual)
+        {
+            if (faseActual == FaseTorneo.FaseGrupos) return;
+            var faseAnterior = faseActual - 1;
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == faseAnterior)
+                .ToList();
+            foreach (var partido in partidos)
+                partido.EstaBloqueado = true;
+        }
+
+        public Partido ObtenerPartido(int id)
+        {
+            return _partidoRepositorio.ObtenerPorId(id);
+        }
     }
 }

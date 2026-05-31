@@ -78,6 +78,29 @@ namespace Tests
             _sesionServicio.IniciarSesion(editor);
         }
         
+        private Partido CrearPartidoValido()
+        {
+            var local = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            var visitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1600 };
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(local);
+            grupo.AgregarEquipo(visitante);
+            var estadio = new Estadio();
+            estadio.Nombre = "Centenario";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 25000;
+            var partido = new Partido(1);
+            partido.Codigo = "GA-1";
+            partido.Fecha = new DateTime(2026, 6, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            partido.Grupo = grupo;
+            partido.Estadio = estadio;
+            return partido;
+        }
+        
         [TestMethod]
         public void AgregarEquipo_RolAdminYEquipoValido_AgregaCorrectamente()
         {
@@ -430,6 +453,101 @@ namespace Tests
             _torneoServicio.GenerarFixture(fixture);
 
             _torneoServicio.GenerarCruces(42);
+        }
+        
+        [TestMethod]
+        public void RegistrarResultado_RolEditorYPartidoValido_RegistraCorrectamente()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.RegistrarResultado(partido.Id, 2, 1);
+
+            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
+            Assert.AreEqual(2, resultado.GolesLocal);
+            Assert.AreEqual(1, resultado.GolesVisitante);
+            Assert.IsTrue(resultado.TieneResultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void RegistrarResultado_SinRolEditor_LanzaExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            _torneoServicio.RegistrarResultado(partido.Id, 2, 1);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void RegistrarResultado_PartidoBloqueado_LanzaExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            partido.EstaBloqueado = true;
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.RegistrarResultado(partido.Id, 2, 1);
+        }
+
+        [TestMethod]
+        public void SimularPartido_RolEditorYPartidoValido_SimulaCorrectamente()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
+            Assert.IsTrue(resultado.TieneResultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void SimularPartido_SinRolEditor_LanzaExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void SimularPartido_SinEquipos_LanzaExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.Codigo = "TEST";
+            partido.Fecha = new DateTime(2026, 6, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            partido.Grupo = grupo;
+            var estadio = new Estadio();
+            estadio.Nombre = "Estadio Test";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 25000;
+            partido.Estadio = estadio;
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+        }
+
+        [TestMethod]
+        public void SimularFase_RolEditorYFaseValida_SimulaCorrectamente()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
+            Assert.IsTrue(resultado.TieneResultado);
         }
     }
     
