@@ -112,5 +112,17 @@ namespace Tests
 
             Assert.AreEqual("Uruguay2", fixture.Equipos[0].Nombre);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void EditarEquipo_NombreDuplicado_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+            fixture.AgregarEquipo(CrearEquipoValido("Uruguay"));
+            fixture.AgregarEquipo(CrearEquipoValido("Argentina"));
+            var equipoEditado = CrearEquipoValido("Argentina");
+
+            fixture.EditarEquipo(equipoEditado, "Uruguay");
+        }
     }
 }
