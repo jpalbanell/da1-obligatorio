@@ -236,5 +236,15 @@ namespace Tests
 
             Assert.IsFalse(fixture.PuedeGenerarse());
         }
+        
+        [TestMethod]
+        public void PuedeGenerarse_MenosEstadios_RetornaFalse()
+        {
+            var fixture = new Fixture();
+            CargarEquipos(fixture);
+            CargarEstadios(fixture, 3);
+
+            Assert.IsFalse(fixture.PuedeGenerarse());
+        }
     }
 }
