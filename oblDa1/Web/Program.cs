@@ -20,16 +20,10 @@ builder.Services.AddSingleton<IAuditoriaRepositorio, AuditoriaRepositorio>();
 builder.Services.AddSingleton<IFixtureRepositorio, FixtureRepositorio>();
 
 
-builder.Services.AddScoped<IEquipoServicio, EquipoServicio>();
-builder.Services.AddScoped<IEstadioServicio, EstadioServicio>();
+builder.Services.AddScoped<ITorneoServicio, TorneoServicio>();
 builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
-builder.Services.AddScoped<IPartidoServicio, PartidoServicio>();
 builder.Services.AddScoped<IAuditoriaServicio, AuditoriaServicio>();
-builder.Services.AddScoped<ISimulacionServicio, SimulacionServicio>();
 builder.Services.AddScoped<ISesionServicio, SesionServicio>();
-builder.Services.AddScoped<IFixtureServicio, FixtureServicio>();
-builder.Services.AddScoped<ICruceServicio, CruceServicio>();
-builder.Services.AddScoped<IImportacionServicio, ImportacionFacilidadComprensionServicio>();
 
 var app = builder.Build();
 

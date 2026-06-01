@@ -3,10 +3,7 @@
 @using IServicios
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
-@inject IEquipoServicio EquipoServicio
-@inject IEstadioServicio EstadioServicio
-@inject IPartidoServicio PartidoServicio
-@inject IFixtureServicio FixtureServicio
+@inject ITorneoServicio TorneoServicio
 
 <h3>Bienvenido, @_usuarioActual.Nombre</h3>
 
@@ -130,10 +127,10 @@
             Nav.NavigateTo("/login");
             return;
         }
-        _cantidadEquipos = EquipoServicio.ObtenerTodos().Count;
-        _cantidadEstadios = EstadioServicio.ObtenerTodos().Count;
-        _fixtureGenerado = FixtureServicio.ObtenerFixture()?.EstaGenerado ?? false;
-        var partidos = PartidoServicio.ObtenerTodos();
+        _cantidadEquipos = TorneoServicio.ObtenerTodos().Count;
+        _cantidadEstadios = TorneoServicio.ObtenerTodosEstadios().Count;
+        _fixtureGenerado = TorneoServicio.ObtenerFixture()?.EstaGenerado ?? false;
+        var partidos = TorneoServicio.ObtenerTodosPartidos();
 
         _proximosPartidos = partidos
             .Where(p => !p.TieneResultado && p.Fecha >= DateTime.Now)

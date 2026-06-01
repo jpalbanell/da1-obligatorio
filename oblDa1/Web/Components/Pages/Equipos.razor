@@ -2,7 +2,7 @@
 @using Dominio.Entidades
 @using IServicios
 @using Web.DTOs
-@inject IEquipoServicio EquipoServicio
+@inject ITorneoServicio TorneoServicio
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
 
@@ -176,7 +176,7 @@
 
     private void CargarEquipos()
     {
-        _equipos = EquipoServicio.ObtenerTodos()
+        _equipos = TorneoServicio.ObtenerTodos()
             .Select(EquipoResponse.FromEntity)
             .ToList();
     }
@@ -229,11 +229,11 @@
             if (_modoEdicion)
             {
                 var equipo = _form.ToEntity();
-                EquipoServicio.EditarEquipo(equipo, _nombreOriginal);
+                TorneoServicio.EditarEquipo(equipo, _nombreOriginal);
             }
             else
             {
-                EquipoServicio.AgregarEquipo(_form.ToEntity());
+                TorneoServicio.AgregarEquipo(_form.ToEntity());
             }
             CargarEquipos();
             CerrarModal();
@@ -249,7 +249,7 @@
     {
         try
         {
-            EquipoServicio.EliminarEquipo(nombre);
+            TorneoServicio.EliminarEquipo(nombre);
             CargarEquipos();
             _mensajeError = "";
             _mensajeExito = "";
@@ -264,7 +264,7 @@
     {
         try
         {
-            EquipoServicio.CompletarEquiposAutomaticamente(_semillaCompletar);
+            TorneoServicio.CompletarEquiposAutomaticamente(_semillaCompletar);
             CargarEquipos();
             CerrarModalCompletar();
             _mensajeExito = $"Equipos completados correctamente con semilla {_semillaCompletar}.";
