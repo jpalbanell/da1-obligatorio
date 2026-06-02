@@ -9,10 +9,8 @@ namespace Repositorios
 
         public SqlContext(DbContextOptions<SqlContext> options) : base(options)
         {
-            if (Database.IsSqlServer())
-                Database.Migrate();
         }
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(SqlContext).Assembly);
