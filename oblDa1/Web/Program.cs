@@ -4,8 +4,14 @@ using IRepositorios;
 using Repositorios;
 using IServicios;
 using Servicios;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<SqlContext>(options =>
+    options
+        .UseLazyLoadingProxies()
+        .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 builder.Services.AddRazorComponents()
@@ -29,8 +35,12 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    var context = scope.ServiceProvider.GetRequiredService<SqlContext>();
+    context.Database.Migrate();
+
     var sesionServicio = scope.ServiceProvider.GetRequiredService<ISesionServicio>();
     var usuarioRepositorio = scope.ServiceProvider.GetRequiredService<IUsuarioRepositorio>();
+
 
     var admin = new Usuario();
     admin.Id = 1;
