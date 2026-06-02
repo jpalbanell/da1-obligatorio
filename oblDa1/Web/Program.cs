@@ -17,7 +17,7 @@ builder.Services.AddDbContext<SqlContext>(options =>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<IEquipoRepositorio, EquipoRepositorio>();
+builder.Services.AddScoped<IEquipoRepositorio, EquipoRepositorio>();
 builder.Services.AddScoped<IEstadioRepositorio, EstadioRepositorio>();
 builder.Services.AddSingleton<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddSingleton<IPartidoRepositorio, PartidoRepositorio>();
