@@ -1,6 +1,7 @@
 using Dominio.Entidades;
 using IRepositorios;
 using Repositorios;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tests
 {
@@ -12,7 +13,11 @@ namespace Tests
         [TestInitialize]
         public void Setup()
         {
-            _repositorio = new EstadioRepositorio();
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var context = new SqlContext(options);
+            _repositorio = new EstadioRepositorio(context);
         }
 
         private Estadio CrearEstadioValido(string nombre, string ciudad, int capacidad)
