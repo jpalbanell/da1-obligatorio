@@ -5,46 +5,59 @@ namespace Repositorios
 {
     public class EquipoRepositorio : IEquipoRepositorio
     {
-        private List<Equipo> _equipos = new List<Equipo>();
+        private readonly SqlContext _context;
+
+        public EquipoRepositorio(SqlContext context)
+        {
+            _context = context;
+        }
 
         public void Agregar(Equipo equipo)
         {
-            _equipos.Add(equipo);
+            _context.Equipos.Add(equipo);
+            _context.SaveChanges();
         }
 
         public List<Equipo> ObtenerTodos()
         {
-            return _equipos;
+            return _context.Equipos.ToList();
         }
-        
+
         public Equipo ObtenerPorNombre(string nombre)
         {
-            return _equipos.FirstOrDefault(e => e.Nombre == nombre);
+            return _context.Equipos.FirstOrDefault(e => e.Nombre == nombre);
         }
-        
+
         public void Actualizar(Equipo equipo, string nombreOriginal)
         {
-            var index = _equipos.FindIndex(e => e.Nombre == nombreOriginal);
-            ValidarEquipoExistente(index);
-            _equipos[index] = equipo;
+            var existente = _context.Equipos.FirstOrDefault(e => e.Nombre == nombreOriginal);
+            ValidarEquipoNoNulo(existente);
+
+            if (nombreOriginal == equipo.Nombre)
+            {
+                existente.Confederacion = equipo.Confederacion;
+                existente.RankingFifa = equipo.RankingFifa;
+            }
+            else
+            {
+                _context.Equipos.Remove(existente);
+                _context.Equipos.Add(equipo);
+            }
+
+            _context.SaveChanges();
         }
 
         public void Eliminar(string nombre)
         {
-            var equipo = ObtenerPorNombre(nombre);
+            var equipo = _context.Equipos.FirstOrDefault(e => e.Nombre == nombre);
             ValidarEquipoNoNulo(equipo);
-            _equipos.Remove(equipo);
-        }
-
-        private void ValidarEquipoExistente(int index)
-        {
-            if (index == -1) 
-                throw new KeyNotFoundException("Equipo no encontrado");
+            _context.Equipos.Remove(equipo);
+            _context.SaveChanges();
         }
 
         private void ValidarEquipoNoNulo(Equipo equipo)
         {
-            if (equipo == null) 
+            if (equipo == null)
                 throw new KeyNotFoundException("Equipo no encontrado");
         }
     }
