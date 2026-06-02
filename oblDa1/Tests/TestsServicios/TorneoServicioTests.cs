@@ -3,6 +3,7 @@ using IRepositorios;
 using IServicios;
 using Repositorios;
 using Servicios;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tests
 {
@@ -22,7 +23,7 @@ namespace Tests
         public void Setup()
         {
             _equipoRepositorio = new EquipoRepositorio();
-            _estadioRepositorio = new EstadioRepositorio();
+            _estadioRepositorio = CrearEstadioRepositorio();
             _partidoRepositorio = new PartidoRepositorio();
             _grupoRepositorio = new GrupoRepositorio();
             _fixtureRepositorio = new FixtureRepositorio();
@@ -54,6 +55,14 @@ namespace Tests
             equipo.Confederacion = Confederacion.CONMEBOL;
             equipo.RankingFifa = 1500;
             return equipo;
+        }
+        
+        private EstadioRepositorio CrearEstadioRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new EstadioRepositorio(new SqlContext(options));
         }
         
         private Estadio CrearEstadioValido()
@@ -990,7 +999,7 @@ namespace Tests
 
             var repo2 = new EquipoRepositorio();
             var sesion2 = new SesionServicio();
-            var torneo2 = new TorneoServicio(repo2, new EstadioRepositorio(), new PartidoRepositorio(),
+            var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), new PartidoRepositorio(),
                 new GrupoRepositorio(), new FixtureRepositorio(),
                 new AuditoriaServicio(new AuditoriaRepositorio()), sesion2);
             var admin2 = new Usuario { Nombre = "A", Apellido = "B", Email = "a@b.com",
@@ -1323,7 +1332,7 @@ namespace Tests
             var primerEquipo1 = _grupoRepositorio.ObtenerTodos()[0].ListaPosiciones[0].Equipo.Nombre;
 
             var eqRepo2 = new EquipoRepositorio();
-            var estRepo2 = new EstadioRepositorio();
+            var estRepo2 = CrearEstadioRepositorio();
             var partRepo2 = new PartidoRepositorio();
             var grpRepo2 = new GrupoRepositorio();
             var fixRepo2 = new FixtureRepositorio();
@@ -1493,7 +1502,7 @@ namespace Tests
 
             var grpRepo2 = new GrupoRepositorio();
             var partRepo2 = new PartidoRepositorio();
-            var estRepo2 = new EstadioRepositorio();
+            var estRepo2 = CrearEstadioRepositorio();
             var fixRepo2 = new FixtureRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(new EquipoRepositorio(), estRepo2, partRepo2, grpRepo2, fixRepo2,
