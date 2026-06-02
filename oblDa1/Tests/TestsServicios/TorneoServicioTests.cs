@@ -22,7 +22,7 @@ namespace Tests
         [TestInitialize]
         public void Setup()
         {
-            _equipoRepositorio = new EquipoRepositorio();
+            _equipoRepositorio = CrearEquipoRepositorio();
             _estadioRepositorio = CrearEstadioRepositorio();
             _partidoRepositorio = new PartidoRepositorio();
             _grupoRepositorio = new GrupoRepositorio();
@@ -63,6 +63,14 @@ namespace Tests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             return new EstadioRepositorio(new SqlContext(options));
+        }
+        
+        private EquipoRepositorio CrearEquipoRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new EquipoRepositorio(new SqlContext(options));
         }
         
         private Estadio CrearEstadioValido()
@@ -997,7 +1005,7 @@ namespace Tests
             _torneoServicio.CompletarEquiposAutomaticamente(42);
             var rankings1 = _torneoServicio.ObtenerTodos().Select(e => e.RankingFifa).ToList();
 
-            var repo2 = new EquipoRepositorio();
+            var repo2 = CrearEquipoRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), new PartidoRepositorio(),
                 new GrupoRepositorio(), new FixtureRepositorio(),
@@ -1331,7 +1339,7 @@ namespace Tests
             _torneoServicio.GenerarFixture(fixture1);
             var primerEquipo1 = _grupoRepositorio.ObtenerTodos()[0].ListaPosiciones[0].Equipo.Nombre;
 
-            var eqRepo2 = new EquipoRepositorio();
+            var eqRepo2 = CrearEquipoRepositorio();
             var estRepo2 = CrearEstadioRepositorio();
             var partRepo2 = new PartidoRepositorio();
             var grpRepo2 = new GrupoRepositorio();
@@ -1505,7 +1513,7 @@ namespace Tests
             var estRepo2 = CrearEstadioRepositorio();
             var fixRepo2 = new FixtureRepositorio();
             var sesion2 = new SesionServicio();
-            var torneo2 = new TorneoServicio(new EquipoRepositorio(), estRepo2, partRepo2, grpRepo2, fixRepo2,
+            var torneo2 = new TorneoServicio(CrearEquipoRepositorio(), estRepo2, partRepo2, grpRepo2, fixRepo2,
                 new AuditoriaServicio(new AuditoriaRepositorio()), sesion2);
             var fixture2 = new Fixture { EstaGenerado = true };
             fixRepo2.Guardar(fixture2);
