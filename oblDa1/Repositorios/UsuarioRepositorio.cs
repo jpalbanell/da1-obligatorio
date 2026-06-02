@@ -5,41 +5,47 @@ namespace Repositorios
 {
     public class UsuarioRepositorio : IUsuarioRepositorio
     {
-        private List<Usuario> _usuarios = new List<Usuario>();
+        private readonly SqlContext _context;
+
+        public UsuarioRepositorio(SqlContext context)
+        {
+            _context = context;
+        }
 
         public void Agregar(Usuario usuario)
         {
-            _usuarios.Add(usuario);
+            _context.Usuarios.Add(usuario);
+            _context.SaveChanges();
         }
 
         public List<Usuario> ObtenerTodos()
         {
-            return _usuarios;
+            return _context.Usuarios.ToList();
         }
 
         public Usuario ObtenerPorId(int id)
         {
-            return _usuarios.FirstOrDefault(u => u.Id == id);
+            return _context.Usuarios.FirstOrDefault(u => u.Id == id);
         }
 
         public void Actualizar(Usuario usuario)
         {
-            var indice = _usuarios.FindIndex(u => u.Id == usuario.Id);
-            ValidarUsuarioExistente(indice);
-            _usuarios[indice] = usuario;
+            var existente = _context.Usuarios.FirstOrDefault(u => u.Id == usuario.Id);
+            ValidarUsuarioNoNulo(existente);
+            existente.Nombre = usuario.Nombre;
+            existente.Apellido = usuario.Apellido;
+            existente.Email = usuario.Email;
+            existente.FechaNacimiento = usuario.FechaNacimiento;
+            existente.AsignarContrasenaCifrada(usuario.ObtenerContrasenaCifrada());
+            _context.SaveChanges();
         }
 
         public void Eliminar(int id)
         {
-            var usuario = ObtenerPorId(id);
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.Id == id);
             ValidarUsuarioNoNulo(usuario);
-            _usuarios.Remove(usuario);
-        }
-
-        private void ValidarUsuarioExistente(int indice)
-        {
-            if (indice == -1)
-                throw new KeyNotFoundException("Usuario no encontrado");
+            _context.Usuarios.Remove(usuario);
+            _context.SaveChanges();
         }
 
         private void ValidarUsuarioNoNulo(Usuario usuario)

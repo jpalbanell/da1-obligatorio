@@ -3,6 +3,7 @@ using IRepositorios;
 using Servicios;
 using IServicios;
 using Repositorios;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tests
 {
@@ -18,7 +19,7 @@ namespace Tests
         [TestInitialize]
         public void Setup()
         {
-            _repositorio = new UsuarioRepositorio();
+            _repositorio = CrearUsuarioRepositorio();
             _auditoriaRepositorio = new AuditoriaRepositorio();
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
@@ -32,6 +33,14 @@ namespace Tests
             usuario.Contrasena = "Abcdef1@";
             usuario.Roles.Add(Rol.Administrador);
             _sesionServicio.IniciarSesion(usuario);
+        }
+
+        private UsuarioRepositorio CrearUsuarioRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new UsuarioRepositorio(new SqlContext(options));
         }
 
         private Usuario CrearUsuarioValido(string nombre, string apellido, string email)

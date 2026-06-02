@@ -1,6 +1,7 @@
 using Dominio.Entidades;
 using IRepositorios;
 using Repositorios;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tests
 {
@@ -12,7 +13,11 @@ namespace Tests
         [TestInitialize]
         public void Setup()
         {
-            _repositorio = new UsuarioRepositorio();
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var context = new SqlContext(options);
+            _repositorio = new UsuarioRepositorio(context);
         }
 
         private Usuario CrearUsuarioValido(string nombre, string apellido, string email)
@@ -21,6 +26,8 @@ namespace Tests
             usuario.Nombre = nombre;
             usuario.Apellido = apellido;
             usuario.Email = email;
+            usuario.FechaNacimiento = new DateTime(1990, 5, 15);
+            usuario.Contrasena = "Abcdef1@";
             return usuario;
         }
 
