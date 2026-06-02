@@ -2,12 +2,9 @@
 @using Dominio.Entidades
 @using IServicios
 @using Web.DTOs
-@inject IFixtureServicio FixtureServicio
+@inject ITorneoServicio TorneoServicio
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
-@inject ICruceServicio CruceServicio
-@inject ISimulacionServicio SimulacionServicio
-@inject IPartidoServicio PartidoServicio
 
 <h3>Fixture</h3>
 
@@ -125,7 +122,7 @@ else
         }
         else
         {
-            var final = PartidoServicio.ObtenerPorFase(FaseTorneo.Final).FirstOrDefault();
+            var final = TorneoServicio.ObtenerPartidosPorFase(FaseTorneo.Final).FirstOrDefault();
             <div class="alert alert-success mb-0">
                 ¡Torneo finalizado! 🏆 Campeón: <strong>@(final?.Vencedor?.Nombre ?? "Por definir")</strong>
             </div>
@@ -236,7 +233,7 @@ else
 
             foreach (var (fase, nombre) in fases)
             {
-                var partidosFase = PartidoServicio.ObtenerPorFase(fase);
+                var partidosFase = TorneoServicio.ObtenerPartidosPorFase(fase);
                 if (partidosFase.Any())
                 {
                     <h5 class="mt-4">@nombre</h5>
@@ -298,7 +295,7 @@ else
             return;
         }
 
-        var fixture = FixtureServicio.ObtenerFixture();
+        var fixture = TorneoServicio.ObtenerFixture();
         if (fixture != null)
         {
             _fixtureGenerado = fixture.EstaGenerado;
@@ -316,7 +313,7 @@ else
 
     private void CargarEstadoFases()
     {
-        var todosLosPartidos = PartidoServicio.ObtenerTodos();
+        var todosLosPartidos = TorneoServicio.ObtenerTodosPartidos();
 
         _faseGruposSimulada = todosLosPartidos
             .Where(p => p.Fase == FaseTorneo.FaseGrupos)
@@ -361,7 +358,7 @@ else
 
     private void CargarGrupos()
     {
-        _grupos = FixtureServicio.ObtenerGrupos()
+        _grupos = TorneoServicio.ObtenerGrupos()
             .Select(GrupoResponse.FromEntity)
             .ToList();
 
@@ -374,7 +371,7 @@ else
         try
         {
             var fixture = _form.ToEntity();
-            FixtureServicio.GenerarFixture(fixture);
+            TorneoServicio.GenerarFixture(fixture);
             _fixtureGenerado = true;
             _crucesGenerados = false;
             CargarGrupos();
@@ -392,7 +389,7 @@ else
     {
         try
         {
-            SimulacionServicio.SimularFase(FaseTorneo.FaseGrupos, _semillaSimulacion);
+            TorneoServicio.SimularFase(FaseTorneo.FaseGrupos, _semillaSimulacion);
             CargarGrupos();
             CargarEstadoFases();
             _mensajeExito = $"Fase de grupos simulada con semilla {_semillaSimulacion}.";
@@ -411,7 +408,7 @@ else
     {
         try
         {
-            SimulacionServicio.SimularPartido(partidoId, _semillaSimulacion);
+            TorneoServicio.SimularPartido(partidoId, _semillaSimulacion);
             CargarGrupos();
             _mensajeExito = $"Partido simulado con semilla {_semillaSimulacion}.";
             _mensajeError = "";
@@ -427,7 +424,7 @@ else
     {
         try
         {
-            CruceServicio.GenerarCruces(_semillaCruces);
+            TorneoServicio.GenerarCruces(_semillaCruces);
             _crucesGenerados = true;
             _mensajeExito = "Cruces generados correctamente.";
             _mensajeError = "";
@@ -444,7 +441,7 @@ else
     {
         try
         {
-            SimulacionServicio.SimularFase(FaseTorneo.Dieciseisavos, _semillaSimulacion);
+            TorneoServicio.SimularFase(FaseTorneo.Dieciseisavos, _semillaSimulacion);
             CargarEstadoFases();
             _mensajeExito = $"Dieciseisavos simulados con semilla {_semillaSimulacion}.";
             _mensajeError = "";
@@ -460,7 +457,7 @@ else
     {
         try
         {
-            SimulacionServicio.SimularFase(FaseTorneo.Octavos, _semillaSimulacion);
+            TorneoServicio.SimularFase(FaseTorneo.Octavos, _semillaSimulacion);
             CargarEstadoFases();
             _mensajeExito = $"Octavos simulados con semilla {_semillaSimulacion}.";
             _mensajeError = "";
@@ -476,7 +473,7 @@ else
     {
         try
         {
-            SimulacionServicio.SimularFase(FaseTorneo.Cuartos, _semillaSimulacion);
+            TorneoServicio.SimularFase(FaseTorneo.Cuartos, _semillaSimulacion);
             CargarEstadoFases();
             _mensajeExito = $"Cuartos simulados con semilla {_semillaSimulacion}.";
             _mensajeError = "";
@@ -492,7 +489,7 @@ else
     {
         try
         {
-            SimulacionServicio.SimularFase(FaseTorneo.Semifinal, _semillaSimulacion);
+            TorneoServicio.SimularFase(FaseTorneo.Semifinal, _semillaSimulacion);
             CargarEstadoFases();
             _mensajeExito = $"Semifinales simuladas con semilla {_semillaSimulacion}.";
             _mensajeError = "";
@@ -508,7 +505,7 @@ else
     {
         try
         {
-            SimulacionServicio.SimularFase(FaseTorneo.TercerPuesto, _semillaSimulacion);
+            TorneoServicio.SimularFase(FaseTorneo.TercerPuesto, _semillaSimulacion);
             CargarEstadoFases();
             _mensajeExito = $"Tercer puesto simulado con semilla {_semillaSimulacion}.";
             _mensajeError = "";
@@ -524,7 +521,7 @@ else
     {
         try
         {
-            SimulacionServicio.SimularFase(FaseTorneo.Final, _semillaSimulacion);
+            TorneoServicio.SimularFase(FaseTorneo.Final, _semillaSimulacion);
             CargarEstadoFases();
             _mensajeExito = $"Final simulada con semilla {_semillaSimulacion}.";
             _mensajeError = "";

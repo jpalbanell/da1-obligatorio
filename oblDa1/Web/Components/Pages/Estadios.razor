@@ -2,7 +2,7 @@
 @using Dominio.Entidades
 @using IServicios
 @using Web.DTOs
-@inject IEstadioServicio EstadioServicio
+@inject ITorneoServicio TorneoServicio
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
 
@@ -116,7 +116,7 @@ else
                 Nav.NavigateTo("/login");
                 return;
             }
-            _estadios = EstadioServicio.ObtenerTodos()
+            _estadios = TorneoServicio.ObtenerTodosEstadios()
                 .Select(EstadioResponse.FromEntity)
                 .ToList();
             _cargado = true;
@@ -141,11 +141,11 @@ else
             {
                 var estadio = _form.ToEntity();
                 if (_modoEdicion)
-                    EstadioServicio.ModificarEstadio(estadio, _nombreOriginal);
+                    TorneoServicio.ModificarEstadio(estadio, _nombreOriginal);
                 else
-                    EstadioServicio.AgregarEstadio(estadio);
+                    TorneoServicio.AgregarEstadio(estadio);
 
-                _estadios = EstadioServicio.ObtenerTodos()
+                _estadios = TorneoServicio.ObtenerTodosEstadios()
                     .Select(EstadioResponse.FromEntity)
                     .ToList();
                 CerrarModal();
@@ -176,8 +176,8 @@ else
         {
             try
             {
-                EstadioServicio.EliminarEstadio(nombre);
-                _estadios = EstadioServicio.ObtenerTodos()
+                TorneoServicio.EliminarEstadio(nombre);
+                _estadios = TorneoServicio.ObtenerTodosEstadios()
                     .Select(EstadioResponse.FromEntity)
                     .ToList();
                 _mensajeExito = "Estadio eliminado correctamente.";

@@ -109,6 +109,17 @@ namespace Dominio.Entidades
             }
             return partidos;
         }
+        
+        public List<PosicionesGrupo> ObtenerPosicionesOrdenadas(Random random)
+        {
+            return ListaPosiciones
+                .OrderByDescending(p => p.Puntos)
+                .ThenByDescending(p => p.DiferenciaGoles)
+                .ThenByDescending(p => p.GolesFavor)
+                .GroupBy(p => new { p.Puntos, p.DiferenciaGoles, p.GolesFavor })
+                .SelectMany(g => g.OrderBy(_ => random.Next()))
+                .ToList();
+        }
 
     }
 }

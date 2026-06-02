@@ -2,8 +2,7 @@
 @using Dominio.Entidades
 @using IServicios
 @using Web.DTOs
-@inject IPartidoServicio PartidoServicio
-@inject IEstadioServicio EstadioServicio
+@inject ITorneoServicio TorneoServicio
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
 
@@ -107,16 +106,11 @@
             return;
         }
 
-        _partido = PartidoServicio.ObtenerPartido(Id);
-        if (_partido.TieneResultado)
-        {
-            _partido.GolesLocalAnterior = _partido.GolesLocal;
-            _partido.GolesVisitanteAnterior = _partido.GolesVisitante;
-        }
+        _partido = TorneoServicio.ObtenerPartido(Id);
         if (_partido != null)
         {
             _form = EditarPartidoRequest.FromEntity(_partido);
-            _estadios = EstadioServicio.ObtenerTodos();
+            _estadios = TorneoServicio.ObtenerTodosEstadios();
         }
 
         _cargado = true;
@@ -126,23 +120,13 @@
     {
         try
         {
-            _partido!.Fecha = _form.Fecha;
-
-            var estadio = EstadioServicio.ObtenerEstadio(_form.EstadioNombre);
-            if (estadio == null)
-                throw new Exception("Estadio no encontrado.");
-            _partido.Estadio = estadio;
-
-            if (_form.CargarResultado)
-            {
-                _partido.GolesLocal = _form.GolesLocal;
-                _partido.GolesVisitante = _form.GolesVisitante;
-                _partido.Vencedor = _form.GolesLocal > _form.GolesVisitante ? _partido.EquipoLocal :
-                                    _form.GolesVisitante > _form.GolesLocal ? _partido.EquipoVisitante :
-                                    null!;
-            }
-
-            PartidoServicio.ModificarPartido(_partido);
+            TorneoServicio.EditarPartido(
+                _partido!.Id,
+                _form.Fecha,
+                _form.EstadioNombre,
+                _form.CargarResultado,
+                _form.GolesLocal,
+                _form.GolesVisitante);
 
             _mensajeExito = "Partido modificado correctamente.";
             _mensajeError = "";

@@ -2,7 +2,7 @@
 @using Dominio.Entidades
 @using IServicios
 @using Web.DTOs
-@inject IPartidoServicio PartidoServicio
+@inject ITorneoServicio TorneoServicio
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
 
@@ -128,7 +128,7 @@ else
 
     private void CargarPartidos()
     {
-        _partidos = PartidoServicio.ObtenerTodos()
+        _partidos = TorneoServicio.ObtenerTodosPartidos()
             .Select(PartidoResponse.FromEntity)
             .OrderBy(p => p.Fecha)
             .ToList();

@@ -1,0 +1,2174 @@
+using Dominio.Entidades;
+using IRepositorios;
+using IServicios;
+using Repositorios;
+using Servicios;
+
+namespace Tests
+{
+    [TestClass]
+    public class TorneoServicioTests
+    {
+        private TorneoServicio _torneoServicio;
+        private IEquipoRepositorio _equipoRepositorio;
+        private IEstadioRepositorio _estadioRepositorio;
+        private IPartidoRepositorio _partidoRepositorio;
+        private IGrupoRepositorio _grupoRepositorio;
+        private IFixtureRepositorio _fixtureRepositorio;
+        private IAuditoriaServicio _auditoriaServicio;
+        private ISesionServicio _sesionServicio;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _equipoRepositorio = new EquipoRepositorio();
+            _estadioRepositorio = new EstadioRepositorio();
+            _partidoRepositorio = new PartidoRepositorio();
+            _grupoRepositorio = new GrupoRepositorio();
+            _fixtureRepositorio = new FixtureRepositorio();
+            _auditoriaServicio = new AuditoriaServicio(new AuditoriaRepositorio());
+            _sesionServicio = new SesionServicio();
+            _torneoServicio = new TorneoServicio(
+                _equipoRepositorio,
+                _estadioRepositorio,
+                _partidoRepositorio,
+                _grupoRepositorio,
+                _fixtureRepositorio,
+                _auditoriaServicio,
+                _sesionServicio);
+
+            var admin = new Usuario();
+            admin.Nombre = "Admin";
+            admin.Apellido = "Test";
+            admin.Email = "admin@test.com";
+            admin.FechaNacimiento = new DateTime(1990, 1, 1);
+            admin.Contrasena = "Password@1";
+            admin.Roles.Add(Rol.Administrador);
+            _sesionServicio.IniciarSesion(admin);
+        }
+
+        private Equipo CrearEquipoValido()
+        {
+            var equipo = new Equipo();
+            equipo.Nombre = "Uruguay";
+            equipo.Confederacion = Confederacion.CONMEBOL;
+            equipo.RankingFifa = 1500;
+            return equipo;
+        }
+        
+        private Estadio CrearEstadioValido()
+        {
+            var estadio = new Estadio();
+            estadio.Nombre = "Centenario";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 25000;
+            return estadio;
+        }
+        
+        private void IniciarSesionComoEditor()
+        {
+            _sesionServicio.CerrarSesion();
+            var editor = new Usuario();
+            editor.Nombre = "Editor";
+            editor.Apellido = "Test";
+            editor.Email = "editor@test.com";
+            editor.FechaNacimiento = new DateTime(1990, 1, 1);
+            editor.Contrasena = "Password@1";
+            editor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(editor);
+        }
+        
+        private Partido CrearPartidoValido()
+        {
+            var local = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
+            var visitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1600 };
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            grupo.AgregarEquipo(local);
+            grupo.AgregarEquipo(visitante);
+            var estadio = new Estadio();
+            estadio.Nombre = "Centenario";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 25000;
+            var partido = new Partido(1);
+            partido.Codigo = "GA-1";
+            partido.Fecha = new DateTime(2026, 6, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            partido.Grupo = grupo;
+            partido.Estadio = estadio;
+            return partido;
+        }
+        
+        [TestMethod]
+        public void AgregarEquipo_RolAdminYEquipoValido_AgregaCorrectamente()
+        {
+            var equipo = CrearEquipoValido();
+
+            _torneoServicio.AgregarEquipo(equipo);
+
+            var equipos = _torneoServicio.ObtenerTodos();
+            Assert.AreEqual(1, equipos.Count);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void AgregarEquipo_SinRolAdmin_LanzaExcepcion()
+        {
+            _sesionServicio.CerrarSesion();
+            var editor = new Usuario();
+            editor.Nombre = "Editor";
+            editor.Apellido = "Test";
+            editor.Email = "editor@test.com";
+            editor.FechaNacimiento = new DateTime(1990, 1, 1);
+            editor.Contrasena = "Password@1";
+            editor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(editor);
+
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_NombreDuplicado_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_CupoConfederacionCompleto_LanzaExcepcion()
+        {
+            for (int i = 1; i <= 7; i++)
+            {
+                var equipo = new Equipo();
+                equipo.Nombre = $"CONMEBOL_{i}";
+                equipo.Confederacion = Confederacion.CONMEBOL;
+                equipo.RankingFifa = 1500;
+                _torneoServicio.AgregarEquipo(equipo);
+            }
+
+            var equipoExtra = new Equipo();
+            equipoExtra.Nombre = "CONMEBOL_08";
+            equipoExtra.Confederacion = Confederacion.CONMEBOL;
+            equipoExtra.RankingFifa = 1500;
+            _torneoServicio.AgregarEquipo(equipoExtra);
+        }
+        
+        [TestMethod]
+        public void EditarEquipo_RolAdminYDatosValidos_EditaCorrectamente()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+
+            var equipoEditado = new Equipo();
+            equipoEditado.Nombre = "Uruguay Editado";
+            equipoEditado.Confederacion = Confederacion.CONMEBOL;
+            equipoEditado.RankingFifa = 1600;
+
+            _torneoServicio.EditarEquipo(equipoEditado, "Uruguay");
+
+            var resultado = _torneoServicio.ObtenerPorNombre("Uruguay Editado");
+            Assert.IsNotNull(resultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void EditarEquipo_SinRolAdmin_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            _sesionServicio.CerrarSesion();
+            var editor = new Usuario();
+            editor.Nombre = "Editor";
+            editor.Apellido = "Test";
+            editor.Email = "editor@test.com";
+            editor.FechaNacimiento = new DateTime(1990, 1, 1);
+            editor.Contrasena = "Password@1";
+            editor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(editor);
+
+            _torneoServicio.EditarEquipo(CrearEquipoValido(), "Uruguay");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void EditarEquipo_NombreDuplicado_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            var equipo2 = new Equipo();
+            equipo2.Nombre = "Argentina";
+            equipo2.Confederacion = Confederacion.CONMEBOL;
+            equipo2.RankingFifa = 1600;
+            _torneoServicio.AgregarEquipo(equipo2);
+
+            var equipoEditado = new Equipo();
+            equipoEditado.Nombre = "Argentina";
+            equipoEditado.Confederacion = Confederacion.CONMEBOL;
+            equipoEditado.RankingFifa = 1500;
+            _torneoServicio.EditarEquipo(equipoEditado, "Uruguay");
+        }
+        
+        [TestMethod]
+        public void EliminarEquipo_RolAdminYEquipoExiste_EliminaCorrectamente()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+
+            _torneoServicio.EliminarEquipo("Uruguay");
+
+            var resultado = _torneoServicio.ObtenerPorNombre("Uruguay");
+            Assert.IsNull(resultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void EliminarEquipo_SinRolAdmin_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            _sesionServicio.CerrarSesion();
+            var editor = new Usuario();
+            editor.Nombre = "Editor";
+            editor.Apellido = "Test";
+            editor.Email = "editor@test.com";
+            editor.FechaNacimiento = new DateTime(1990, 1, 1);
+            editor.Contrasena = "Password@1";
+            editor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(editor);
+
+            _torneoServicio.EliminarEquipo("Uruguay");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void EliminarEquipo_NoExiste_LanzaExcepcion()
+        {
+            _torneoServicio.EliminarEquipo("Uruguay");
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_RolAdmin_Completa48Equipos()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+
+            var equipos = _torneoServicio.ObtenerTodos();
+            Assert.AreEqual(48, equipos.Count);
+        }
+        
+        [TestMethod]
+        public void AgregarEstadio_RolAdminYEstadioValido_AgregaCorrectamente()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+
+            var estadios = _torneoServicio.ObtenerTodosEstadios();
+            Assert.AreEqual(1, estadios.Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void AgregarEstadio_SinRolAdmin_LanzaExcepcion()
+        {
+            _sesionServicio.CerrarSesion();
+            var editor = new Usuario();
+            editor.Nombre = "Editor";
+            editor.Apellido = "Test";
+            editor.Email = "editor@test.com";
+            editor.FechaNacimiento = new DateTime(1990, 1, 1);
+            editor.Contrasena = "Password@1";
+            editor.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(editor);
+
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEstadio_NombreDuplicado_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+        }
+
+        [TestMethod]
+        public void EliminarEstadio_Existe_EliminaCorrectamente()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+
+            _torneoServicio.EliminarEstadio("Centenario");
+
+            var resultado = _torneoServicio.ObtenerEstadio("Centenario");
+            Assert.IsNull(resultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void EliminarEstadio_NoExiste_LanzaExcepcion()
+        {
+            _torneoServicio.EliminarEstadio("Centenario");
+        }
+
+        [TestMethod]
+        public void ModificarEstadio_DatosValidos_ModificaCorrectamente()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+
+            var estadioEditado = new Estadio();
+            estadioEditado.Nombre = "Centenario Editado";
+            estadioEditado.Ciudad = "Montevideo";
+            estadioEditado.Capacidad = 25000;
+
+            _torneoServicio.ModificarEstadio(estadioEditado, "Centenario");
+
+            var resultado = _torneoServicio.ObtenerEstadio("Centenario Editado");
+            Assert.IsNotNull(resultado);
+        }
+        
+        [TestMethod]
+        public void ImportarEquipos_CsvValido_ImportaCorrectamente()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nArgentina,CONMEBOL,1600";
+
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(2, resultado.EquiposImportados);
+            Assert.AreEqual(0, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_FilaConError_RegistraError()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMal,ConfederacionInvalida,999";
+
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(1, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_NombreDuplicado_RegistraError()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nUruguay,CONMEBOL,1600";
+
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(1, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ImportarEquipos_SinRolEditor_LanzaExcepcion()
+        {
+            _sesionServicio.CerrarSesion();
+            var admin = new Usuario();
+            admin.Nombre = "Admin";
+            admin.Apellido = "Test";
+            admin.Email = "admin2@test.com";
+            admin.FechaNacimiento = new DateTime(1990, 1, 1);
+            admin.Contrasena = "Password@1";
+            admin.Roles.Add(Rol.Administrador);
+            _sesionServicio.IniciarSesion(admin);
+
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500";
+            _torneoServicio.ImportarEquipos(csv);
+        }
+        
+        [TestMethod]
+        public void GenerarFixture_CondicionesValidas_GeneraFixture()
+        {
+            // Completar equipos como admin
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+
+            // Agregar estadios como admin
+            for (int i = 1; i <= 4; i++)
+            {
+                var estadio = new Estadio();
+                estadio.Nombre = $"Estadio {i}";
+                estadio.Ciudad = "Montevideo";
+                estadio.Capacidad = 25000;
+                _torneoServicio.AgregarEstadio(estadio);
+            }
+
+            // Generar fixture como editor
+            IniciarSesionComoEditor();
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+
+            _torneoServicio.GenerarFixture(fixture);
+
+            Assert.IsTrue(fixture.EstaGenerado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void GenerarFixture_SinRolEditor_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+            _torneoServicio.GenerarFixture(fixture);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarFixture_MenosDe48Equipos_LanzaExcepcion()
+        {
+            IniciarSesionComoEditor();
+            var fixture = new Fixture();
+            _torneoServicio.GenerarFixture(fixture);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void GenerarCruces_SinRolEditor_LanzaExcepcion()
+        {
+            _torneoServicio.GenerarCruces(42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarCruces_FixtureNoGenerado_LanzaExcepcion()
+        {
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarCruces_PartidosSinResultado_LanzaExcepcion()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            for (int i = 1; i <= 4; i++)
+            {
+                var estadio = new Estadio();
+                estadio.Nombre = $"Estadio {i}";
+                estadio.Ciudad = "Montevideo";
+                estadio.Capacidad = 25000;
+                _torneoServicio.AgregarEstadio(estadio);
+            }
+            IniciarSesionComoEditor();
+            var fixture = new Fixture();
+            fixture.SemillaFixture = 42;
+            _torneoServicio.GenerarFixture(fixture);
+
+            _torneoServicio.GenerarCruces(42);
+        }
+        
+
+        [TestMethod]
+        public void SimularPartido_RolEditorYPartidoValido_SimulaCorrectamente()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
+            Assert.IsTrue(resultado.TieneResultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void SimularPartido_SinRolEditor_LanzaExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void SimularPartido_SinEquipos_LanzaExcepcion()
+        {
+            var partido = new Partido(1);
+            partido.Codigo = "TEST";
+            partido.Fecha = new DateTime(2026, 6, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            var grupo = new Grupo();
+            grupo.Etiqueta = "A";
+            partido.Grupo = grupo;
+            var estadio = new Estadio();
+            estadio.Nombre = "Estadio Test";
+            estadio.Ciudad = "Montevideo";
+            estadio.Capacidad = 25000;
+            partido.Estadio = estadio;
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+        }
+
+        [TestMethod]
+        public void SimularFase_RolEditorYFaseValida_SimulaCorrectamente()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
+            Assert.IsTrue(resultado.TieneResultado);
+        }
+        
+        [TestMethod]
+        public void ObtenerTodosPartidos_ConPartidos_RetornaLista()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerTodosPartidos();
+
+            Assert.AreEqual(1, partidos.Count);
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorFase_FaseGrupos_RetornaPartidosDeFase()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerPartidosPorFase(FaseTorneo.FaseGrupos);
+
+            Assert.AreEqual(1, partidos.Count);
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorFecha_FechaValida_RetornaPartidos()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerPartidosPorFecha(new DateTime(2026, 6, 1));
+
+            Assert.AreEqual(1, partidos.Count);
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorGrupo_GrupoValido_RetornaPartidos()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerPartidosPorGrupo("A");
+
+            Assert.AreEqual(1, partidos.Count);
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorEstadio_EstadioValido_RetornaPartidos()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            var partidos = _torneoServicio.ObtenerPartidosPorEstadio("Centenario");
+
+            Assert.AreEqual(1, partidos.Count);
+        }
+        
+        [TestMethod]
+        public void EditarPartido_CambiarFechaYEstadio_ActualizaCorrectamente()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            var nuevoEstadio = new Estadio { Nombre = "Nuevo Estadio", Ciudad = "Montevideo", Capacidad = 30000 };
+            _estadioRepositorio.Agregar(nuevoEstadio);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, new DateTime(2026, 6, 15), "Nuevo Estadio", false, 0, 0);
+
+            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
+            Assert.AreEqual(new DateTime(2026, 6, 15), resultado.Fecha);
+            Assert.AreEqual("Nuevo Estadio", resultado.Estadio.Nombre);
+        }
+
+        [TestMethod]
+        public void EditarPartido_ConResultado_RegistraResultadoYActualizaPosiciones()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            var grupo = partido.Grupo;
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 2, 0);
+
+            Assert.AreEqual(3, grupo.ObtenerPosicionDeEquipo("Uruguay").Puntos);
+            Assert.AreEqual(0, grupo.ObtenerPosicionDeEquipo("Alemania").Puntos);
+        }
+
+        [TestMethod]
+        public void EditarPartido_CambiarResultadoExistente_RevierteYAplicaNuevo()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            var grupo = partido.Grupo;
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 3, 0);
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 0, 1);
+
+            Assert.AreEqual(0, grupo.ObtenerPosicionDeEquipo("Uruguay").Puntos);
+            Assert.AreEqual(3, grupo.ObtenerPosicionDeEquipo("Alemania").Puntos);
+            Assert.AreEqual(0, grupo.ObtenerPosicionDeEquipo("Uruguay").GolesFavor);
+            Assert.AreEqual(1, grupo.ObtenerPosicionDeEquipo("Uruguay").GolesContra);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void EditarPartido_SinRolEditor_LanzaExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", false, 0, 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void EditarPartido_PartidoBloqueado_LanzaExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            partido.EstaBloqueado = true;
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", false, 0, 0);
+        }
+
+        // ─────────────── Helpers ───────────────
+
+        private Partido CrearPartidoParaSimular(int rankingLocal, int rankingVisitante, int id = 1)
+        {
+            var local = new Equipo { Nombre = "Local", Confederacion = Confederacion.CONMEBOL, RankingFifa = rankingLocal };
+            var visitante = new Equipo { Nombre = "Visitante", Confederacion = Confederacion.UEFA, RankingFifa = rankingVisitante };
+            var partido = new Partido(id);
+            partido.Codigo = $"P{id:D3}";
+            partido.Fecha = new DateTime(2026, 6, 1);
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            return partido;
+        }
+
+        private void CargarEquipos48EnRepositorio()
+        {
+            Confederacion[] confs = {
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.OFC
+            };
+            for (int i = 0; i < 48; i++)
+            {
+                var e = new Equipo();
+                e.Nombre = $"Equipo_{i + 1}";
+                e.Confederacion = confs[i];
+                e.RankingFifa = 2500 - (i * 45);
+                _equipoRepositorio.Agregar(e);
+            }
+        }
+
+        private void CargarEquipos48ConEmpatesEnRepositorio()
+        {
+            Confederacion[] confs = {
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.OFC
+            };
+            int[] rankings = {
+                2500, 2450, 2400, 2350, 2300, 2300, 2250, 2200,
+                2150, 2100, 2050, 2000, 1950, 1900, 1850, 1800,
+                1750, 1750, 1700, 1650, 1600, 1550, 1500,
+                1450, 1400, 1350, 1300, 1300, 1250, 1200,
+                1150, 1100, 1050, 1000, 950, 900, 850, 800, 750,
+                700, 650, 600, 600, 550, 500, 450, 400, 350
+            };
+            for (int i = 0; i < 48; i++)
+            {
+                var e = new Equipo();
+                e.Nombre = $"Equipo_{i + 1}";
+                e.Confederacion = confs[i];
+                e.RankingFifa = rankings[i];
+                _equipoRepositorio.Agregar(e);
+            }
+        }
+
+        private void CargarEquiposParaForzarConflictoConfederacion()
+        {
+            var confs = new[] {
+                Confederacion.CONMEBOL, Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.CONMEBOL, Confederacion.UEFA,   Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CAF,    Confederacion.CAF,    Confederacion.CAF,
+                Confederacion.CAF,     Confederacion.CAF,     Confederacion.CAF,    Confederacion.CAF,
+                Confederacion.CAF,     Confederacion.CAF,     Confederacion.AFC,    Confederacion.AFC,
+                Confederacion.AFC,     Confederacion.AFC,     Confederacion.AFC,    Confederacion.AFC,
+                Confederacion.AFC,     Confederacion.AFC,     Confederacion.UEFA,   Confederacion.OFC
+            };
+            for (int i = 0; i < 48; i++)
+            {
+                var e = new Equipo();
+                e.Nombre = $"Equipo_{i + 1}";
+                e.Confederacion = confs[i];
+                e.RankingFifa = 2500 - (i * 45);
+                _equipoRepositorio.Agregar(e);
+            }
+        }
+
+        private void CargarEstadiosEnRepositorio(int cantidad)
+        {
+            for (int i = 1; i <= cantidad; i++)
+            {
+                var estadio = new Estadio();
+                estadio.Nombre = $"Estadio_{i}";
+                estadio.Ciudad = $"Ciudad_{i}";
+                estadio.Capacidad = 40000;
+                _estadioRepositorio.Agregar(estadio);
+            }
+        }
+
+        private void AgregarPartidoConResultado(Grupo grupo, Equipo local, Equipo visitante,
+            int golesLocal, int golesVisitante, Estadio estadio, int id)
+        {
+            var partido = new Partido(id);
+            partido.Codigo = $"G{id}";
+            partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            partido.Estadio = estadio;
+            partido.Grupo = grupo;
+            partido.GolesLocal = golesLocal;
+            partido.GolesVisitante = golesVisitante;
+            partido.Vencedor = golesLocal > golesVisitante ? local
+                : golesVisitante > golesLocal ? visitante : null;
+            partido.TieneResultado = true;
+            grupo.ListaPartidos.Add(partido);
+            _partidoRepositorio.Agregar(partido);
+            if (_estadioRepositorio.ObtenerPorNombre(estadio.Nombre) == null)
+                _estadioRepositorio.Agregar(estadio);
+        }
+
+        private void CargarDoceGruposCompletos()
+        {
+            var etiquetas = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+            int id = 1;
+            foreach (var etiqueta in etiquetas)
+            {
+                var grupo = new Grupo(); grupo.Etiqueta = etiqueta;
+                var estadio = new Estadio { Nombre = "Estadio " + etiqueta, Ciudad = "Ciudad", Capacidad = 60000 };
+                var e1 = new Equipo { Nombre = etiqueta + "_1", Confederacion = Confederacion.UEFA, RankingFifa = 2000 };
+                var e2 = new Equipo { Nombre = etiqueta + "_2", Confederacion = Confederacion.UEFA, RankingFifa = 1900 };
+                var e3 = new Equipo { Nombre = etiqueta + "_3", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+                var e4 = new Equipo { Nombre = etiqueta + "_4", Confederacion = Confederacion.UEFA, RankingFifa = 1700 };
+                foreach (var e in new[] { e1, e2, e3, e4 })
+                    grupo.ListaPosiciones.Add(new PosicionesGrupo { Equipo = e, Grupo = grupo });
+                AgregarPartidoConResultado(grupo, e1, e2, 3, 0, estadio, id++);
+                AgregarPartidoConResultado(grupo, e3, e4, 2, 1, estadio, id++);
+                AgregarPartidoConResultado(grupo, e1, e3, 1, 0, estadio, id++);
+                AgregarPartidoConResultado(grupo, e2, e4, 2, 0, estadio, id++);
+                AgregarPartidoConResultado(grupo, e1, e4, 1, 0, estadio, id++);
+                AgregarPartidoConResultado(grupo, e2, e3, 1, 1, estadio, id++);
+                foreach (var partido in grupo.ListaPartidos)
+                    grupo.ActualizarPosiciones(partido);
+                _grupoRepositorio.Agregar(grupo);
+            }
+        }
+
+        private void CargarDoceGruposEmpateTotal()
+        {
+            var etiquetas = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+            int id = 1;
+            foreach (var etiqueta in etiquetas)
+            {
+                var grupo = new Grupo(); grupo.Etiqueta = etiqueta;
+                var estadio = new Estadio { Nombre = "Estadio " + etiqueta, Ciudad = "Ciudad", Capacidad = 60000 };
+                var e1 = new Equipo { Nombre = etiqueta + "_1", Confederacion = Confederacion.UEFA, RankingFifa = 2000 };
+                var e2 = new Equipo { Nombre = etiqueta + "_2", Confederacion = Confederacion.UEFA, RankingFifa = 1900 };
+                var e3 = new Equipo { Nombre = etiqueta + "_3", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+                var e4 = new Equipo { Nombre = etiqueta + "_4", Confederacion = Confederacion.UEFA, RankingFifa = 1700 };
+                foreach (var e in new[] { e1, e2, e3, e4 })
+                    grupo.ListaPosiciones.Add(new PosicionesGrupo { Equipo = e, Grupo = grupo });
+                AgregarPartidoConResultado(grupo, e1, e2, 0, 0, estadio, id++);
+                AgregarPartidoConResultado(grupo, e3, e4, 0, 0, estadio, id++);
+                AgregarPartidoConResultado(grupo, e1, e3, 0, 0, estadio, id++);
+                AgregarPartidoConResultado(grupo, e2, e4, 0, 0, estadio, id++);
+                AgregarPartidoConResultado(grupo, e1, e4, 0, 0, estadio, id++);
+                AgregarPartidoConResultado(grupo, e2, e3, 0, 0, estadio, id++);
+                foreach (var partido in grupo.ListaPartidos)
+                    grupo.ActualizarPosiciones(partido);
+                _grupoRepositorio.Agregar(grupo);
+            }
+        }
+
+        private void PrepararFixtureGenerado()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            for (int i = 1; i <= 4; i++)
+            {
+                var estadio = new Estadio { Nombre = $"Estadio {i}", Ciudad = "Montevideo", Capacidad = 25000 };
+                _torneoServicio.AgregarEstadio(estadio);
+            }
+            IniciarSesionComoEditor();
+            var fixture = new Fixture { SemillaFixture = 42 };
+            _torneoServicio.GenerarFixture(fixture);
+        }
+
+        // ==================== EQUIPO (faltantes) ====================
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_ConCupoUEFACompleto_LanzaExcepcion()
+        {
+            for (int i = 1; i <= 16; i++)
+            {
+                var e = new Equipo { Nombre = $"UEFA_{i}", Confederacion = Confederacion.UEFA, RankingFifa = 1500 };
+                _torneoServicio.AgregarEquipo(e);
+            }
+            _torneoServicio.AgregarEquipo(new Equipo { Nombre = "UEFA_17", Confederacion = Confederacion.UEFA, RankingFifa = 1500 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_ConCupoCONCACAFCompleto_LanzaExcepcion()
+        {
+            for (int i = 1; i <= 7; i++)
+            {
+                var e = new Equipo { Nombre = $"CONCACAF_{i}", Confederacion = Confederacion.CONCACAF, RankingFifa = 1500 };
+                _torneoServicio.AgregarEquipo(e);
+            }
+            _torneoServicio.AgregarEquipo(new Equipo { Nombre = "CONCACAF_8", Confederacion = Confederacion.CONCACAF, RankingFifa = 1500 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_ConCupoCAFCompleto_LanzaExcepcion()
+        {
+            for (int i = 1; i <= 9; i++)
+            {
+                var e = new Equipo { Nombre = $"CAF_{i}", Confederacion = Confederacion.CAF, RankingFifa = 1500 };
+                _torneoServicio.AgregarEquipo(e);
+            }
+            _torneoServicio.AgregarEquipo(new Equipo { Nombre = "CAF_10", Confederacion = Confederacion.CAF, RankingFifa = 1500 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_ConCupoAFCCompleto_LanzaExcepcion()
+        {
+            for (int i = 1; i <= 8; i++)
+            {
+                var e = new Equipo { Nombre = $"AFC_{i}", Confederacion = Confederacion.AFC, RankingFifa = 1500 };
+                _torneoServicio.AgregarEquipo(e);
+            }
+            _torneoServicio.AgregarEquipo(new Equipo { Nombre = "AFC_9", Confederacion = Confederacion.AFC, RankingFifa = 1500 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEquipo_ConCupoOFCCompleto_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(new Equipo { Nombre = "OFC_1", Confederacion = Confederacion.OFC, RankingFifa = 1500 });
+            _torneoServicio.AgregarEquipo(new Equipo { Nombre = "OFC_2", Confederacion = Confederacion.OFC, RankingFifa = 1500 });
+        }
+
+        [TestMethod]
+        public void EditarEquipo_ConMismoNombre_NoLanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+
+            var editado = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1800 };
+            _torneoServicio.EditarEquipo(editado, "Uruguay");
+
+            Assert.AreEqual(1800, _torneoServicio.ObtenerPorNombre("Uruguay").RankingFifa);
+        }
+
+        [TestMethod]
+        public void ObtenerTodos_SinEquipos_RetornaListaVacia()
+        {
+            var resultado = _torneoServicio.ObtenerTodos();
+            Assert.AreEqual(0, resultado.Count);
+        }
+
+        [TestMethod]
+        public void AgregarEquipo_RegistraLogDeAuditoria()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Count > 0);
+        }
+
+        [TestMethod]
+        public void EditarEquipo_RegistraLogDeAuditoria()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            var editado = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1800 };
+            _torneoServicio.EditarEquipo(editado, "Uruguay");
+            Assert.AreEqual(2, _auditoriaServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void EliminarEquipo_RegistraLogDeAuditoria()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            _torneoServicio.EliminarEquipo("Uruguay");
+            Assert.AreEqual(2, _auditoriaServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_ConAlgunosEquipos_CompletaHasta48()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            Assert.AreEqual(48, _torneoServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_Con48Equipos_NoAgregaNinguno()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            Assert.AreEqual(48, _torneoServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_RespetaCuposPorConfederacion()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            var equipos = _torneoServicio.ObtenerTodos();
+            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.UEFA) <= 16);
+            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.CONMEBOL) <= 7);
+            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.CONCACAF) <= 7);
+            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.CAF) <= 9);
+            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.AFC) <= 8);
+            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.OFC) <= 1);
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_GeneraNombresDeterministicos()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            var equipos = _torneoServicio.ObtenerTodos();
+            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("AFC_")));
+            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("CAF_")));
+            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("UEFA_")));
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_ConMismaSemilla_ProduceMismoRankingFifa()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            var rankings1 = _torneoServicio.ObtenerTodos().Select(e => e.RankingFifa).ToList();
+
+            var repo2 = new EquipoRepositorio();
+            var sesion2 = new SesionServicio();
+            var torneo2 = new TorneoServicio(repo2, new EstadioRepositorio(), new PartidoRepositorio(),
+                new GrupoRepositorio(), new FixtureRepositorio(),
+                new AuditoriaServicio(new AuditoriaRepositorio()), sesion2);
+            var admin2 = new Usuario { Nombre = "A", Apellido = "B", Email = "a@b.com",
+                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
+            admin2.Roles.Add(Rol.Administrador);
+            sesion2.IniciarSesion(admin2);
+            torneo2.CompletarEquiposAutomaticamente(42);
+            var rankings2 = torneo2.ObtenerTodos().Select(e => e.RankingFifa).ToList();
+
+            CollectionAssert.AreEqual(rankings1, rankings2);
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_RegistraLogDeAuditoria()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Count > 0);
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_RegistraLogConDetallePorConfederacion()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            var log = _auditoriaServicio.ObtenerTodos().First();
+            Assert.IsTrue(log.Accion.Contains("UEFA"));
+            Assert.IsTrue(log.Accion.Contains("CONMEBOL"));
+            Assert.IsTrue(log.Accion.Contains("42"));
+        }
+
+        [TestMethod]
+        public void CompletarEquiposAutomaticamente_NombreGenerado_DebeEmpezarDesdeUnosPorConfederacion()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            var equipos = _torneoServicio.ObtenerTodos();
+            Assert.IsTrue(equipos.Any(e => e.Nombre == "UEFA_01"));
+            Assert.IsTrue(equipos.Any(e => e.Nombre == "CAF_01"));
+            Assert.IsTrue(equipos.Any(e => e.Nombre == "AFC_01"));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void CompletarEquiposAutomaticamente_SinRolAdministrador_LanzaExcepcion()
+        {
+            IniciarSesionComoEditor();
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void EditarEquipo_CambiandoConfederacionACupoLleno_LanzaExcepcion()
+        {
+            for (int i = 1; i <= 7; i++)
+                _torneoServicio.AgregarEquipo(new Equipo { Nombre = $"CONMEBOL_{i}", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 });
+            _torneoServicio.AgregarEquipo(new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 });
+
+            var editado = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1800 };
+            _torneoServicio.EditarEquipo(editado, "Alemania");
+        }
+
+        [TestMethod]
+        public void EditarEquipo_ConObjetoNuevoMismoNombre_NoLanzaExcepcion()
+        {
+            _torneoServicio.AgregarEquipo(CrearEquipoValido());
+            var editado = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1800 };
+            _torneoServicio.EditarEquipo(editado, "Uruguay");
+            Assert.AreEqual(1800, _torneoServicio.ObtenerPorNombre("Uruguay").RankingFifa);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void EditarEquipo_CambiandoNombreYConfederacionACupoLleno_LanzaExcepcion()
+        {
+            for (int i = 1; i <= 7; i++)
+                _torneoServicio.AgregarEquipo(new Equipo { Nombre = $"CONMEBOL_{i}", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 });
+            _torneoServicio.AgregarEquipo(new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 });
+
+            var editado = new Equipo { Nombre = "Brasil2", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1800 };
+            _torneoServicio.EditarEquipo(editado, "Alemania");
+        }
+
+        // ==================== ESTADIO (faltantes) ====================
+
+        [TestMethod]
+        public void ObtenerEstadio_ConNombreExistente_RetornaCorrectamente()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            var resultado = _torneoServicio.ObtenerEstadio("Centenario");
+            Assert.AreEqual("Centenario", resultado.Nombre);
+        }
+
+        [TestMethod]
+        public void ObtenerTodosEstadios_ConVariosEstadios_RetornaTodos()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            _torneoServicio.AgregarEstadio(new Estadio { Nombre = "Maracaná", Ciudad = "Rio", Capacidad = 78000 });
+            Assert.AreEqual(2, _torneoServicio.ObtenerTodosEstadios().Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ModificarEstadio_ConNombreDuplicadoDeOtroEstadio_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            _torneoServicio.AgregarEstadio(new Estadio { Nombre = "Maracaná", Ciudad = "Rio", Capacidad = 78000 });
+            var editado = new Estadio { Nombre = "Centenario", Ciudad = "Rio", Capacidad = 78000 };
+            _torneoServicio.ModificarEstadio(editado, "Maracaná");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void ModificarEstadio_EstadioInexistente_LanzaExcepcion()
+        {
+            var estadio = new Estadio { Nombre = "NoExiste", Ciudad = "Ciudad", Capacidad = 30000 };
+            _torneoServicio.ModificarEstadio(estadio, "NoExiste");
+        }
+
+        [TestMethod]
+        public void AgregarEstadio_RegistraLogDeAuditoria()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            Assert.AreEqual(1, _auditoriaServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void ModificarEstadio_RegistraLogDeAuditoria()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            var editado = new Estadio { Nombre = "Centenario", Ciudad = "Montevideo", Capacidad = 65000 };
+            _torneoServicio.ModificarEstadio(editado, "Centenario");
+            Assert.AreEqual(2, _auditoriaServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void EliminarEstadio_RegistraLogDeAuditoria()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            _torneoServicio.EliminarEstadio("Centenario");
+            Assert.AreEqual(2, _auditoriaServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ModificarEstadio_SinRolAdministrador_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            IniciarSesionComoEditor();
+            var editado = new Estadio { Nombre = "Centenario", Ciudad = "Montevideo", Capacidad = 65000 };
+            _torneoServicio.ModificarEstadio(editado, "Centenario");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void EliminarEstadio_SinRolAdministrador_LanzaExcepcion()
+        {
+            _torneoServicio.AgregarEstadio(CrearEstadioValido());
+            IniciarSesionComoEditor();
+            _torneoServicio.EliminarEstadio("Centenario");
+        }
+
+        // ==================== IMPORTACION (faltantes) ====================
+
+        [TestMethod]
+        public void ImportarEquipos_ConRankingFueraDeRango_RegistraError()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,9999";
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+            Assert.AreEqual(0, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_ConFilaInvalidaEntreValidas_ImportaLasValidas()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMalo,INVALIDA,1500\nArgentina,CONMEBOL,2000";
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+            Assert.AreEqual(2, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_ConSoloEncabezado_RetornaCeroImportados()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa";
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+            Assert.AreEqual(0, resultado.EquiposImportados);
+            Assert.AreEqual(0, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_RegistraAuditoria()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500";
+            _torneoServicio.ImportarEquipos(csv);
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.AreEqual(1, logs.Count);
+            Assert.IsTrue(logs[0].Accion.Contains("Importación"));
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_ConErrores_RegistraAuditoriaConErrores()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMalo,INVALIDA,1500";
+            _torneoServicio.ImportarEquipos(csv);
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.AreEqual(1, logs.Count);
+            Assert.IsTrue(logs[0].Accion.Contains("1 errores"));
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_ConRankingFueraDeRangoInferior_RegistraError()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,100";
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+            Assert.AreEqual(0, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
+
+        [TestMethod]
+        public void ImportarEquipos_ExcediendoCupoConfederacion_RegistraError()
+        {
+            IniciarSesionComoEditor();
+            var csv = "Nombre,Confederacion,RankingFifa\nOFC_A,OFC,1500\nOFC_B,OFC,1600";
+            var resultado = _torneoServicio.ImportarEquipos(csv);
+            Assert.AreEqual(1, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
+
+        // ==================== FIXTURE (faltantes) ====================
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarFixture_Sin4Estadios_LanzaExcepcion()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            IniciarSesionComoEditor();
+            var fixture = new Fixture { SemillaFixture = 42 };
+            _torneoServicio.GenerarFixture(fixture);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarFixture_YaGenerado_LanzaExcepcion()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            for (int i = 1; i <= 4; i++)
+                _torneoServicio.AgregarEstadio(new Estadio { Nombre = $"Estadio {i}", Ciudad = "Ciudad", Capacidad = 25000 });
+            IniciarSesionComoEditor();
+            var fixture = new Fixture { SemillaFixture = 42, EstaGenerado = true };
+            _torneoServicio.GenerarFixture(fixture);
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_Crea12Grupos()
+        {
+            PrepararFixtureGenerado();
+            Assert.AreEqual(12, _grupoRepositorio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_CadaGrupoTiene4Equipos()
+        {
+            PrepararFixtureGenerado();
+            foreach (var grupo in _grupoRepositorio.ObtenerTodos())
+                Assert.AreEqual(4, grupo.ListaPosiciones.Count);
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_NoRepiteConfederacionExceptoUefa()
+        {
+            PrepararFixtureGenerado();
+            foreach (var grupo in _grupoRepositorio.ObtenerTodos())
+            {
+                var equipos = grupo.ListaPosiciones.Select(p => p.Equipo).ToList();
+                Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.UEFA) <= 2,
+                    $"Grupo {grupo.Etiqueta} tiene más de 2 equipos UEFA");
+                var noUefa = equipos.Where(e => e.Confederacion != Confederacion.UEFA);
+                Assert.IsFalse(noUefa.GroupBy(e => e.Confederacion).Any(g => g.Count() > 1),
+                    $"Grupo {grupo.Etiqueta} repite confederación no-UEFA");
+            }
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_Crea72Partidos()
+        {
+            PrepararFixtureGenerado();
+            Assert.AreEqual(72, _partidoRepositorio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_AsignaHorasValidas()
+        {
+            PrepararFixtureGenerado();
+            var horasValidas = new[] { 14, 18, 22 };
+            foreach (var partido in _partidoRepositorio.ObtenerTodos())
+                Assert.IsTrue(horasValidas.Contains(partido.Fecha.Hour),
+                    $"Hora {partido.Fecha.Hour} no válida");
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_AsignaEstadiosPorRotacion()
+        {
+            PrepararFixtureGenerado();
+            var estadiosOrdenados = _estadioRepositorio.ObtenerTodos().OrderBy(e => e.Nombre).ToList();
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            for (int i = 0; i < partidos.Count; i++)
+                Assert.AreEqual(estadiosOrdenados[i % estadiosOrdenados.Count].Nombre, partidos[i].Estadio.Nombre);
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_RegistraAuditoria()
+        {
+            PrepararFixtureGenerado();
+            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Count > 0);
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConEmpatesDeRanking_MismaSemillaGeneraMismoOrden()
+        {
+            CargarEquipos48ConEmpatesEnRepositorio();
+            CargarEstadiosEnRepositorio(4);
+            IniciarSesionComoEditor();
+            var fixture1 = new Fixture { SemillaFixture = 42 };
+            _torneoServicio.GenerarFixture(fixture1);
+            var primerEquipo1 = _grupoRepositorio.ObtenerTodos()[0].ListaPosiciones[0].Equipo.Nombre;
+
+            var eqRepo2 = new EquipoRepositorio();
+            var estRepo2 = new EstadioRepositorio();
+            var partRepo2 = new PartidoRepositorio();
+            var grpRepo2 = new GrupoRepositorio();
+            var fixRepo2 = new FixtureRepositorio();
+            var sesion2 = new SesionServicio();
+            var torneo2 = new TorneoServicio(eqRepo2, estRepo2, partRepo2, grpRepo2, fixRepo2,
+                new AuditoriaServicio(new AuditoriaRepositorio()), sesion2);
+            Confederacion[] confs2 = {
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
+                Confederacion.OFC
+            };
+            int[] rankings2 = {
+                2500, 2450, 2400, 2350, 2300, 2300, 2250, 2200,
+                2150, 2100, 2050, 2000, 1950, 1900, 1850, 1800,
+                1750, 1750, 1700, 1650, 1600, 1550, 1500,
+                1450, 1400, 1350, 1300, 1300, 1250, 1200,
+                1150, 1100, 1050, 1000, 950, 900, 850, 800, 750,
+                700, 650, 600, 600, 550, 500, 450, 400, 350
+            };
+            for (int i = 0; i < 48; i++)
+            {
+                var e = new Equipo { Nombre = $"Equipo_{i + 1}", Confederacion = confs2[i], RankingFifa = rankings2[i] };
+                eqRepo2.Agregar(e);
+            }
+            for (int i = 1; i <= 4; i++)
+                estRepo2.Agregar(new Estadio { Nombre = $"Estadio_{i}", Ciudad = $"Ciudad_{i}", Capacidad = 40000 });
+            var editor2 = new Usuario { Nombre = "E", Apellido = "T", Email = "e@t.com",
+                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
+            editor2.Roles.Add(Rol.Editor);
+            sesion2.IniciarSesion(editor2);
+            var fixture2 = new Fixture { SemillaFixture = 42 };
+            torneo2.GenerarFixture(fixture2);
+            var primerEquipo2 = grpRepo2.ObtenerTodos()[0].ListaPosiciones[0].Equipo.Nombre;
+
+            Assert.AreEqual(primerEquipo1, primerEquipo2);
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_MaximoTresPartidosPorDia()
+        {
+            PrepararFixtureGenerado();
+            var porDia = _partidoRepositorio.ObtenerTodos().GroupBy(p => p.Fecha.Date);
+            foreach (var dia in porDia)
+                Assert.IsTrue(dia.Count() <= 3, $"El día {dia.Key:dd/MM} tiene {dia.Count()} partidos");
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConEstadiosConTildesYMayusculas_OrdenaPorNombreNormalizado()
+        {
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+            var nombres = new[] { "Tróccoli", "  CENTENARIO", "campeón del siglo", "Parque Viera" };
+            foreach (var nombre in nombres)
+                _torneoServicio.AgregarEstadio(new Estadio { Nombre = nombre, Ciudad = "Montevideo", Capacidad = 40000 });
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarFixture(new Fixture { SemillaFixture = 42 });
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            Assert.AreEqual("campeón del siglo", partidos[0].Estadio.Nombre);
+            Assert.AreEqual("  CENTENARIO",      partidos[1].Estadio.Nombre);
+            Assert.AreEqual("Parque Viera",       partidos[2].Estadio.Nombre);
+            Assert.AreEqual("Tróccoli",           partidos[3].Estadio.Nombre);
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConOrdenQueRompeRoundRobin_NoRepiteConfederacionNoUefa()
+        {
+            CargarEquiposParaForzarConflictoConfederacion();
+            CargarEstadiosEnRepositorio(4);
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarFixture(new Fixture { SemillaFixture = 42 });
+            foreach (var grupo in _grupoRepositorio.ObtenerTodos())
+            {
+                var noUefa = grupo.ListaPosiciones.Select(p => p.Equipo)
+                    .Where(e => e.Confederacion != Confederacion.UEFA).ToList();
+                Assert.IsFalse(noUefa.GroupBy(e => e.Confederacion).Any(g => g.Count() > 1),
+                    $"Grupo {grupo.Etiqueta} repite confederación no-UEFA");
+            }
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_AsignaCodigosConPrefijoGrupo()
+        {
+            PrepararFixtureGenerado();
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            foreach (var grupo in _grupoRepositorio.ObtenerTodos())
+            {
+                var del = partidos.Where(p => p.Grupo.Etiqueta == grupo.Etiqueta).ToList();
+                Assert.AreEqual(6, del.Count);
+                for (int i = 0; i < del.Count; i++)
+                    Assert.AreEqual($"G{grupo.Etiqueta}-{i + 1}", del[i].Codigo);
+            }
+        }
+
+        [TestMethod]
+        public void GenerarFixture_ConDatosValidos_CadaEquipoDescansaAlMenos3Dias()
+        {
+            PrepararFixtureGenerado();
+            var partidos = _partidoRepositorio.ObtenerTodos();
+            foreach (var equipo in _equipoRepositorio.ObtenerTodos())
+            {
+                var del = partidos
+                    .Where(p => p.EquipoLocal.Nombre == equipo.Nombre || p.EquipoVisitante.Nombre == equipo.Nombre)
+                    .OrderBy(p => p.Fecha).ToList();
+                for (int i = 0; i < del.Count - 1; i++)
+                {
+                    var dias = (del[i + 1].Fecha.Date - del[i].Fecha.Date).Days;
+                    Assert.IsTrue(dias >= 3,
+                        $"{equipo.Nombre}: solo {dias} días entre partidos {del[i].Fecha:dd/MM} y {del[i+1].Fecha:dd/MM}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void GenerarFixture_RegistraAuditoriaIncluyendoSemilla()
+        {
+            PrepararFixtureGenerado();
+            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Any(l => l.Accion.Contains("42")));
+        }
+
+        // ==================== CRUCES (faltantes) ====================
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarCruces_CrucesYaGenerados_LanzaExcepcion()
+        {
+            var fixture = new Fixture { EstaGenerado = true, CrucesGenerados = true };
+            _fixtureRepositorio.Guardar(fixture);
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_Crea16PartidosDeDieciseisavos()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var dieciseisavos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos).ToList();
+            Assert.AreEqual(16, dieciseisavos.Count);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_MismaSemilla_GeneraMismoOrden()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var orden1 = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                .OrderBy(p => p.Codigo)
+                .Select(p => p.EquipoLocal.Nombre + "-" + p.EquipoVisitante.Nombre)
+                .ToList();
+
+            var grpRepo2 = new GrupoRepositorio();
+            var partRepo2 = new PartidoRepositorio();
+            var estRepo2 = new EstadioRepositorio();
+            var fixRepo2 = new FixtureRepositorio();
+            var sesion2 = new SesionServicio();
+            var torneo2 = new TorneoServicio(new EquipoRepositorio(), estRepo2, partRepo2, grpRepo2, fixRepo2,
+                new AuditoriaServicio(new AuditoriaRepositorio()), sesion2);
+            var fixture2 = new Fixture { EstaGenerado = true };
+            fixRepo2.Guardar(fixture2);
+            var etiquetas = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+            int idP = 1;
+            foreach (var etiqueta in etiquetas)
+            {
+                var grupo = new Grupo { Etiqueta = etiqueta };
+                var estadio = new Estadio { Nombre = "Estadio " + etiqueta, Ciudad = "Ciudad", Capacidad = 60000 };
+                var e1 = new Equipo { Nombre = etiqueta + "_1", Confederacion = Confederacion.UEFA, RankingFifa = 2000 };
+                var e2 = new Equipo { Nombre = etiqueta + "_2", Confederacion = Confederacion.UEFA, RankingFifa = 1900 };
+                var e3 = new Equipo { Nombre = etiqueta + "_3", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+                var e4 = new Equipo { Nombre = etiqueta + "_4", Confederacion = Confederacion.UEFA, RankingFifa = 1700 };
+                foreach (var e in new[] { e1, e2, e3, e4 })
+                    grupo.ListaPosiciones.Add(new PosicionesGrupo { Equipo = e, Grupo = grupo });
+                foreach (var (loc, vis, gl, gv) in new[] {
+                    (e1, e2, 3, 0), (e3, e4, 2, 1), (e1, e3, 1, 0),
+                    (e2, e4, 2, 0), (e1, e4, 1, 0), (e2, e3, 1, 1) })
+                {
+                    var p = new Partido(idP);
+                    p.Codigo = $"G{idP}"; p.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
+                    p.Fase = FaseTorneo.FaseGrupos;
+                    p.EquipoLocal = loc; p.EquipoVisitante = vis;
+                    p.Estadio = estadio; p.Grupo = grupo;
+                    p.GolesLocal = gl; p.GolesVisitante = gv;
+                    p.Vencedor = gl > gv ? loc : gv > gl ? vis : null;
+                    p.TieneResultado = true;
+                    grupo.ListaPartidos.Add(p);
+                    partRepo2.Agregar(p);
+                    if (estRepo2.ObtenerPorNombre(estadio.Nombre) == null) estRepo2.Agregar(estadio);
+                    idP++;
+                }
+                foreach (var partido in grupo.ListaPartidos)
+                    grupo.ActualizarPosiciones(partido);
+                grpRepo2.Agregar(grupo);
+            }
+            var editor2 = new Usuario { Nombre = "E", Apellido = "T", Email = "e@t.com",
+                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
+            editor2.Roles.Add(Rol.Editor);
+            sesion2.IniciarSesion(editor2);
+            torneo2.GenerarCruces(42);
+            var orden2 = partRepo2.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                .OrderBy(p => p.Codigo)
+                .Select(p => p.EquipoLocal.Nombre + "-" + p.EquipoVisitante.Nombre)
+                .ToList();
+
+            Assert.AreEqual(orden1.Count, orden2.Count);
+            for (int i = 0; i < orden1.Count; i++)
+                Assert.AreEqual(orden1[i], orden2[i]);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_NingunaPareja_DelMismoGrupo()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var dieciseisavos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos).ToList();
+            foreach (var partido in dieciseisavos)
+                Assert.AreNotEqual(partido.EquipoLocal.Nombre.Split('_')[0],
+                    partido.EquipoVisitante.Nombre.Split('_')[0]);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_AsignaCodigosCorrectos()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var partidos = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.Dieciseisavos).ToList();
+            Assert.IsTrue(partidos.Any(p => p.Codigo == "A1"));
+            Assert.IsTrue(partidos.Any(p => p.Codigo == "A8"));
+            Assert.IsTrue(partidos.Any(p => p.Codigo == "B1"));
+            Assert.IsTrue(partidos.Any(p => p.Codigo == "B8"));
+        }
+
+        [TestMethod]
+        public void GenerarCruces_BloquearPartidosDeFaseGrupos()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var grupos = _grupoRepositorio.ObtenerTodos();
+            Assert.IsTrue(grupos.SelectMany(g => g.ListaPartidos).All(p => p.EstaBloqueado));
+        }
+
+        [TestMethod]
+        public void GenerarCruces_RegistraAuditoria()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.AreEqual(1, logs.Count);
+            Assert.IsTrue(logs[0].Accion.Contains("cruces"));
+        }
+
+        [TestMethod]
+        public void GenerarCruces_MarcaCrucesComoGenerados()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            Assert.IsTrue(_fixtureRepositorio.Obtener().CrucesGenerados);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_TercerPuesto_UsaPerdedoresDeSemifinales()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var tp = _partidoRepositorio.ObtenerTodos().First(p => p.Codigo == "TP");
+            Assert.IsTrue(tp.EsPorPerdedor);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_BloquearTodosLosPartidosDeFaseGruposEnRepositorio()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var fase = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase == FaseTorneo.FaseGrupos).ToList();
+            Assert.IsTrue(fase.All(p => p.EstaBloqueado));
+        }
+
+        [TestMethod]
+        public void GenerarCruces_AplicaSemillaEnAuditoria()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposEmpateTotal();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Any(l => l.Accion.Contains("SemillaCrucesFase: 42")));
+        }
+
+        [TestMethod]
+        public void GenerarCruces_AsignaIdsQueNoChocanConPartidosExistentes()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var ids = _partidoRepositorio.ObtenerTodos().Select(p => p.Id).ToList();
+            Assert.AreEqual(ids.Count, ids.Distinct().Count());
+        }
+
+        [TestMethod]
+        public void GenerarCruces_RotaEstadiosPorNombreNormalizado()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            _estadioRepositorio.Agregar(new Estadio { Nombre = "Maracaná",   Ciudad = "Rio",    Capacidad = 60000 });
+            _estadioRepositorio.Agregar(new Estadio { Nombre = "Centenario", Ciudad = "MVD",    Capacidad = 60000 });
+            _estadioRepositorio.Agregar(new Estadio { Nombre = "Azteca",     Ciudad = "México", Capacidad = 60000 });
+            _estadioRepositorio.Agregar(new Estadio { Nombre = "Wembley",    Ciudad = "Londres",Capacidad = 60000 });
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var eliminatorios = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase != FaseTorneo.FaseGrupos).ToList();
+            Assert.IsTrue(eliminatorios.Select(p => p.Estadio.Nombre).Distinct().Count() > 1);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_AsignaFechasDistintasParaFasesEliminatorias()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepositorio.Guardar(fixture);
+            CargarDoceGruposCompletos();
+            IniciarSesionComoEditor();
+            _torneoServicio.GenerarCruces(42);
+            var eliminatorios = _partidoRepositorio.ObtenerTodos()
+                .Where(p => p.Fase != FaseTorneo.FaseGrupos).ToList();
+            Assert.IsTrue(eliminatorios.Select(p => p.Fecha.Date).Distinct().Count() > 1);
+        }
+
+        // ==================== PARTIDO via EditarPartido (faltantes) ====================
+
+        [TestMethod]
+        public void ObtenerPartido_ConIdInexistente_RetornaNull()
+        {
+            Assert.IsNull(_torneoServicio.ObtenerPartido(999));
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorEstadio_PartidoSinEstadio_NoLanzaExcepcion()
+        {
+            var partido = new Partido(1);
+            _partidoRepositorio.Agregar(partido);
+            var resultado = _torneoServicio.ObtenerPartidosPorEstadio("Centenario");
+            Assert.AreEqual(0, resultado.Count);
+        }
+
+        [TestMethod]
+        public void ObtenerPartidosPorGrupo_PartidoSinGrupo_NoLanzaExcepcion()
+        {
+            var partido = new Partido(1);
+            _partidoRepositorio.Agregar(partido);
+            var resultado = _torneoServicio.ObtenerPartidosPorGrupo("A");
+            Assert.AreEqual(0, resultado.Count);
+        }
+
+        [TestMethod]
+        public void EditarPartido_RegistraLogDeAuditoria()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            IniciarSesionComoEditor();
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", false, 0, 0);
+            Assert.AreEqual(1, _auditoriaServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void EditarPartido_ConResultado_PropagaVencedorAlSiguientePartido()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            var siguiente = new Partido(2);
+            siguiente.OrigenLocal = partido;
+            _partidoRepositorio.Agregar(siguiente);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 3, 0);
+
+            Assert.IsNotNull(siguiente.EquipoLocal);
+        }
+
+        [TestMethod]
+        public void EditarPartido_ConEmpate_MarcaTieneResultado()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            _estadioRepositorio.Agregar(partido.Estadio);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 0, 0);
+
+            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
+            Assert.IsTrue(resultado.TieneResultado);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void EditarPartido_PartidoNoEncontrado_LanzaExcepcion()
+        {
+            _estadioRepositorio.Agregar(CrearEstadioValido());
+            IniciarSesionComoEditor();
+            _torneoServicio.EditarPartido(999, DateTime.Now, "Centenario", false, 0, 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void EditarPartido_EstadioNoEncontrado_LanzaExcepcion()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "EstadioInexistente", false, 0, 0);
+        }
+
+        // ==================== SIMULACION (faltantes) ====================
+
+        [TestMethod]
+        public void SimularPartido_EquipoConRankingMaximo_TieneMasGolesQueRankingMinimo()
+        {
+            var fuerte = CrearPartidoParaSimular(2500, 300, 1);
+            var debil  = CrearPartidoParaSimular(300, 2500, 2);
+            _partidoRepositorio.Agregar(fuerte);
+            _partidoRepositorio.Agregar(debil);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(fuerte.Id, 42);
+            _torneoServicio.SimularPartido(debil.Id, 42);
+
+            Assert.IsTrue(fuerte.GolesLocal >= debil.GolesLocal);
+        }
+
+        [TestMethod]
+        public void SimularPartido_ConMismaSemillaYDistintoId_ProduceResultadosDiferentes()
+        {
+            var p1 = CrearPartidoParaSimular(1500, 1500, 1);
+            var p2 = CrearPartidoParaSimular(1500, 1500, 2);
+            _partidoRepositorio.Agregar(p1);
+            _partidoRepositorio.Agregar(p2);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(1, 42);
+            _torneoServicio.SimularPartido(2, 42);
+
+            Assert.IsFalse(p1.GolesLocal == p2.GolesLocal && p1.GolesVisitante == p2.GolesVisitante);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void SimularPartido_PartidoInexistente_LanzaExcepcion()
+        {
+            IniciarSesionComoEditor();
+            _torneoServicio.SimularPartido(999, 42);
+        }
+
+        [TestMethod]
+        public void SimularPartido_GolesResultantes_NoSonNegativos()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(partido.GolesLocal >= 0);
+            Assert.IsTrue(partido.GolesVisitante >= 0);
+        }
+
+        [TestMethod]
+        public void SimularPartido_AsignaVencedorSegunGoles()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            if (partido.GolesLocal > partido.GolesVisitante)
+                Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
+            else if (partido.GolesVisitante > partido.GolesLocal)
+                Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+            else
+                Assert.IsNull(partido.Vencedor);
+        }
+
+        [TestMethod]
+        public void SimularFase_SinPartidosEnFase_NoLanzaExcepcion()
+        {
+            IniciarSesionComoEditor();
+            _torneoServicio.SimularFase(FaseTorneo.Final, 42);
+        }
+
+        [TestMethod]
+        public void SimularPartido_RegistraLogDeAuditoria()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1200, 1);
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.AreEqual(1, _auditoriaServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void SimularFase_ConPartidos_RegistraLogDeAuditoria()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1200, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.AreEqual(1, _auditoriaServicio.ObtenerTodos().Count);
+        }
+
+        [TestMethod]
+        public void SimularFase_ConVariosPartidos_TieneResultadosDiferentes()
+        {
+            var p1 = CrearPartidoParaSimular(1500, 1500, 1); p1.Fase = FaseTorneo.FaseGrupos;
+            var p2 = CrearPartidoParaSimular(1500, 1500, 2); p2.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(p1);
+            _partidoRepositorio.Agregar(p2);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.IsFalse(p1.GolesLocal == p2.GolesLocal && p1.GolesVisitante == p2.GolesVisitante);
+        }
+
+        [TestMethod]
+        public void SimularPartido_RegistraSemillaEnAuditoria()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1200, 1);
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Any(l => l.Accion.Contains("42")));
+        }
+
+        [TestMethod]
+        public void SimularFase_RegistraSemillaEnAuditoria()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1200, 1); partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.IsTrue(_auditoriaServicio.ObtenerTodos()
+                .Any(l => l.Accion.Contains("FaseGrupos") && l.Accion.Contains("42")));
+        }
+
+        [TestMethod]
+        public void SimularPartido_EnFaseEliminatoria_ConEmpate_AsignaVencedor()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            partido.Fase = FaseTorneo.Octavos;
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 0);
+
+            Assert.IsNotNull(partido.Vencedor);
+        }
+
+        [TestMethod]
+        public void SimularPartido_EnFaseGrupos_ConEmpate_NoAsignaVencedor()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 0);
+
+            Assert.IsNull(partido.Vencedor);
+        }
+
+        [TestMethod]
+        public void SimularFase_RegistraSoloUnLogDeFase()
+        {
+            var p1 = CrearPartidoParaSimular(1500, 1200, 1); p1.Fase = FaseTorneo.FaseGrupos;
+            var p2 = CrearPartidoParaSimular(1800, 1400, 2); p2.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepositorio.Agregar(p1);
+            _partidoRepositorio.Agregar(p2);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            var logs = _auditoriaServicio.ObtenerTodos();
+            Assert.AreEqual(1, logs.Count);
+            Assert.IsTrue(logs[0].Accion.Contains("FaseGrupos"));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void SimularFase_SinRolEditor_LanzaExcepcion()
+        {
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+        }
+
+        [TestMethod]
+        public void SimularPartido_ActualizaPosicionesDelGrupo()
+        {
+            var grupo = new Grupo { Id = 1, Etiqueta = "A" };
+            var partido = CrearPartidoParaSimular(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+            var posLocal = new PosicionesGrupo { Equipo = partido.EquipoLocal, Grupo = grupo };
+            var posVisitante = new PosicionesGrupo { Equipo = partido.EquipoVisitante, Grupo = grupo };
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+            grupo.ListaPartidos.Add(partido);
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(posLocal.GolesFavor > 0 || posVisitante.GolesFavor > 0);
+        }
+
+        [TestMethod]
+        public void SimularPartido_ActualizaGolesYPuntosDeAmbosEquipos()
+        {
+            var grupo = new Grupo { Id = 1, Etiqueta = "A" };
+            var partido = CrearPartidoParaSimular(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+            var posLocal = new PosicionesGrupo { Equipo = partido.EquipoLocal, Grupo = grupo };
+            var posVisitante = new PosicionesGrupo { Equipo = partido.EquipoVisitante, Grupo = grupo };
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+            grupo.ListaPartidos.Add(partido);
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.AreEqual(partido.GolesLocal,    posLocal.GolesFavor);
+            Assert.AreEqual(partido.GolesVisitante, posLocal.GolesContra);
+            Assert.AreEqual(partido.GolesVisitante, posVisitante.GolesFavor);
+            Assert.AreEqual(partido.GolesLocal,    posVisitante.GolesContra);
+        }
+
+        [TestMethod]
+        public void SimularPartido_ActualizaPuntosSegunResultado()
+        {
+            var grupo = new Grupo { Id = 1, Etiqueta = "A" };
+            var partido = CrearPartidoParaSimular(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+            var posLocal = new PosicionesGrupo { Equipo = partido.EquipoLocal, Grupo = grupo };
+            var posVisitante = new PosicionesGrupo { Equipo = partido.EquipoVisitante, Grupo = grupo };
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+            grupo.ListaPartidos.Add(partido);
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            if (partido.GolesLocal > partido.GolesVisitante)
+            { Assert.AreEqual(3, posLocal.Puntos); Assert.AreEqual(0, posVisitante.Puntos); }
+            else if (partido.GolesLocal == partido.GolesVisitante)
+            { Assert.AreEqual(1, posLocal.Puntos); Assert.AreEqual(1, posVisitante.Puntos); }
+            else
+            { Assert.AreEqual(0, posLocal.Puntos); Assert.AreEqual(3, posVisitante.Puntos); }
+        }
+
+        [TestMethod]
+        public void SimularFase_ActualizaPosicionesDelGrupo()
+        {
+            var grupo = new Grupo { Id = 1, Etiqueta = "A" };
+            var partido = CrearPartidoParaSimular(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+            var posLocal = new PosicionesGrupo { Equipo = partido.EquipoLocal, Grupo = grupo };
+            var posVisitante = new PosicionesGrupo { Equipo = partido.EquipoVisitante, Grupo = grupo };
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+            grupo.ListaPartidos.Add(partido);
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.AreEqual(partido.GolesLocal,    posLocal.GolesFavor);
+            Assert.AreEqual(partido.GolesVisitante, posLocal.GolesContra);
+            Assert.AreEqual(partido.GolesVisitante, posVisitante.GolesFavor);
+            Assert.AreEqual(partido.GolesLocal,    posVisitante.GolesContra);
+        }
+
+        [TestMethod]
+        public void SimularPartido_PropagaVencedorAlSiguientePartidoOrigenLocal()
+        {
+            var actual = CrearPartidoParaSimular(2500, 300, 1);
+            actual.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(actual);
+            var siguiente = new Partido(2); siguiente.OrigenLocal = actual;
+            _partidoRepositorio.Agregar(siguiente);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(1, 42);
+
+            Assert.IsNotNull(siguiente.EquipoLocal);
+        }
+
+        [TestMethod]
+        public void SimularPartido_PropagaVencedorAlSiguientePartidoOrigenVisitante()
+        {
+            var actual = CrearPartidoParaSimular(2500, 300, 1);
+            actual.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(actual);
+            var siguiente = new Partido(2); siguiente.OrigenVisitante = actual;
+            _partidoRepositorio.Agregar(siguiente);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(1, 42);
+
+            Assert.IsNotNull(siguiente.EquipoVisitante);
+        }
+
+        [TestMethod]
+        public void SimularPartido_PropagaPerdedorCuandoEsPorPerdedor()
+        {
+            var semifinal = CrearPartidoParaSimular(2500, 300, 1);
+            semifinal.Fase = FaseTorneo.Semifinal;
+            _partidoRepositorio.Agregar(semifinal);
+            var tercerPuesto = new Partido(2);
+            tercerPuesto.OrigenLocal = semifinal;
+            tercerPuesto.EsPorPerdedor = true;
+            _partidoRepositorio.Agregar(tercerPuesto);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(1, 42);
+
+            Assert.IsNotNull(tercerPuesto.EquipoLocal);
+            Assert.AreNotEqual(semifinal.Vencedor, tercerPuesto.EquipoLocal);
+        }
+
+        [TestMethod]
+        public void SimularFase_PropagaVencedorAlSiguientePartido()
+        {
+            var actual = CrearPartidoParaSimular(2500, 300, 1);
+            actual.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(actual);
+            var siguiente = new Partido(2); siguiente.OrigenLocal = actual;
+            _partidoRepositorio.Agregar(siguiente);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
+
+            Assert.IsNotNull(siguiente.EquipoLocal);
+        }
+
+        [TestMethod]
+        public void SimularFase_PartidoYaSimulado_NoduplicaPuntos()
+        {
+            var grupo = new Grupo { Id = 1, Etiqueta = "A" };
+            var partido = CrearPartidoParaSimular(2500, 300, 1);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            partido.Grupo = grupo;
+            var posLocal = new PosicionesGrupo { Equipo = partido.EquipoLocal, Grupo = grupo };
+            var posVisitante = new PosicionesGrupo { Equipo = partido.EquipoVisitante, Grupo = grupo };
+            grupo.ListaPosiciones.Add(posLocal);
+            grupo.ListaPosiciones.Add(posVisitante);
+            _grupoRepositorio.Agregar(grupo);
+            _partidoRepositorio.Agregar(partido);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+            var puntosPrevios = grupo.ListaPosiciones.Sum(p => p.Puntos);
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+            var puntosDespues = grupo.ListaPosiciones.Sum(p => p.Puntos);
+
+            Assert.AreEqual(puntosPrevios, puntosDespues);
+        }
+
+        [TestMethod]
+        public void SimularFase_AlSimularDieciseisavos_BloquearFaseGrupos()
+        {
+            var faseGrupos = CrearPartidoParaSimular(2500, 300, 1);
+            faseGrupos.Fase = FaseTorneo.FaseGrupos;
+            faseGrupos.TieneResultado = true;
+            faseGrupos.EstaBloqueado = false;
+            _partidoRepositorio.Agregar(faseGrupos);
+
+            var dieciseisavos = CrearPartidoParaSimular(2000, 1800, 2);
+            dieciseisavos.Fase = FaseTorneo.Dieciseisavos;
+            _partidoRepositorio.Agregar(dieciseisavos);
+            IniciarSesionComoEditor();
+
+            _torneoServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
+
+            Assert.IsTrue(faseGrupos.EstaBloqueado);
+        }
+    }
+}
