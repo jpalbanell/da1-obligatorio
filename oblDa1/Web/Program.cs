@@ -19,7 +19,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSingleton<IEquipoRepositorio, EquipoRepositorio>();
 builder.Services.AddScoped<IEstadioRepositorio, EstadioRepositorio>();
-builder.Services.AddSingleton<IUsuarioRepositorio, UsuarioRepositorio>();
+builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddSingleton<IPartidoRepositorio, PartidoRepositorio>();
 builder.Services.AddSingleton<IGrupoRepositorio, GrupoRepositorio>();
 builder.Services.AddSingleton<IAuditoriaRepositorio, AuditoriaRepositorio>();

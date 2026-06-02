@@ -6,6 +6,7 @@ namespace Repositorios
     public class SqlContext : DbContext
     {
         public DbSet<Estadio> Estadios { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
         public SqlContext(DbContextOptions<SqlContext> options) : base(options)
         {
