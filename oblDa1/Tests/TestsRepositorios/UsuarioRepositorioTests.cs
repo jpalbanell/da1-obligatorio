@@ -117,5 +117,30 @@ namespace Tests
 
             _repositorio.Actualizar(usuario);
         }
+
+        [TestMethod]
+        public void Agregar_ConRoles_RolesSobrevivenRoundTrip()
+        {
+            var dbName = "roles-round-trip";
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(dbName)
+                .Options;
+
+            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            usuario.Roles.Add(Rol.Administrador);
+            usuario.Roles.Add(Rol.Editor);
+            using (var contextEscritura = new SqlContext(options))
+            {
+                new UsuarioRepositorio(contextEscritura).Agregar(usuario);
+            }
+
+            using (var contextLectura = new SqlContext(options))
+            {
+                var resultado = new UsuarioRepositorio(contextLectura).ObtenerPorId(usuario.Id);
+                Assert.AreEqual(2, resultado.Roles.Count);
+                Assert.IsTrue(resultado.Roles.Contains(Rol.Administrador));
+                Assert.IsTrue(resultado.Roles.Contains(Rol.Editor));
+            }
+        }
     }
 }
