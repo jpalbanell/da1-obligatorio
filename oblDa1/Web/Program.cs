@@ -42,16 +42,18 @@ using (var scope = app.Services.CreateScope())
     var usuarioRepositorio = scope.ServiceProvider.GetRequiredService<IUsuarioRepositorio>();
 
 
-    var admin = new Usuario();
-    admin.Id = 1;
-    admin.Nombre = "Admin";
-    admin.Apellido = "Sistema";
-    admin.Email = "admin@worldcup.com";
-    admin.FechaNacimiento = new DateTime(1990, 1, 1);
-    admin.Contrasena = "Admin@123";
-    admin.Roles.Add(Rol.Administrador);
-    admin.Roles.Add(Rol.Editor);
-    usuarioRepositorio.Agregar(admin);
+    if (usuarioRepositorio.ObtenerTodos().All(u => u.Email != "admin@worldcup.com"))
+    {
+        var admin = new Usuario();
+        admin.Nombre = "Admin";
+        admin.Apellido = "Sistema";
+        admin.Email = "admin@worldcup.com";
+        admin.FechaNacimiento = new DateTime(1990, 1, 1);
+        admin.Contrasena = "Admin@123";
+        admin.Roles.Add(Rol.Administrador);
+        admin.Roles.Add(Rol.Editor);
+        usuarioRepositorio.Agregar(admin);
+    }
 }
 
 if (!app.Environment.IsDevelopment())
