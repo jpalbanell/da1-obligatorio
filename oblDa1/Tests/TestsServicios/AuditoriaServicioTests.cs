@@ -1,9 +1,8 @@
 using Dominio.Entidades;
 using Servicios;
 using IRepositorios;
-using Repositorios;
 using IServicios;
-using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Tests.TestsServicios
 {
@@ -11,23 +10,15 @@ namespace Tests.TestsServicios
     public class AuditoriaServicioTests
     {
         private IAuditoriaServicio _auditoriaServicio;
-        private IAuditoriaRepositorio _auditoriaRepositorio;
+        private Mock<IAuditoriaRepositorio> _repoMock;
 
         [TestInitialize]
         public void Setup()
         {
-            _auditoriaRepositorio = CrearAuditoriaRepositorio();
-            _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+            _repoMock = new Mock<IAuditoriaRepositorio>();
+            _auditoriaServicio = new AuditoriaServicio(_repoMock.Object);
         }
 
-        private AuditoriaRepositorio CrearAuditoriaRepositorio()
-        {
-            var options = new DbContextOptionsBuilder<SqlContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            return new AuditoriaRepositorio(new SqlContext(options));
-        }
-        
         private Usuario CrearUsuarioValido()
         {
             var usuario = new Usuario();
@@ -42,45 +33,48 @@ namespace Tests.TestsServicios
         [TestMethod]
         public void Registrar_AccionValidaConUsuario_AgregaLogCorrectamente()
         {
-            var usuario = CrearUsuarioValido(); 
+            var usuario = CrearUsuarioValido();
 
             _auditoriaServicio.Registrar("Alta de equipo", usuario);
 
-            Assert.AreEqual(1, _auditoriaRepositorio.ObtenerTodos().Count);
+            _repoMock.Verify(r => r.Agregar(It.IsAny<LogAuditoria>()), Times.Once);
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void Registrar_AccionNula_LanzaExcepcion()
         {
-            var usuario = CrearUsuarioValido(); 
+            var usuario = CrearUsuarioValido();
 
             _auditoriaServicio.Registrar(null, usuario);
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void Registrar_UsuarioNulo_LanzaExcepcion()
         {
             _auditoriaServicio.Registrar("Alta de equipo", null);
         }
-        
+
         [TestMethod]
         public void ObtenerTodos_ListaVacia_RetornaListaVacia()
         {
+            _repoMock.Setup(r => r.ObtenerTodos()).Returns(new List<LogAuditoria>());
+
             var resultado = _auditoriaServicio.ObtenerTodos();
 
             Assert.AreEqual(0, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ObtenerTodos_ConLogs_RetornaListaCorrecta()
         {
-            var usuario = CrearUsuarioValido(); 
+            var logs = new List<LogAuditoria> { new LogAuditoria() };
+            _repoMock.Setup(r => r.ObtenerTodos()).Returns(logs);
 
-            _auditoriaServicio.Registrar("Alta de equipo", usuario);
+            var resultado = _auditoriaServicio.ObtenerTodos();
 
-            Assert.AreEqual(1, _auditoriaServicio.ObtenerTodos().Count);
+            Assert.AreEqual(1, resultado.Count);
         }
     }
 }
