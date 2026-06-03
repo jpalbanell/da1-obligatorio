@@ -1,6 +1,7 @@
 using Dominio.Entidades;
 using IRepositorios;
 using Repositorios;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tests.TestsRepositorios
 {
@@ -12,16 +13,35 @@ namespace Tests.TestsRepositorios
         [TestInitialize]
         public void Setup()
         {
-            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaRepositorio = CrearAuditoriaRepositorio();
+        }
+
+        private AuditoriaRepositorio CrearAuditoriaRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new AuditoriaRepositorio(new SqlContext(options));
         }
         
+        private Usuario CrearUsuarioValido()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Test";
+            usuario.Apellido = "Usuario";
+            usuario.Email = "test@test.com";
+            usuario.FechaNacimiento = new DateTime(1990, 1, 1);
+            usuario.Contrasena = "Password@1";
+            return usuario;
+        }
+
         [TestMethod]
         public void Agregar_LogValido_NoLanzaExcepcion()
         {
             var log = new LogAuditoria();
             log.Timestamp = DateTime.Now;
             log.Accion = "Alta de equipo";
-            log.Usuario = new Usuario();
+            log.Usuario = CrearUsuarioValido(); 
 
             _auditoriaRepositorio.Agregar(log);
         }
@@ -38,7 +58,7 @@ namespace Tests.TestsRepositorios
             var log = new LogAuditoria();
             log.Timestamp = DateTime.Now;
             log.Accion = "Alta de equipo";
-            log.Usuario = new Usuario();
+            log.Usuario = CrearUsuarioValido(); 
 
             _auditoriaRepositorio.Agregar(log);
 
@@ -50,12 +70,12 @@ namespace Tests.TestsRepositorios
             var log1 = new LogAuditoria();
             log1.Timestamp = DateTime.Now;
             log1.Accion = "Alta de equipo";
-            log1.Usuario = new Usuario();
+            log1.Usuario = CrearUsuarioValido(); 
 
             var log2 = new LogAuditoria();
             log2.Timestamp = DateTime.Now;
             log2.Accion = "Alta de estadio";
-            log2.Usuario = new Usuario();
+            log2.Usuario = CrearUsuarioValido(); 
 
             _auditoriaRepositorio.Agregar(log1);
             _auditoriaRepositorio.Agregar(log2);

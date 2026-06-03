@@ -3,6 +3,7 @@ using Servicios;
 using IRepositorios;
 using Repositorios;
 using IServicios;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tests.TestsServicios
 {
@@ -15,15 +16,33 @@ namespace Tests.TestsServicios
         [TestInitialize]
         public void Setup()
         {
-            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaRepositorio = CrearAuditoriaRepositorio();
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
+        }
+
+        private AuditoriaRepositorio CrearAuditoriaRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new AuditoriaRepositorio(new SqlContext(options));
+        }
+        
+        private Usuario CrearUsuarioValido()
+        {
+            var usuario = new Usuario();
+            usuario.Nombre = "Santiago";
+            usuario.Apellido = "Garcia";
+            usuario.Email = "santiago@test.com";
+            usuario.FechaNacimiento = new DateTime(1990, 1, 1);
+            usuario.Contrasena = "Password@1";
+            return usuario;
         }
 
         [TestMethod]
         public void Registrar_AccionValidaConUsuario_AgregaLogCorrectamente()
         {
-            var usuario = new Usuario();
-            usuario.Nombre = "Santiago";
+            var usuario = CrearUsuarioValido(); 
 
             _auditoriaServicio.Registrar("Alta de equipo", usuario);
 
@@ -34,8 +53,7 @@ namespace Tests.TestsServicios
         [ExpectedException(typeof(ArgumentException))]
         public void Registrar_AccionNula_LanzaExcepcion()
         {
-            var usuario = new Usuario();
-            usuario.Nombre = "Santiago";
+            var usuario = CrearUsuarioValido(); 
 
             _auditoriaServicio.Registrar(null, usuario);
         }
@@ -58,8 +76,7 @@ namespace Tests.TestsServicios
         [TestMethod]
         public void ObtenerTodos_ConLogs_RetornaListaCorrecta()
         {
-            var usuario = new Usuario();
-            usuario.Nombre = "Santiago";
+            var usuario = CrearUsuarioValido(); 
 
             _auditoriaServicio.Registrar("Alta de equipo", usuario);
 

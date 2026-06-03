@@ -22,7 +22,7 @@ builder.Services.AddScoped<IEstadioRepositorio, EstadioRepositorio>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddSingleton<IPartidoRepositorio, PartidoRepositorio>();
 builder.Services.AddSingleton<IGrupoRepositorio, GrupoRepositorio>();
-builder.Services.AddSingleton<IAuditoriaRepositorio, AuditoriaRepositorio>();
+builder.Services.AddScoped<IAuditoriaRepositorio, AuditoriaRepositorio>();
 builder.Services.AddSingleton<IFixtureRepositorio, FixtureRepositorio>();
 
 
