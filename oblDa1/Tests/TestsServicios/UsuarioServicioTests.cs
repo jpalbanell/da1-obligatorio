@@ -20,7 +20,7 @@ namespace Tests
         public void Setup()
         {
             _repositorio = CrearUsuarioRepositorio();
-            _auditoriaRepositorio = new AuditoriaRepositorio();
+            _auditoriaRepositorio = CrearAuditoriaRepositorio();
             _auditoriaServicio = new AuditoriaServicio(_auditoriaRepositorio);
             _sesionServicio = new SesionServicio();
             _servicio = new UsuarioServicio(_repositorio, _auditoriaServicio, _sesionServicio);
@@ -33,6 +33,14 @@ namespace Tests
             usuario.Contrasena = "Abcdef1@";
             usuario.Roles.Add(Rol.Administrador);
             _sesionServicio.IniciarSesion(usuario);
+        }
+
+        private AuditoriaRepositorio CrearAuditoriaRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new AuditoriaRepositorio(new SqlContext(options));
         }
 
         private UsuarioRepositorio CrearUsuarioRepositorio()

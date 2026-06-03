@@ -27,7 +27,7 @@ namespace Tests
             _partidoRepositorio = new PartidoRepositorio();
             _grupoRepositorio = new GrupoRepositorio();
             _fixtureRepositorio = new FixtureRepositorio();
-            _auditoriaServicio = new AuditoriaServicio(new AuditoriaRepositorio());
+            _auditoriaServicio = new AuditoriaServicio(CrearAuditoriaRepositorio());
             _sesionServicio = new SesionServicio();
             _torneoServicio = new TorneoServicio(
                 _equipoRepositorio,
@@ -71,6 +71,14 @@ namespace Tests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             return new EquipoRepositorio(new SqlContext(options));
+        }
+
+        private AuditoriaRepositorio CrearAuditoriaRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new AuditoriaRepositorio(new SqlContext(options));
         }
         
         private Estadio CrearEstadioValido()
@@ -1009,7 +1017,7 @@ namespace Tests
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), new PartidoRepositorio(),
                 new GrupoRepositorio(), new FixtureRepositorio(),
-                new AuditoriaServicio(new AuditoriaRepositorio()), sesion2);
+                new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
             var admin2 = new Usuario { Nombre = "A", Apellido = "B", Email = "a@b.com",
                 FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
             admin2.Roles.Add(Rol.Administrador);
@@ -1346,7 +1354,7 @@ namespace Tests
             var fixRepo2 = new FixtureRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(eqRepo2, estRepo2, partRepo2, grpRepo2, fixRepo2,
-                new AuditoriaServicio(new AuditoriaRepositorio()), sesion2);
+                new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
             Confederacion[] confs2 = {
                 Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
                 Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
@@ -1514,7 +1522,7 @@ namespace Tests
             var fixRepo2 = new FixtureRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(CrearEquipoRepositorio(), estRepo2, partRepo2, grpRepo2, fixRepo2,
-                new AuditoriaServicio(new AuditoriaRepositorio()), sesion2);
+                new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
             var fixture2 = new Fixture { EstaGenerado = true };
             fixRepo2.Guardar(fixture2);
             var etiquetas = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };

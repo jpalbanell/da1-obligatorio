@@ -39,7 +39,7 @@ namespace Dominio.Entidades
                 throw new ArgumentException("La acción es obligatoria.");
         }
 
-        public Usuario Usuario
+        public virtual Usuario Usuario
         {
             get => _usuario;
             set
