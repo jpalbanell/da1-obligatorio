@@ -451,32 +451,26 @@ namespace Tests
         
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_RolEditorYPartidoValido_SimulaCorrectamente()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 42);
 
-            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
-            Assert.IsTrue(resultado.TieneResultado);
+            Assert.IsTrue(partido.TieneResultado);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(UnauthorizedAccessException))]
         public void SimularPartido_SinRolEditor_LanzaExcepcion()
         {
-            var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor)).Throws<UnauthorizedAccessException>();
 
-            _torneoServicio.SimularPartido(partido.Id, 42);
+            _torneoServicio.SimularPartido(1, 42);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(InvalidOperationException))]
         public void SimularPartido_SinEquipos_LanzaExcepcion()
         {
@@ -492,32 +486,27 @@ namespace Tests
             estadio.Ciudad = "Montevideo";
             estadio.Capacidad = 25000;
             partido.Estadio = estadio;
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 42);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_RolEditorYFaseValida_SimulaCorrectamente()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
 
-            var resultado = _torneoServicio.ObtenerPartido(partido.Id);
-            Assert.IsTrue(resultado.TieneResultado);
+            Assert.IsTrue(partido.TieneResultado);
         }
         
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ObtenerTodosPartidos_ConPartidos_RetornaLista()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             var partidos = _torneoServicio.ObtenerTodosPartidos();
 
@@ -525,11 +514,10 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ObtenerPartidosPorFase_FaseGrupos_RetornaPartidosDeFase()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             var partidos = _torneoServicio.ObtenerPartidosPorFase(FaseTorneo.FaseGrupos);
 
@@ -537,11 +525,10 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ObtenerPartidosPorFecha_FechaValida_RetornaPartidos()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             var partidos = _torneoServicio.ObtenerPartidosPorFecha(new DateTime(2026, 6, 1));
 
@@ -549,11 +536,10 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ObtenerPartidosPorGrupo_GrupoValido_RetornaPartidos()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             var partidos = _torneoServicio.ObtenerPartidosPorGrupo("A");
 
@@ -561,11 +547,10 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ObtenerPartidosPorEstadio_EstadioValido_RetornaPartidos()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             var partidos = _torneoServicio.ObtenerPartidosPorEstadio("Centenario");
 
@@ -573,15 +558,12 @@ namespace Tests
         }
         
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void EditarPartido_CambiarFechaYEstadio_ActualizaCorrectamente()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            _estadioRepositorio.Agregar(partido.Estadio);
             var nuevoEstadio = new Estadio { Nombre = "Nuevo Estadio", Ciudad = "Montevideo", Capacidad = 30000 };
-            _estadioRepositorio.Agregar(nuevoEstadio);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Nuevo Estadio")).Returns(nuevoEstadio);
 
             _torneoServicio.EditarPartido(partido.Id, new DateTime(2026, 6, 15), "Nuevo Estadio", false, 0, 0);
 
@@ -591,14 +573,12 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void EditarPartido_ConResultado_RegistraResultadoYActualizaPosiciones()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            _estadioRepositorio.Agregar(partido.Estadio);
             var grupo = partido.Grupo;
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Centenario")).Returns(partido.Estadio);
 
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 2, 0);
 
@@ -607,14 +587,12 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void EditarPartido_CambiarResultadoExistente_RevierteYAplicaNuevo()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            _estadioRepositorio.Agregar(partido.Estadio);
             var grupo = partido.Grupo;
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Centenario")).Returns(partido.Estadio);
 
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 3, 0);
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 0, 1);
@@ -626,26 +604,22 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(UnauthorizedAccessException))]
         public void EditarPartido_SinRolEditor_LanzaExcepcion()
         {
-            var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor)).Throws<UnauthorizedAccessException>();
 
-            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", false, 0, 0);
+            _torneoServicio.EditarPartido(1, DateTime.Now, "Centenario", false, 0, 0);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(InvalidOperationException))]
         public void EditarPartido_PartidoBloqueado_LanzaExcepcion()
         {
             var partido = CrearPartidoValido();
             partido.EstaBloqueado = true;
-            _partidoRepositorio.Agregar(partido);
-            _estadioRepositorio.Agregar(partido.Estadio);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Centenario")).Returns(partido.Estadio);
 
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", false, 0, 0);
         }
@@ -1787,55 +1761,48 @@ namespace Tests
         // ==================== PARTIDO via EditarPartido (faltantes) ====================
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ObtenerPartido_ConIdInexistente_RetornaNull()
         {
             Assert.IsNull(_torneoServicio.ObtenerPartido(999));
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ObtenerPartidosPorEstadio_PartidoSinEstadio_NoLanzaExcepcion()
         {
             var partido = new Partido(1);
-            _partidoRepositorio.Agregar(partido);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
             var resultado = _torneoServicio.ObtenerPartidosPorEstadio("Centenario");
             Assert.AreEqual(0, resultado.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ObtenerPartidosPorGrupo_PartidoSinGrupo_NoLanzaExcepcion()
         {
             var partido = new Partido(1);
-            _partidoRepositorio.Agregar(partido);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
             var resultado = _torneoServicio.ObtenerPartidosPorGrupo("A");
             Assert.AreEqual(0, resultado.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void EditarPartido_RegistraLogDeAuditoria()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            _estadioRepositorio.Agregar(partido.Estadio);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Centenario")).Returns(partido.Estadio);
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", false, 0, 0);
-            Assert.AreEqual(1, _auditoriaServicio.ObtenerTodos().Count);
+            _auditoriaMock.Verify(a => a.Registrar(It.IsAny<string>(), It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void EditarPartido_ConResultado_PropagaVencedorAlSiguientePartido()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            _estadioRepositorio.Agregar(partido.Estadio);
             var siguiente = new Partido(2);
             siguiente.OrigenLocal = partido;
-            _partidoRepositorio.Agregar(siguiente);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido, siguiente });
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Centenario")).Returns(partido.Estadio);
 
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 3, 0);
 
@@ -1843,13 +1810,11 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void EditarPartido_ConEmpate_MarcaTieneResultado()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            _estadioRepositorio.Agregar(partido.Estadio);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Centenario")).Returns(partido.Estadio);
 
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 0, 0);
 
@@ -1858,37 +1823,31 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(KeyNotFoundException))]
         public void EditarPartido_PartidoNoEncontrado_LanzaExcepcion()
         {
-            _estadioRepositorio.Agregar(CrearEstadioValido());
-            IniciarSesionComoEditor();
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Centenario")).Returns(CrearEstadioValido());
             _torneoServicio.EditarPartido(999, DateTime.Now, "Centenario", false, 0, 0);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(InvalidOperationException))]
         public void EditarPartido_EstadioNoEncontrado_LanzaExcepcion()
         {
             var partido = CrearPartidoValido();
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "EstadioInexistente", false, 0, 0);
         }
 
         // ==================== SIMULACION (faltantes) ====================
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_EquipoConRankingMaximo_TieneMasGolesQueRankingMinimo()
         {
             var fuerte = CrearPartidoParaSimular(2500, 300, 1);
             var debil  = CrearPartidoParaSimular(300, 2500, 2);
-            _partidoRepositorio.Agregar(fuerte);
-            _partidoRepositorio.Agregar(debil);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(fuerte);
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(2)).Returns(debil);
 
             _torneoServicio.SimularPartido(fuerte.Id, 42);
             _torneoServicio.SimularPartido(debil.Id, 42);
@@ -1897,14 +1856,12 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_ConMismaSemillaYDistintoId_ProduceResultadosDiferentes()
         {
             var p1 = CrearPartidoParaSimular(1500, 1500, 1);
             var p2 = CrearPartidoParaSimular(1500, 1500, 2);
-            _partidoRepositorio.Agregar(p1);
-            _partidoRepositorio.Agregar(p2);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(p1);
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(2)).Returns(p2);
 
             _torneoServicio.SimularPartido(1, 42);
             _torneoServicio.SimularPartido(2, 42);
@@ -1913,21 +1870,17 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(KeyNotFoundException))]
         public void SimularPartido_PartidoInexistente_LanzaExcepcion()
         {
-            IniciarSesionComoEditor();
             _torneoServicio.SimularPartido(999, 42);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_GolesResultantes_NoSonNegativos()
         {
             var partido = CrearPartidoParaSimular(1500, 1500, 1);
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 42);
 
@@ -1936,12 +1889,10 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_AsignaVencedorSegunGoles()
         {
             var partido = CrearPartidoParaSimular(1500, 1500, 1);
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 42);
 
@@ -1954,49 +1905,40 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_SinPartidosEnFase_NoLanzaExcepcion()
         {
-            IniciarSesionComoEditor();
             _torneoServicio.SimularFase(FaseTorneo.Final, 42);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_RegistraLogDeAuditoria()
         {
             var partido = CrearPartidoParaSimular(1500, 1200, 1);
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 42);
 
-            Assert.AreEqual(1, _auditoriaServicio.ObtenerTodos().Count);
+            _auditoriaMock.Verify(a => a.Registrar(It.IsAny<string>(), It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_ConPartidos_RegistraLogDeAuditoria()
         {
             var partido = CrearPartidoParaSimular(1500, 1200, 1);
             partido.Fase = FaseTorneo.FaseGrupos;
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
 
-            Assert.AreEqual(1, _auditoriaServicio.ObtenerTodos().Count);
+            _auditoriaMock.Verify(a => a.Registrar(It.IsAny<string>(), It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_ConVariosPartidos_TieneResultadosDiferentes()
         {
             var p1 = CrearPartidoParaSimular(1500, 1500, 1); p1.Fase = FaseTorneo.FaseGrupos;
             var p2 = CrearPartidoParaSimular(1500, 1500, 2); p2.Fase = FaseTorneo.FaseGrupos;
-            _partidoRepositorio.Agregar(p1);
-            _partidoRepositorio.Agregar(p2);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { p1, p2 });
 
             _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
 
@@ -2004,40 +1946,35 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_RegistraSemillaEnAuditoria()
         {
             var partido = CrearPartidoParaSimular(1500, 1200, 1);
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 42);
 
-            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Any(l => l.Accion.Contains("42")));
+            _auditoriaMock.Verify(a => a.Registrar(It.Is<string>(s => s.Contains("42")), It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_RegistraSemillaEnAuditoria()
         {
             var partido = CrearPartidoParaSimular(1500, 1200, 1); partido.Fase = FaseTorneo.FaseGrupos;
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
 
-            Assert.IsTrue(_auditoriaServicio.ObtenerTodos()
-                .Any(l => l.Accion.Contains("FaseGrupos") && l.Accion.Contains("42")));
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("FaseGrupos") && s.Contains("42")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_EnFaseEliminatoria_ConEmpate_AsignaVencedor()
         {
             var partido = CrearPartidoParaSimular(1500, 1500, 1);
             partido.Fase = FaseTorneo.Octavos;
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 0);
 
@@ -2045,13 +1982,11 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_EnFaseGrupos_ConEmpate_NoAsignaVencedor()
         {
             var partido = CrearPartidoParaSimular(1500, 1500, 1);
             partido.Fase = FaseTorneo.FaseGrupos;
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 0);
 
@@ -2059,32 +1994,29 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_RegistraSoloUnLogDeFase()
         {
             var p1 = CrearPartidoParaSimular(1500, 1200, 1); p1.Fase = FaseTorneo.FaseGrupos;
             var p2 = CrearPartidoParaSimular(1800, 1400, 2); p2.Fase = FaseTorneo.FaseGrupos;
-            _partidoRepositorio.Agregar(p1);
-            _partidoRepositorio.Agregar(p2);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { p1, p2 });
 
             _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
 
-            var logs = _auditoriaServicio.ObtenerTodos();
-            Assert.AreEqual(1, logs.Count);
-            Assert.IsTrue(logs[0].Accion.Contains("FaseGrupos"));
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("FaseGrupos")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(UnauthorizedAccessException))]
         public void SimularFase_SinRolEditor_LanzaExcepcion()
         {
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor)).Throws<UnauthorizedAccessException>();
+
             _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_ActualizaPosicionesDelGrupo()
         {
             var grupo = new Grupo { Id = 1, Etiqueta = "A" };
@@ -2096,9 +2028,7 @@ namespace Tests
             grupo.ListaPosiciones.Add(posLocal);
             grupo.ListaPosiciones.Add(posVisitante);
             grupo.ListaPartidos.Add(partido);
-            _grupoRepositorio.Agregar(grupo);
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 42);
 
@@ -2106,7 +2036,6 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_ActualizaGolesYPuntosDeAmbosEquipos()
         {
             var grupo = new Grupo { Id = 1, Etiqueta = "A" };
@@ -2118,9 +2047,7 @@ namespace Tests
             grupo.ListaPosiciones.Add(posLocal);
             grupo.ListaPosiciones.Add(posVisitante);
             grupo.ListaPartidos.Add(partido);
-            _grupoRepositorio.Agregar(grupo);
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 42);
 
@@ -2131,7 +2058,6 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_ActualizaPuntosSegunResultado()
         {
             var grupo = new Grupo { Id = 1, Etiqueta = "A" };
@@ -2143,9 +2069,7 @@ namespace Tests
             grupo.ListaPosiciones.Add(posLocal);
             grupo.ListaPosiciones.Add(posVisitante);
             grupo.ListaPartidos.Add(partido);
-            _grupoRepositorio.Agregar(grupo);
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
 
             _torneoServicio.SimularPartido(partido.Id, 42);
 
@@ -2158,7 +2082,6 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_ActualizaPosicionesDelGrupo()
         {
             var grupo = new Grupo { Id = 1, Etiqueta = "A" };
@@ -2170,9 +2093,7 @@ namespace Tests
             grupo.ListaPosiciones.Add(posLocal);
             grupo.ListaPosiciones.Add(posVisitante);
             grupo.ListaPartidos.Add(partido);
-            _grupoRepositorio.Agregar(grupo);
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
 
@@ -2183,15 +2104,13 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_PropagaVencedorAlSiguientePartidoOrigenLocal()
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
             actual.Fase = FaseTorneo.Dieciseisavos;
-            _partidoRepositorio.Agregar(actual);
             var siguiente = new Partido(2); siguiente.OrigenLocal = actual;
-            _partidoRepositorio.Agregar(siguiente);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(actual);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { actual, siguiente });
 
             _torneoServicio.SimularPartido(1, 42);
 
@@ -2199,15 +2118,13 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_PropagaVencedorAlSiguientePartidoOrigenVisitante()
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
             actual.Fase = FaseTorneo.Dieciseisavos;
-            _partidoRepositorio.Agregar(actual);
             var siguiente = new Partido(2); siguiente.OrigenVisitante = actual;
-            _partidoRepositorio.Agregar(siguiente);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(actual);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { actual, siguiente });
 
             _torneoServicio.SimularPartido(1, 42);
 
@@ -2215,17 +2132,15 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularPartido_PropagaPerdedorCuandoEsPorPerdedor()
         {
             var semifinal = CrearPartidoParaSimular(2500, 300, 1);
             semifinal.Fase = FaseTorneo.Semifinal;
-            _partidoRepositorio.Agregar(semifinal);
             var tercerPuesto = new Partido(2);
             tercerPuesto.OrigenLocal = semifinal;
             tercerPuesto.EsPorPerdedor = true;
-            _partidoRepositorio.Agregar(tercerPuesto);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(semifinal);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { semifinal, tercerPuesto });
 
             _torneoServicio.SimularPartido(1, 42);
 
@@ -2234,15 +2149,12 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_PropagaVencedorAlSiguientePartido()
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
             actual.Fase = FaseTorneo.Dieciseisavos;
-            _partidoRepositorio.Agregar(actual);
             var siguiente = new Partido(2); siguiente.OrigenLocal = actual;
-            _partidoRepositorio.Agregar(siguiente);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { actual, siguiente });
 
             _torneoServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
 
@@ -2250,7 +2162,6 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_PartidoYaSimulado_NoduplicaPuntos()
         {
             var grupo = new Grupo { Id = 1, Etiqueta = "A" };
@@ -2261,9 +2172,8 @@ namespace Tests
             var posVisitante = new PosicionesGrupo { Equipo = partido.EquipoVisitante, Grupo = grupo };
             grupo.ListaPosiciones.Add(posLocal);
             grupo.ListaPosiciones.Add(posVisitante);
-            _grupoRepositorio.Agregar(grupo);
-            _partidoRepositorio.Agregar(partido);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
 
             _torneoServicio.SimularPartido(partido.Id, 42);
             var puntosPrevios = grupo.ListaPosiciones.Sum(p => p.Puntos);
@@ -2275,19 +2185,16 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void SimularFase_AlSimularDieciseisavos_BloquearFaseGrupos()
         {
             var faseGrupos = CrearPartidoParaSimular(2500, 300, 1);
             faseGrupos.Fase = FaseTorneo.FaseGrupos;
             faseGrupos.TieneResultado = true;
             faseGrupos.EstaBloqueado = false;
-            _partidoRepositorio.Agregar(faseGrupos);
 
             var dieciseisavos = CrearPartidoParaSimular(2000, 1800, 2);
             dieciseisavos.Fase = FaseTorneo.Dieciseisavos;
-            _partidoRepositorio.Agregar(dieciseisavos);
-            IniciarSesionComoEditor();
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { faseGrupos, dieciseisavos });
 
             _torneoServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
 
