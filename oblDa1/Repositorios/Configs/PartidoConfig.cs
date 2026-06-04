@@ -65,9 +65,13 @@ namespace Repositorios.Configs
                    .OnDelete(DeleteBehavior.Restrict);
 
             // --- Relación a Grupo (nullable: los partidos de fase eliminatoria no tienen grupo) ---
+            // Property<int?> fuerza la shadow FK a nullable; necesario porque la nav property
+            // es 'Grupo' (no 'Grupo?') y EF Core 8 con NRT la trataría como required de otro modo.
+            builder.Property<int?>("GrupoId");
 
             builder.HasOne(p => p.Grupo)
                    .WithMany(g => g.ListaPartidos)
+                   .HasForeignKey("GrupoId")
                    .IsRequired(false)
                    .OnDelete(DeleteBehavior.Restrict);
 

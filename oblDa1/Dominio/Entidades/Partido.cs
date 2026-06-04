@@ -7,7 +7,7 @@ namespace Dominio.Entidades
         private Equipo _equipoLocal;
         private Equipo _equipoVisitante;
         private Estadio _estadio;
-        private Grupo _grupo;
+        private Grupo? _grupo;
         private int _golesLocal;
         private int _golesVisitante;
         private Equipo _vencedor;
