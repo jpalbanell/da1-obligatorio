@@ -44,5 +44,14 @@ namespace Tests
             var incidencia = new Incidencia();
             incidencia.Equipo = null;
         }
+
+        [TestMethod]
+        public void CrearPartido_ListaIncidenciasDeberiaEstarVacia()
+        {
+            var partido = new Partido();
+
+            Assert.IsNotNull(partido.Incidencias);
+            Assert.AreEqual(0, partido.Incidencias.Count);
+        }
     }
 }
