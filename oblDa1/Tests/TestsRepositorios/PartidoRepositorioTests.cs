@@ -22,7 +22,7 @@ namespace Tests
 
         private static Partido CrearPartido(int id)
         {
-            var p = new Partido(id);
+            var p = new Partido() { Id = id };
             p.Codigo = $"P{id}";
             return p;
         }
@@ -83,7 +83,7 @@ namespace Tests
         [ExpectedException(typeof(KeyNotFoundException))]
         public void Actualizar_ConPartidoInexistente_DeberiaLanzarExcepcion()
         {
-            var partido = new Partido(999);
+            var partido = new Partido() { Id = 999 };
 
             _repositorio.Actualizar(partido);
         }

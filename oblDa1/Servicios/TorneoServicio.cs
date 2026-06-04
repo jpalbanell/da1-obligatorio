@@ -589,7 +589,7 @@ namespace Servicios
             int indiceEstadio = 0;
             foreach (var (local, visitante, codigo) in emparejamientos)
             {
-                var partido = new Partido(ObtenerProximoIdPartido());
+                var partido = new Partido();
                 partido.Codigo = codigo;
                 partido.Fase = FaseTorneo.Dieciseisavos;
                 partido.EquipoLocal = local.Equipo;
@@ -649,7 +649,7 @@ namespace Servicios
             Partido origenLocal, Partido origenVisitante, Fixture fixture)
         {
             var indiceEstadio = ContarPartidosEliminatorios();
-            var partido = new Partido(ObtenerProximoIdPartido());
+            var partido = new Partido();
             partido.Codigo = codigo;
             partido.Fase = fase;
             partido.Fecha = ObtenerProximaFechaEliminatoria(fixture.MaxPartidosPorDia);
@@ -665,12 +665,6 @@ namespace Servicios
         {
             return _partidoRepositorio.ObtenerTodos()
                 .Count(p => p.Fase != FaseTorneo.FaseGrupos);
-        }
-
-        private int ObtenerProximoIdPartido()
-        {
-            var partidos = _partidoRepositorio.ObtenerTodos();
-            return partidos.Count == 0 ? 1 : partidos.Max(p => p.Id) + 1;
         }
 
         private Estadio ObtenerEstadioRotado(int indice)

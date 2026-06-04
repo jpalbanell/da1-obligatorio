@@ -139,7 +139,7 @@ namespace Tests
             estadio.Nombre = "Centenario";
             estadio.Ciudad = "Montevideo";
             estadio.Capacidad = 25000;
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             partido.Codigo = "GA-1";
             partido.Fecha = new DateTime(2026, 6, 1);
             partido.Fase = FaseTorneo.FaseGrupos;
@@ -490,7 +490,7 @@ namespace Tests
         [ExpectedException(typeof(InvalidOperationException))]
         public void SimularPartido_SinEquipos_LanzaExcepcion()
         {
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             partido.Codigo = "TEST";
             partido.Fecha = new DateTime(2026, 6, 1);
             partido.Fase = FaseTorneo.FaseGrupos;
@@ -646,7 +646,7 @@ namespace Tests
         {
             var local = new Equipo { Nombre = "Local", Confederacion = Confederacion.CONMEBOL, RankingFifa = rankingLocal };
             var visitante = new Equipo { Nombre = "Visitante", Confederacion = Confederacion.UEFA, RankingFifa = rankingVisitante };
-            var partido = new Partido(id);
+            var partido = new Partido() { Id = id };
             partido.Codigo = $"P{id:D3}";
             partido.Fecha = new DateTime(2026, 6, 1);
             partido.EquipoLocal = local;
@@ -757,7 +757,7 @@ namespace Tests
         private void AgregarPartidoConResultado(Grupo grupo, Equipo local, Equipo visitante,
             int golesLocal, int golesVisitante, Estadio estadio, int id)
         {
-            var partido = new Partido(id);
+            var partido = new Partido() { Id = id };
             partido.Codigo = $"G{id}";
             partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
             partido.Fase = FaseTorneo.FaseGrupos;
@@ -1585,7 +1585,7 @@ namespace Tests
                     (e1, e2, 3, 0), (e3, e4, 2, 1), (e1, e3, 1, 0),
                     (e2, e4, 2, 0), (e1, e4, 1, 0), (e2, e3, 1, 1) })
                 {
-                    var p = new Partido(idP);
+                    var p = new Partido() { Id = idP };
                     p.Codigo = $"G{idP}"; p.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
                     p.Fase = FaseTorneo.FaseGrupos;
                     p.EquipoLocal = loc; p.EquipoVisitante = vis;
@@ -1785,7 +1785,7 @@ namespace Tests
         [TestMethod]
         public void ObtenerPartidosPorEstadio_PartidoSinEstadio_NoLanzaExcepcion()
         {
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
             var resultado = _torneoServicio.ObtenerPartidosPorEstadio("Centenario");
             Assert.AreEqual(0, resultado.Count);
@@ -1794,7 +1794,7 @@ namespace Tests
         [TestMethod]
         public void ObtenerPartidosPorGrupo_PartidoSinGrupo_NoLanzaExcepcion()
         {
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
             var resultado = _torneoServicio.ObtenerPartidosPorGrupo("A");
             Assert.AreEqual(0, resultado.Count);
@@ -1814,7 +1814,7 @@ namespace Tests
         public void EditarPartido_ConResultado_PropagaVencedorAlSiguientePartido()
         {
             var partido = CrearPartidoValido();
-            var siguiente = new Partido(2);
+            var siguiente = new Partido() { Id = 2 };
             siguiente.OrigenLocal = partido;
             _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido, siguiente });
@@ -2124,7 +2124,7 @@ namespace Tests
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
             actual.Fase = FaseTorneo.Dieciseisavos;
-            var siguiente = new Partido(2); siguiente.OrigenLocal = actual;
+            var siguiente = new Partido() { Id = 2 }; siguiente.OrigenLocal = actual;
             _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(actual);
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { actual, siguiente });
 
@@ -2138,7 +2138,7 @@ namespace Tests
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
             actual.Fase = FaseTorneo.Dieciseisavos;
-            var siguiente = new Partido(2); siguiente.OrigenVisitante = actual;
+            var siguiente = new Partido() { Id = 2 }; siguiente.OrigenVisitante = actual;
             _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(actual);
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { actual, siguiente });
 
@@ -2152,7 +2152,7 @@ namespace Tests
         {
             var semifinal = CrearPartidoParaSimular(2500, 300, 1);
             semifinal.Fase = FaseTorneo.Semifinal;
-            var tercerPuesto = new Partido(2);
+            var tercerPuesto = new Partido() { Id = 2 };
             tercerPuesto.OrigenLocal = semifinal;
             tercerPuesto.EsPorPerdedor = true;
             _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(semifinal);
@@ -2169,7 +2169,7 @@ namespace Tests
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
             actual.Fase = FaseTorneo.Dieciseisavos;
-            var siguiente = new Partido(2); siguiente.OrigenLocal = actual;
+            var siguiente = new Partido() { Id = 2 }; siguiente.OrigenLocal = actual;
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { actual, siguiente });
 
             _torneoServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
