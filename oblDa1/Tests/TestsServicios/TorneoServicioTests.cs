@@ -88,7 +88,23 @@ namespace Tests
                 .Options;
             return new AuditoriaRepositorio(new SqlContext(options));
         }
-        
+
+        private PartidoRepositorio CrearPartidoRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new PartidoRepositorio(new SqlContext(options));
+        }
+
+        private GrupoRepositorio CrearGrupoRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new GrupoRepositorio(new SqlContext(options));
+        }
+
         private Estadio CrearEstadioValido()
         {
             var estadio = new Estadio();
@@ -992,8 +1008,8 @@ namespace Tests
 
             var repo2 = CrearEquipoRepositorio();
             var sesion2 = new SesionServicio();
-            var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), new PartidoRepositorio(),
-                new GrupoRepositorio(), new FixtureRepositorio(),
+            var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), CrearPartidoRepositorio(),
+                CrearGrupoRepositorio(), new FixtureRepositorio(),
                 new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
             var admin2 = new Usuario { Nombre = "A", Apellido = "B", Email = "a@b.com",
                 FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
@@ -1368,8 +1384,8 @@ namespace Tests
 
             var eqRepo2 = CrearEquipoRepositorio();
             var estRepo2 = CrearEstadioRepositorio();
-            var partRepo2 = new PartidoRepositorio();
-            var grpRepo2 = new GrupoRepositorio();
+            var partRepo2 = CrearPartidoRepositorio();
+            var grpRepo2 = CrearGrupoRepositorio();
             var fixRepo2 = new FixtureRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(eqRepo2, estRepo2, partRepo2, grpRepo2, fixRepo2,
@@ -1544,8 +1560,8 @@ namespace Tests
                 .Select(p => p.EquipoLocal.Nombre + "-" + p.EquipoVisitante.Nombre)
                 .ToList();
 
-            var grpRepo2 = new GrupoRepositorio();
-            var partRepo2 = new PartidoRepositorio();
+            var grpRepo2 = CrearGrupoRepositorio();
+            var partRepo2 = CrearPartidoRepositorio();
             var estRepo2 = CrearEstadioRepositorio();
             var fixRepo2 = new FixtureRepositorio();
             var sesion2 = new SesionServicio();
