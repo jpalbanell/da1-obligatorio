@@ -12,6 +12,14 @@ namespace Tests
             usuario.Roles.Add(Rol.Administrador);
             Assert.IsTrue(usuario.Roles.Contains(Rol.Administrador));
         }
+
+        [TestMethod]
+        public void CrearUsuario_ConRolPeriodista_TieneRolDeberiaRetornarTrue()
+        {
+            var usuario = new Usuario();
+            usuario.Roles.Add(Rol.Periodista);
+            Assert.IsTrue(usuario.TieneRol(Rol.Periodista));
+        }
         
         [TestMethod]
         public void CrearUsuario_ConNombreValido_DeberiaAsignarNombre()

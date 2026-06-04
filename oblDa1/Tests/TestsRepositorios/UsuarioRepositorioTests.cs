@@ -142,5 +142,28 @@ namespace Tests
                 Assert.IsTrue(resultado.Roles.Contains(Rol.Editor));
             }
         }
+
+        [TestMethod]
+        public void Agregar_ConRolPeriodista_RolSobreviveRoundTrip()
+        {
+            var dbName = "roles-round-trip-periodista";
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(dbName)
+                .Options;
+
+            var usuario = CrearUsuarioValido("Ana", "García", "ana@ejemplo.com");
+            usuario.Roles.Add(Rol.Periodista);
+            using (var contextEscritura = new SqlContext(options))
+            {
+                new UsuarioRepositorio(contextEscritura).Agregar(usuario);
+            }
+
+            using (var contextLectura = new SqlContext(options))
+            {
+                var resultado = new UsuarioRepositorio(contextLectura).ObtenerPorId(usuario.Id);
+                Assert.AreEqual(1, resultado.Roles.Count);
+                Assert.IsTrue(resultado.Roles.Contains(Rol.Periodista));
+            }
+        }
     }
 }
