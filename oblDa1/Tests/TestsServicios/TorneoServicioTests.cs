@@ -331,10 +331,8 @@ namespace Tests
         }
         
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_CsvValido_ImportaCorrectamente()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nArgentina,CONMEBOL,1600";
 
             var resultado = _torneoServicio.ImportarEquipos(csv);
@@ -344,10 +342,8 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_FilaConError_RegistraError()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMal,ConfederacionInvalida,999";
 
             var resultado = _torneoServicio.ImportarEquipos(csv);
@@ -357,10 +353,10 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_NombreDuplicado_RegistraError()
         {
-            IniciarSesionComoEditor();
+            var fixtureCompartido = new Fixture();
+            _fixtureRepoMock.Setup(r => r.Obtener()).Returns(fixtureCompartido);
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nUruguay,CONMEBOL,1600";
 
             var resultado = _torneoServicio.ImportarEquipos(csv);
@@ -370,19 +366,10 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(UnauthorizedAccessException))]
         public void ImportarEquipos_SinRolEditor_LanzaExcepcion()
         {
-            _sesionServicio.CerrarSesion();
-            var admin = new Usuario();
-            admin.Nombre = "Admin";
-            admin.Apellido = "Test";
-            admin.Email = "admin2@test.com";
-            admin.FechaNacimiento = new DateTime(1990, 1, 1);
-            admin.Contrasena = "Password@1";
-            admin.Roles.Add(Rol.Administrador);
-            _sesionServicio.IniciarSesion(admin);
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor)).Throws<UnauthorizedAccessException>();
 
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500";
             _torneoServicio.ImportarEquipos(csv);
@@ -1231,80 +1218,82 @@ namespace Tests
         // ==================== IMPORTACION (faltantes) ====================
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConRankingFueraDeRango_RegistraError()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,9999";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(0, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConFilaInvalidaEntreValidas_ImportaLasValidas()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMalo,INVALIDA,1500\nArgentina,CONMEBOL,2000";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(2, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConSoloEncabezado_RetornaCeroImportados()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(0, resultado.EquiposImportados);
             Assert.AreEqual(0, resultado.Errores.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_RegistraAuditoria()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500";
+
             _torneoServicio.ImportarEquipos(csv);
-            var logs = _auditoriaServicio.ObtenerTodos();
-            Assert.AreEqual(1, logs.Count);
-            Assert.IsTrue(logs[0].Accion.Contains("Importación"));
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("Importación")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConErrores_RegistraAuditoriaConErrores()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMalo,INVALIDA,1500";
+
             _torneoServicio.ImportarEquipos(csv);
-            var logs = _auditoriaServicio.ObtenerTodos();
-            Assert.AreEqual(1, logs.Count);
-            Assert.IsTrue(logs[0].Accion.Contains("1 errores"));
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("1 errores")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConRankingFueraDeRangoInferior_RegistraError()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,100";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(0, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ExcediendoCupoConfederacion_RegistraError()
         {
-            IniciarSesionComoEditor();
+            var fixtureCompartido = new Fixture();
+            _fixtureRepoMock.Setup(r => r.Obtener()).Returns(fixtureCompartido);
             var csv = "Nombre,Confederacion,RankingFifa\nOFC_A,OFC,1500\nOFC_B,OFC,1600";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(1, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
