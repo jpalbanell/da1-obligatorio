@@ -1,20 +1,57 @@
-﻿using Dominio.Entidades;
+using Dominio.Entidades;
 using IRepositorios;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repositorios
 {
     public class FixtureRepositorio : IFixtureRepositorio
     {
-        private Fixture _fixture;
+        private readonly SqlContext _context;
+
+        public FixtureRepositorio(SqlContext context)
+        {
+            _context = context;
+        }
 
         public void Guardar(Fixture fixture)
         {
-            _fixture = fixture;
+            var existente = _context.Fixtures
+                .Include(f => f.Equipos)
+                .Include(f => f.Estadios)
+                .FirstOrDefault(f => f.Id == 1);
+
+            if (existente == null)
+            {
+                fixture.Id = 1;
+                _context.Fixtures.Add(fixture);
+            }
+            else
+            {
+                existente.SemillaFixture = fixture.SemillaFixture;
+                existente.FechaInicioTorneo = fixture.FechaInicioTorneo;
+                existente.MaxPartidosPorDia = fixture.MaxPartidosPorDia;
+                existente.SeparacionEntreFechas = fixture.SeparacionEntreFechas;
+                existente.EstaGenerado = fixture.EstaGenerado;
+                existente.CrucesGenerados = fixture.CrucesGenerados;
+
+                existente.Equipos.Clear();
+                foreach (var equipo in fixture.Equipos)
+                    existente.Equipos.Add(equipo);
+
+                existente.Estadios.Clear();
+                foreach (var estadio in fixture.Estadios)
+                    existente.Estadios.Add(estadio);
+            }
+
+            _context.SaveChanges();
         }
 
         public Fixture Obtener()
         {
-            return _fixture;
+            return _context.Fixtures
+                .Include(f => f.Equipos)
+                .Include(f => f.Estadios)
+                .FirstOrDefault(f => f.Id == 1);
         }
     }
 }
