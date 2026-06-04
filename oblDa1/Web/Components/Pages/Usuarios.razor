@@ -179,7 +179,8 @@
             Email = usuario.Email,
             FechaNacimiento = usuario.FechaNacimiento,
             EsAdministrador = usuario.Roles.Contains("Administrador"),
-            EsEditor = usuario.Roles.Contains("Editor")
+            EsEditor = usuario.Roles.Contains("Editor"),
+            EsPeriodista = usuario.Roles.Contains("Periodista")
         };
         _idEditando = usuario.Id;
         _modoEdicion = true;
