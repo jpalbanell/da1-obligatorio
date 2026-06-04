@@ -7,7 +7,6 @@ namespace Servicios
     public class AuditoriaServicio : IAuditoriaServicio
     {
         private IAuditoriaRepositorio _auditoriaRepositorio;
-        private int _proximoId = 1; 
 
         public AuditoriaServicio(IAuditoriaRepositorio auditoriaRepositorio)
         {
@@ -20,7 +19,6 @@ namespace Servicios
             ValidarUsuario(usuario);
 
             var log = new LogAuditoria();
-            log.Id = _proximoId++;   
             log.Timestamp = DateTime.Now;
             log.Accion = accion;
             log.Usuario = usuario;

@@ -256,7 +256,6 @@ namespace Servicios
         
         private const int CantidadBombos = 4;
         private const int TamanoBombo = 12;
-        private int _proximoIdGrupo = 1;
 
         public void GenerarFixture(Fixture fixture)
         {
@@ -265,7 +264,6 @@ namespace Servicios
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
 
-            _proximoIdGrupo = 1;
             var grupos = CrearYPersistirGrupos();
             var equiposOrdenados = OrdenarEquiposConDesempate(fixture.SemillaFixture);
             DistribuirEquiposEnGrupos(equiposOrdenados, grupos);
@@ -310,7 +308,6 @@ namespace Servicios
             foreach (var etiqueta in Grupo.EtiquetasValidas)
             {
                 var grupo = new Grupo();
-                grupo.Id = _proximoIdGrupo++;
                 grupo.Etiqueta = etiqueta;
                 grupos.Add(grupo);
             }
@@ -398,13 +395,9 @@ namespace Servicios
 
         private void PersistirPartidos(List<List<Partido>> partidosPorGrupo)
         {
-            int proximoId = 1;
             foreach (var partidosGrupo in partidosPorGrupo)
                 foreach (var partido in partidosGrupo)
-                {
-                    partido.Id = proximoId++;
                     _partidoRepositorio.Agregar(partido);
-                }
         }
 
         private void PersistirGrupos(List<Grupo> grupos)

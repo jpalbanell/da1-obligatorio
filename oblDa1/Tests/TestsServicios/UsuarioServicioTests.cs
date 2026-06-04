@@ -46,29 +46,6 @@ namespace Tests
         }
 
         [TestMethod]
-        public void AgregarUsuario_DeberiaAsignarIdAutomaticamente()
-        {
-            var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
-
-            _servicio.AgregarUsuario(usuario);
-
-            Assert.AreEqual(1, usuario.Id);
-        }
-
-        [TestMethod]
-        public void AgregarUsuario_VariosUsuarios_DeberiaAsignarIdsIncrementales()
-        {
-            var usuarioExistente = CrearUsuarioValido("Existente", "Apellido", "existente@ejemplo.com");
-            usuarioExistente.Id = 1;
-            _repoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Usuario> { usuarioExistente });
-
-            var nuevoUsuario = CrearUsuarioValido("María", "López", "maria@ejemplo.com");
-            _servicio.AgregarUsuario(nuevoUsuario);
-
-            Assert.AreEqual(2, nuevoUsuario.Id);
-        }
-
-        [TestMethod]
         public void ObtenerUsuario_ConIdExistente_DeberiaRetornarlo()
         {
             var usuario = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
