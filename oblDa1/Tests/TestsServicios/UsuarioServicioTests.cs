@@ -350,5 +350,26 @@ namespace Tests
                 It.Is<string>(s => s.Contains("reinicio", StringComparison.OrdinalIgnoreCase) && s.Contains("juan@ejemplo.com")),
                 It.IsAny<Usuario>()), Times.Once);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void AgregarUsuario_ConRolPeriodistaSinAdmin_DeberiaLanzarExcepcion()
+        {
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Administrador)).Throws<UnauthorizedAccessException>();
+
+            var nuevoUsuario = CrearUsuarioValido("Pedro", "Lopez", "pedro@ejemplo.com");
+            _servicio.AgregarUsuario(nuevoUsuario);
+        }
+
+        [TestMethod]
+        public void ObtenerTodos_ConRolPeriodistaSinAdminNiEditor_NoDeberiaLanzarExcepcion()
+        {
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Administrador)).Throws<UnauthorizedAccessException>();
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor)).Throws<UnauthorizedAccessException>();
+
+            var resultado = _servicio.ObtenerTodos();
+
+            Assert.IsNotNull(resultado);
+        }
     }
 }
