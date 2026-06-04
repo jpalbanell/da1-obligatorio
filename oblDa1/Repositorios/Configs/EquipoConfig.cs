@@ -14,6 +14,7 @@ namespace Repositorios.Configs
                 .HasConversion<string>()
                 .HasMaxLength(20);
             builder.Property(e => e.RankingFifa);
+            builder.Property(e => e.Bandera).HasColumnType("nvarchar(max)").IsRequired(false);
         }
     }
 }

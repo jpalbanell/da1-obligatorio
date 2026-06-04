@@ -93,5 +93,20 @@ namespace Tests
             equipo.RankingFifa = 2500;
             Assert.AreEqual(2500, equipo.RankingFifa);
         }
+        [TestMethod]
+        public void CrearEquipo_ConBanderaBase64Valida_DeberiaAsignar()
+        {
+            var equipo = new Equipo();
+            var base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+            equipo.Bandera = base64;
+            Assert.AreEqual(base64, equipo.Bandera);
+        }
+
+        [TestMethod]
+        public void CrearEquipo_SinAsignarBandera_DeberiaSerNula()
+        {
+            var equipo = new Equipo();
+            Assert.IsNull(equipo.Bandera);
+        }
     }
 }

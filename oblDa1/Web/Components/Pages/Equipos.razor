@@ -41,6 +41,7 @@
             <th>Nombre</th>
             <th>Confederación</th>
             <th>Ranking FIFA</th>
+            <th>Bandera</th>
             <th></th>
         </tr>
     </thead>
@@ -52,6 +53,12 @@
                 <td>@equipo.Confederacion</td>
                 <td>@equipo.RankingFifa</td>
                 <td>
+                    @if (!string.IsNullOrEmpty(equipo.Bandera))
+                    {
+                        <img src="@equipo.Bandera" style="height:24px;" alt="bandera" />
+                    }
+                </td>
+                <td>                
                     @if (_usuarioActual.TieneRol(Rol.Administrador))
                     {
                         <button class="btn btn-sm btn-outline-secondary"
@@ -100,6 +107,14 @@
                     <div class="mb-3">
                         <label class="form-label">Ranking FIFA (300–2500)</label>
                         <input type="number" class="form-control" @bind="_form.RankingFifa"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bandera (imagen)</label>
+                        @if (!string.IsNullOrEmpty(_form.Bandera))
+                        {
+                            <img src="@_form.Bandera" style="height:48px;" class="d-block mb-2" alt="bandera actual" />
+                        }
+                        <InputFile class="form-control" OnChange="CargarBandera" accept="image/*" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -201,7 +216,8 @@
         {
             Nombre = equipo.Nombre,
             Confederacion = equipo.Confederacion,
-            RankingFifa = equipo.RankingFifa
+            RankingFifa = equipo.RankingFifa,
+            Bandera = equipo.Bandera
         };
         _nombreOriginal = equipo.Nombre;
         _modoEdicion = true;
@@ -264,6 +280,15 @@
         {
             _mensajeError = ex.Message;
         }
+    }
+
+    private async Task CargarBandera(InputFileChangeEventArgs e)
+    {
+        using var stream = e.File.OpenReadStream(maxAllowedSize: 2 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var mime = e.File.ContentType;
+        _form.Bandera = $"data:{mime};base64,{Convert.ToBase64String(ms.ToArray())}";
     }
 
     private void Completar()

@@ -31,6 +31,9 @@ namespace Repositorios.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
+                    b.Property<string>("Bandera")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Confederacion")
                         .IsRequired()
                         .HasMaxLength(20)
