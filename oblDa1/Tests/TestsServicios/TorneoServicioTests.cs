@@ -974,57 +974,82 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_Con48Equipos_NoAgregaNinguno()
         {
+            var equiposLlenos = new List<Equipo>();
+            equiposLlenos.AddRange(Enumerable.Range(1, 16).Select(i => new Equipo { Nombre = $"UEFA_{i:D2}", Confederacion = Confederacion.UEFA, RankingFifa = 1500 }));
+            equiposLlenos.AddRange(Enumerable.Range(1, 7).Select(i => new Equipo { Nombre = $"CONMEBOL_{i:D2}", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 }));
+            equiposLlenos.AddRange(Enumerable.Range(1, 7).Select(i => new Equipo { Nombre = $"CONCACAF_{i:D2}", Confederacion = Confederacion.CONCACAF, RankingFifa = 1500 }));
+            equiposLlenos.AddRange(Enumerable.Range(1, 9).Select(i => new Equipo { Nombre = $"CAF_{i:D2}", Confederacion = Confederacion.CAF, RankingFifa = 1500 }));
+            equiposLlenos.AddRange(Enumerable.Range(1, 8).Select(i => new Equipo { Nombre = $"AFC_{i:D2}", Confederacion = Confederacion.AFC, RankingFifa = 1500 }));
+            equiposLlenos.Add(new Equipo { Nombre = "OFC_01", Confederacion = Confederacion.OFC, RankingFifa = 1500 });
+            _equipoRepoMock.Setup(r => r.ObtenerTodos()).Returns(equiposLlenos);
+
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            _torneoServicio.CompletarEquiposAutomaticamente(42);
-            Assert.AreEqual(48, _torneoServicio.ObtenerTodos().Count);
+
+            _equipoRepoMock.Verify(r => r.Agregar(It.IsAny<Equipo>()), Times.Never);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_RespetaCuposPorConfederacion()
         {
+            var equiposAgregados = new List<Equipo>();
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposAgregados.Add(e));
+
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var equipos = _torneoServicio.ObtenerTodos();
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.UEFA) <= 16);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.CONMEBOL) <= 7);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.CONCACAF) <= 7);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.CAF) <= 9);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.AFC) <= 8);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.OFC) <= 1);
+
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.UEFA) <= 16);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.CONMEBOL) <= 7);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.CONCACAF) <= 7);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.CAF) <= 9);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.AFC) <= 8);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.OFC) <= 1);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_GeneraNombresDeterministicos()
         {
+            var equiposAgregados = new List<Equipo>();
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposAgregados.Add(e));
+
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var equipos = _torneoServicio.ObtenerTodos();
-            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("AFC_")));
-            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("CAF_")));
-            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("UEFA_")));
+
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre.StartsWith("AFC_")));
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre.StartsWith("CAF_")));
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre.StartsWith("UEFA_")));
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_ConMismaSemilla_ProduceMismoRankingFifa()
         {
+            var equiposRun1 = new List<Equipo>();
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposRun1.Add(e));
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var rankings1 = _torneoServicio.ObtenerTodos().Select(e => e.RankingFifa).ToList();
+            var rankings1 = equiposRun1.Select(e => e.RankingFifa).ToList();
 
-            var repo2 = CrearEquipoRepositorio();
-            var sesion2 = new SesionServicio();
-            var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), CrearPartidoRepositorio(),
-                CrearGrupoRepositorio(), CrearFixtureRepositorio(),
-                new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
+            var equipoMock2 = new Mock<IEquipoRepositorio>();
+            var fixtureMock2 = new Mock<IFixtureRepositorio>();
+            var sesionMock2 = new Mock<ISesionServicio>();
+            var auditoriaMock2 = new Mock<IAuditoriaServicio>();
+            equipoMock2.Setup(r => r.ObtenerTodos()).Returns(new List<Equipo>());
+            fixtureMock2.Setup(r => r.Obtener()).Returns((Fixture)null);
             var admin2 = new Usuario { Nombre = "A", Apellido = "B", Email = "a@b.com",
                 FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
             admin2.Roles.Add(Rol.Administrador);
-            sesion2.IniciarSesion(admin2);
+            sesionMock2.Setup(s => s.ObtenerUsuarioActual()).Returns(admin2);
+            var equiposRun2 = new List<Equipo>();
+            equipoMock2.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposRun2.Add(e));
+            var torneo2 = new TorneoServicio(
+                equipoMock2.Object, new Mock<IEstadioRepositorio>().Object,
+                new Mock<IPartidoRepositorio>().Object, new Mock<IGrupoRepositorio>().Object,
+                fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object);
+
             torneo2.CompletarEquiposAutomaticamente(42);
-            var rankings2 = torneo2.ObtenerTodos().Select(e => e.RankingFifa).ToList();
+            var rankings2 = equiposRun2.Select(e => e.RankingFifa).ToList();
 
             CollectionAssert.AreEqual(rankings1, rankings2);
         }
@@ -1038,25 +1063,27 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_RegistraLogConDetallePorConfederacion()
         {
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var log = _auditoriaServicio.ObtenerTodos().First();
-            Assert.IsTrue(log.Accion.Contains("UEFA"));
-            Assert.IsTrue(log.Accion.Contains("CONMEBOL"));
-            Assert.IsTrue(log.Accion.Contains("42"));
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("UEFA") && s.Contains("CONMEBOL") && s.Contains("42")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_NombreGenerado_DebeEmpezarDesdeUnosPorConfederacion()
         {
+            var equiposAgregados = new List<Equipo>();
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposAgregados.Add(e));
+
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var equipos = _torneoServicio.ObtenerTodos();
-            Assert.IsTrue(equipos.Any(e => e.Nombre == "UEFA_01"));
-            Assert.IsTrue(equipos.Any(e => e.Nombre == "CAF_01"));
-            Assert.IsTrue(equipos.Any(e => e.Nombre == "AFC_01"));
+
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre == "UEFA_01"));
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre == "CAF_01"));
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre == "AFC_01"));
         }
 
         [TestMethod]
