@@ -12,6 +12,7 @@ namespace Repositorios
         public DbSet<Grupo> Grupos { get; set; }
         public DbSet<PosicionesGrupo> PosicionesGrupo { get; set; }
         public DbSet<Partido> Partidos { get; set; }
+        public DbSet<Fixture> Fixtures { get; set; }
 
         public SqlContext(DbContextOptions<SqlContext> options) : base(options)
         {

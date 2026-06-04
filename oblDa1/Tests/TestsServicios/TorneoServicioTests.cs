@@ -105,6 +105,14 @@ namespace Tests
             return new GrupoRepositorio(new SqlContext(options));
         }
 
+        private FixtureRepositorio CrearFixtureRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new FixtureRepositorio(new SqlContext(options));
+        }
+
         private Estadio CrearEstadioValido()
         {
             var estadio = new Estadio();
@@ -1009,7 +1017,7 @@ namespace Tests
             var repo2 = CrearEquipoRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), CrearPartidoRepositorio(),
-                CrearGrupoRepositorio(), new FixtureRepositorio(),
+                CrearGrupoRepositorio(), CrearFixtureRepositorio(),
                 new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
             var admin2 = new Usuario { Nombre = "A", Apellido = "B", Email = "a@b.com",
                 FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
@@ -1386,7 +1394,7 @@ namespace Tests
             var estRepo2 = CrearEstadioRepositorio();
             var partRepo2 = CrearPartidoRepositorio();
             var grpRepo2 = CrearGrupoRepositorio();
-            var fixRepo2 = new FixtureRepositorio();
+            var fixRepo2 = CrearFixtureRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(eqRepo2, estRepo2, partRepo2, grpRepo2, fixRepo2,
                 new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
@@ -1563,7 +1571,7 @@ namespace Tests
             var grpRepo2 = CrearGrupoRepositorio();
             var partRepo2 = CrearPartidoRepositorio();
             var estRepo2 = CrearEstadioRepositorio();
-            var fixRepo2 = new FixtureRepositorio();
+            var fixRepo2 = CrearFixtureRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(CrearEquipoRepositorio(), estRepo2, partRepo2, grpRepo2, fixRepo2,
                 new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);

@@ -2,14 +2,18 @@
 {
     public class Fixture
     {
+        public int Id { get; set; }
         public int SemillaFixture { get; set; }
         public DateTime FechaInicioTorneo { get; set; } = new DateTime(2026, 6, 1);
         public int MaxPartidosPorDia { get; set; } = 3;
         public int SeparacionEntreFechas { get; set; } = 3;
         public bool EstaGenerado { get; set; } = false;
         public bool CrucesGenerados { get; set; } = false;
-        public List<Equipo> Equipos { get; private set; } = new List<Equipo>();
-        public List<Estadio> Estadios { get; private set; } = new List<Estadio>();
+        private List<Equipo> _equipos = new List<Equipo>();
+        private List<Estadio> _estadios = new List<Estadio>();
+
+        public virtual List<Equipo> Equipos => _equipos;
+        public virtual List<Estadio> Estadios => _estadios;
 
         public void AgregarEquipo(Equipo equipo)
         {
