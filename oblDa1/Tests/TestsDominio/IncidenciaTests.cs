@@ -18,5 +18,15 @@ namespace Tests
 
             Assert.AreEqual(TipoIncidencia.TarjetaAmarilla, incidencia.Tipo);
         }
+
+        [TestMethod]
+        public void CrearIncidencia_ConCantidadValida_DeberiaAsignar()
+        {
+            var incidencia = new Incidencia();
+            incidencia.Equipo = CrearEquipo();
+            incidencia.Cantidad = 3;
+
+            Assert.AreEqual(3, incidencia.Cantidad);
+        }
     }
 }
