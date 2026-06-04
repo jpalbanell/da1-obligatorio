@@ -28,5 +28,13 @@ namespace Tests
 
             Assert.AreEqual(3, incidencia.Cantidad);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearIncidencia_ConCantidadMenorOIgualACero_DeberiaLanzarExcepcion()
+        {
+            var incidencia = new Incidencia();
+            incidencia.Cantidad = 0;
+        }
     }
 }
