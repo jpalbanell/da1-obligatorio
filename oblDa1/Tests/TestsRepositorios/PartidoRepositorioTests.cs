@@ -1,6 +1,7 @@
-﻿using Dominio.Entidades;
+using Dominio.Entidades;
 using IRepositorios;
 using Repositorios;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tests
 {
@@ -12,25 +13,36 @@ namespace Tests
         [TestInitialize]
         public void Setup()
         {
-            _repositorio = new PartidoRepositorio();
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var context = new SqlContext(options);
+            _repositorio = new PartidoRepositorio(context);
+        }
+
+        private static Partido CrearPartido(int id)
+        {
+            var p = new Partido(id);
+            p.Codigo = $"P{id}";
+            return p;
         }
 
         [TestMethod]
         public void Agregar_ConPartidoValido_DeberiaPoderObtenerPorId()
         {
-            var partido = new Partido(1);
+            var partido = CrearPartido(1);
 
             _repositorio.Agregar(partido);
             var resultado = _repositorio.ObtenerPorId(1);
 
             Assert.AreEqual(partido, resultado);
         }
-        
+
         [TestMethod]
         public void ObtenerTodos_ConPartidosAgregados_DeberiaRetornarTodos()
         {
-            var partido1 = new Partido(1);
-            var partido2 = new Partido(2);
+            var partido1 = CrearPartido(1);
+            var partido2 = CrearPartido(2);
 
             _repositorio.Agregar(partido1);
             _repositorio.Agregar(partido2);
@@ -38,25 +50,25 @@ namespace Tests
 
             Assert.AreEqual(2, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ObtenerTodos_SinPartidos_DeberiaRetornarListaVacia()
         {
             var resultado = _repositorio.ObtenerTodos();
             Assert.AreEqual(0, resultado.Count);
         }
-        
+
         [TestMethod]
         public void ObtenerPorId_ConIdInexistente_DeberiaRetornarNull()
         {
             var resultado = _repositorio.ObtenerPorId(999);
             Assert.IsNull(resultado);
         }
-        
+
         [TestMethod]
         public void Actualizar_ConPartidoExistente_DeberiaActualizarDatos()
         {
-            var partido = new Partido(1);
+            var partido = CrearPartido(1);
             partido.Fecha = new DateTime(2026, 6, 1);
             _repositorio.Agregar(partido);
 
@@ -66,7 +78,7 @@ namespace Tests
             var resultado = _repositorio.ObtenerPorId(1);
             Assert.AreEqual(new DateTime(2026, 6, 5), resultado.Fecha);
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(KeyNotFoundException))]
         public void Actualizar_ConPartidoInexistente_DeberiaLanzarExcepcion()
