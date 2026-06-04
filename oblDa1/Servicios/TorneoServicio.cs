@@ -256,7 +256,6 @@ namespace Servicios
         
         private const int CantidadBombos = 4;
         private const int TamanoBombo = 12;
-        private int _proximoIdGrupo = 1;
 
         public void GenerarFixture(Fixture fixture)
         {
@@ -265,7 +264,6 @@ namespace Servicios
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
 
-            _proximoIdGrupo = 1;
             var grupos = CrearYPersistirGrupos();
             var equiposOrdenados = OrdenarEquiposConDesempate(fixture.SemillaFixture);
             DistribuirEquiposEnGrupos(equiposOrdenados, grupos);
@@ -310,7 +308,6 @@ namespace Servicios
             foreach (var etiqueta in Grupo.EtiquetasValidas)
             {
                 var grupo = new Grupo();
-                grupo.Id = _proximoIdGrupo++;
                 grupo.Etiqueta = etiqueta;
                 grupos.Add(grupo);
             }
@@ -398,13 +395,9 @@ namespace Servicios
 
         private void PersistirPartidos(List<List<Partido>> partidosPorGrupo)
         {
-            int proximoId = 1;
             foreach (var partidosGrupo in partidosPorGrupo)
                 foreach (var partido in partidosGrupo)
-                {
-                    partido.Id = proximoId++;
                     _partidoRepositorio.Agregar(partido);
-                }
         }
 
         private void PersistirGrupos(List<Grupo> grupos)
@@ -596,7 +589,7 @@ namespace Servicios
             int indiceEstadio = 0;
             foreach (var (local, visitante, codigo) in emparejamientos)
             {
-                var partido = new Partido(ObtenerProximoIdPartido());
+                var partido = new Partido();
                 partido.Codigo = codigo;
                 partido.Fase = FaseTorneo.Dieciseisavos;
                 partido.EquipoLocal = local.Equipo;
@@ -656,7 +649,7 @@ namespace Servicios
             Partido origenLocal, Partido origenVisitante, Fixture fixture)
         {
             var indiceEstadio = ContarPartidosEliminatorios();
-            var partido = new Partido(ObtenerProximoIdPartido());
+            var partido = new Partido();
             partido.Codigo = codigo;
             partido.Fase = fase;
             partido.Fecha = ObtenerProximaFechaEliminatoria(fixture.MaxPartidosPorDia);
@@ -672,12 +665,6 @@ namespace Servicios
         {
             return _partidoRepositorio.ObtenerTodos()
                 .Count(p => p.Fase != FaseTorneo.FaseGrupos);
-        }
-
-        private int ObtenerProximoIdPartido()
-        {
-            var partidos = _partidoRepositorio.ObtenerTodos();
-            return partidos.Count == 0 ? 1 : partidos.Max(p => p.Id) + 1;
         }
 
         private Estadio ObtenerEstadioRotado(int indice)

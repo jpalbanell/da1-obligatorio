@@ -218,7 +218,7 @@ namespace Tests
             grupo.AgregarEquipo(local);
             grupo.AgregarEquipo(visitante);
 
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             partido.EquipoLocal = local;
             partido.EquipoVisitante = visitante;
             partido.RegistrarResultado(2, 0);
@@ -239,7 +239,7 @@ namespace Tests
         grupo.AgregarEquipo(local);
         grupo.AgregarEquipo(visitante);
 
-        var partido = new Partido(1);
+        var partido = new Partido() { Id = 1 };
         partido.EquipoLocal = local;
         partido.EquipoVisitante = visitante;
         partido.RegistrarResultado(1, 1);
@@ -260,7 +260,7 @@ namespace Tests
             grupo.AgregarEquipo(local);
             grupo.AgregarEquipo(visitante);
 
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             partido.EquipoLocal = local;
             partido.EquipoVisitante = visitante;
             partido.RegistrarResultado(2, 0);
@@ -279,7 +279,7 @@ namespace Tests
             var grupo = new Grupo();
             grupo.Etiqueta = "A";
 
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             partido.EquipoLocal = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 };
             partido.EquipoVisitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
             partido.RegistrarResultado(2, 0);

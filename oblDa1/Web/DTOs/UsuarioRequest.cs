@@ -11,6 +11,7 @@ namespace Web.DTOs
         public string Contrasena { get; set; } = "";
         public bool EsAdministrador { get; set; } = false;
         public bool EsEditor { get; set; } = false;
+        public bool EsPeriodista { get; set; } = false;
 
         public Usuario ToEntity()
         {
@@ -23,6 +24,7 @@ namespace Web.DTOs
                 usuario.Contrasena = Contrasena;
             if (EsAdministrador) usuario.Roles.Add(Rol.Administrador);
             if (EsEditor) usuario.Roles.Add(Rol.Editor);
+            if (EsPeriodista) usuario.Roles.Add(Rol.Periodista);
             return usuario;
         }
     }
