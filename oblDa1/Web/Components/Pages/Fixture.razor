@@ -14,7 +14,7 @@
     return;
 }
 
-@if (!_usuarioActual.TieneRol(Rol.Editor))
+@if (!_usuarioActual.TieneRol(Rol.Editor) && !_usuarioActual.TieneRol(Rol.Periodista))
 {
     <p>No tenés permisos para ver esta página.</p>
     return;
@@ -32,102 +32,112 @@
 
 @if (!_fixtureGenerado)
 {
-    <div class="card" style="max-width: 500px;">
-        <div class="card-body">
-            <h5 class="card-title">Generar fixture</h5>
-            <div class="mb-3">
-                <label class="form-label">Semilla fixture</label>
-                <input type="number" class="form-control" @bind="_form.SemillaFixture"/>
+    @if (_usuarioActual.TieneRol(Rol.Editor))
+    {
+        <div class="card" style="max-width: 500px;">
+            <div class="card-body">
+                <h5 class="card-title">Generar fixture</h5>
+                <div class="mb-3">
+                    <label class="form-label">Semilla fixture</label>
+                    <input type="number" class="form-control" @bind="_form.SemillaFixture"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Fecha de inicio (AAAA-MM-DD)</label>
+                    <input class="form-control" @bind="_form.FechaInicioTorneo" placeholder="2026-06-01"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Máximo de partidos por día</label>
+                    <input type="number" class="form-control" @bind="_form.MaxPartidosPorDia"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Separación entre fechas (días)</label>
+                    <input type="number" class="form-control" @bind="_form.SeparacionEntreFechas"/>
+                </div>
+                <button class="btn btn-primary" @onclick="GenerarFixture">Generar fixture</button>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Fecha de inicio (AAAA-MM-DD)</label>
-                <input class="form-control" @bind="_form.FechaInicioTorneo" placeholder="2026-06-01"/>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Máximo de partidos por día</label>
-                <input type="number" class="form-control" @bind="_form.MaxPartidosPorDia"/>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Separación entre fechas (días)</label>
-                <input type="number" class="form-control" @bind="_form.SeparacionEntreFechas"/>
-            </div>
-            <button class="btn btn-primary" @onclick="GenerarFixture">Generar fixture</button>
         </div>
-    </div>
+    }
+    else
+    {
+        <p class="text-muted">El fixture aún no ha sido generado.</p>
+    }
 }
 else
 {
-    <div class="d-flex gap-3 align-items-end mb-3 flex-wrap">
-        <div>
-            <label class="form-label">Semilla simulación</label>
-            <input type="number" class="form-control" style="max-width: 200px;"
-                   @bind="_semillaSimulacion"/>
-        </div>
-
-        @if (!_faseGruposSimulada)
-        {
-            <button class="btn btn-outline-primary" @onclick="SimularFaseGrupos">
-                Simular fase de grupos
-            </button>
-        }
-        else if (!_crucesGenerados)
-        {
+    @if (_usuarioActual.TieneRol(Rol.Editor))
+    {
+        <div class="d-flex gap-3 align-items-end mb-3 flex-wrap">
             <div>
-                <label class="form-label">Semilla cruces</label>
+                <label class="form-label">Semilla simulación</label>
                 <input type="number" class="form-control" style="max-width: 200px;"
-                       @bind="_semillaCruces"/>
+                       @bind="_semillaSimulacion"/>
             </div>
-            <button class="btn btn-success" @onclick="GenerarCruces">
-                Generar cruces segunda fase
-            </button>
-        }
-        else if (!_dieciseisavosSimulados)
-        {
-            <button class="btn btn-outline-primary" @onclick="SimularDieciseisavos">
-                Simular dieciseisavos
-            </button>
-        }
-        else if (!_octavosSimulados)
-        {
-            <button class="btn btn-outline-primary" @onclick="SimularOctavos">
-                Simular octavos
-            </button>
-        }
-        else if (!_cuartosSimulados)
-        {
-            <button class="btn btn-outline-primary" @onclick="SimularCuartos">
-                Simular cuartos
-            </button>
-        }
-        else if (!_semifinalesSimuladas)
-        {
-            <button class="btn btn-outline-primary" @onclick="SimularSemifinales">
-                Simular semifinales
-            </button>
-        }
-        else if (!_tercerPuestoSimulado || !_finalSimulada)
-        {
-            @if (!_tercerPuestoSimulado)
+
+            @if (!_faseGruposSimulada)
             {
-                <button class="btn btn-outline-secondary" @onclick="SimularTercerPuesto">
-                    Simular tercer puesto
+                <button class="btn btn-outline-primary" @onclick="SimularFaseGrupos">
+                    Simular fase de grupos
                 </button>
             }
-            @if (!_finalSimulada)
+            else if (!_crucesGenerados)
             {
-                <button class="btn btn-outline-primary" @onclick="SimularFinal">
-                    Simular final
+                <div>
+                    <label class="form-label">Semilla cruces</label>
+                    <input type="number" class="form-control" style="max-width: 200px;"
+                           @bind="_semillaCruces"/>
+                </div>
+                <button class="btn btn-success" @onclick="GenerarCruces">
+                    Generar cruces segunda fase
                 </button>
             }
-        }
-        else
-        {
-            var final = TorneoServicio.ObtenerPartidosPorFase(FaseTorneo.Final).FirstOrDefault();
-            <div class="alert alert-success mb-0">
-                ¡Torneo finalizado! 🏆 Campeón: <strong>@(final?.Vencedor?.Nombre ?? "Por definir")</strong>
-            </div>
-        }
-    </div>
+            else if (!_dieciseisavosSimulados)
+            {
+                <button class="btn btn-outline-primary" @onclick="SimularDieciseisavos">
+                    Simular dieciseisavos
+                </button>
+            }
+            else if (!_octavosSimulados)
+            {
+                <button class="btn btn-outline-primary" @onclick="SimularOctavos">
+                    Simular octavos
+                </button>
+            }
+            else if (!_cuartosSimulados)
+            {
+                <button class="btn btn-outline-primary" @onclick="SimularCuartos">
+                    Simular cuartos
+                </button>
+            }
+            else if (!_semifinalesSimuladas)
+            {
+                <button class="btn btn-outline-primary" @onclick="SimularSemifinales">
+                    Simular semifinales
+                </button>
+            }
+            else if (!_tercerPuestoSimulado || !_finalSimulada)
+            {
+                @if (!_tercerPuestoSimulado)
+                {
+                    <button class="btn btn-outline-secondary" @onclick="SimularTercerPuesto">
+                        Simular tercer puesto
+                    </button>
+                }
+                @if (!_finalSimulada)
+                {
+                    <button class="btn btn-outline-primary" @onclick="SimularFinal">
+                        Simular final
+                    </button>
+                }
+            }
+            else
+            {
+                var final = TorneoServicio.ObtenerPartidosPorFase(FaseTorneo.Final).FirstOrDefault();
+                <div class="alert alert-success mb-0">
+                    ¡Torneo finalizado! 🏆 Campeón: <strong>@(final?.Vencedor?.Nombre ?? "Por definir")</strong>
+                </div>
+            }
+        </div>
+    }
 
     <ul class="nav nav-tabs mt-3" style="flex-wrap: nowrap; overflow-x: auto;">
         @foreach (var grupo in _grupos)
@@ -205,7 +215,7 @@ else
                                 <td>@partido.Estadio</td>
                                 <td>@partido.Resultado</td>
                                 <td>
-                                    @if (!partido.TieneResultado)
+                                    @if (!partido.TieneResultado && _usuarioActual.TieneRol(Rol.Editor))
                                     {
                                         <button class="btn btn-sm btn-outline-primary"
                                                 @onclick="() => SimularPartido(partido.Id)">
