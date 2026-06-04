@@ -12,8 +12,8 @@
         private List<Equipo> _equipos = new List<Equipo>();
         private List<Estadio> _estadios = new List<Estadio>();
 
-        public List<Equipo> Equipos => _equipos;
-        public List<Estadio> Estadios => _estadios;
+        public virtual List<Equipo> Equipos => _equipos;
+        public virtual List<Estadio> Estadios => _estadios;
 
         public void AgregarEquipo(Equipo equipo)
         {
