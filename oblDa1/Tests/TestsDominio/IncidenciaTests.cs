@@ -36,5 +36,13 @@ namespace Tests
             var incidencia = new Incidencia();
             incidencia.Cantidad = 0;
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CrearIncidencia_ConEquipoNulo_DeberiaLanzarExcepcion()
+        {
+            var incidencia = new Incidencia();
+            incidencia.Equipo = null;
+        }
     }
 }

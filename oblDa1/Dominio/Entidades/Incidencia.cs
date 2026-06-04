@@ -3,9 +3,20 @@ namespace Dominio.Entidades;
 public class Incidencia
 {
     private int _cantidad;
+    private Equipo _equipo;
 
     public TipoIncidencia Tipo { get; set; }
-    public Equipo Equipo { get; set; }
+
+    public Equipo Equipo
+    {
+        get => _equipo;
+        set
+        {
+            if (value == null)
+                throw new ArgumentException("Equipo no puede ser nulo");
+            _equipo = value;
+        }
+    }
 
     public int Cantidad
     {
