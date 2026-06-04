@@ -1,6 +1,7 @@
 using Dominio.Entidades;
 using IRepositorios;
 using Repositorios;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tests.TestsRepositorios
 {
@@ -12,7 +13,11 @@ namespace Tests.TestsRepositorios
         [TestInitialize]
         public void Setup()
         {
-            _grupoRepositorio = new GrupoRepositorio();
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var context = new SqlContext(options);
+            _grupoRepositorio = new GrupoRepositorio(context);
         }
 
         [TestMethod]
@@ -25,7 +30,7 @@ namespace Tests.TestsRepositorios
 
             Assert.AreEqual(1, _grupoRepositorio.ObtenerTodos().Count);
         }
-        
+
         [TestMethod]
         public void Agregar_GrupoValido_ObtenerPorEtiquetaRetornaGrupoCorrecto()
         {
@@ -36,7 +41,7 @@ namespace Tests.TestsRepositorios
 
             Assert.AreEqual(grupo, _grupoRepositorio.ObtenerPorEtiqueta("A"));
         }
-        
+
         [TestMethod]
         public void ObtenerPorEtiqueta_EtiquetaInexistente_RetornaNull()
         {

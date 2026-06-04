@@ -14,7 +14,7 @@
         
         public string EtiquetaGrupo => Grupo?.Etiqueta;
 
-        public Equipo Equipo
+        public virtual Equipo Equipo
         {
             get => _equipo;
             set
@@ -24,7 +24,7 @@
             }
         }
 
-        public Grupo Grupo
+        public virtual Grupo Grupo
         {
             get => _grupo;
             set

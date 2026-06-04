@@ -15,10 +15,13 @@
 }
 
 <div class="d-flex gap-2 mb-3">
-    <button class="btn btn-primary" @onclick="AbrirModal">+ Agregar equipo</button>
-    <button class="btn btn-outline-secondary" @onclick="AbrirModalCompletar">
-        Completar hasta 48
-    </button>
+    @if (_usuarioActual.TieneRol(Rol.Administrador))
+    {
+        <button class="btn btn-primary" @onclick="AbrirModal">+ Agregar equipo</button>
+        <button class="btn btn-outline-secondary" @onclick="AbrirModalCompletar">
+            Completar hasta 48
+        </button>
+    }
     <span class="align-self-center text-muted">@_equipos.Count / 48 equipos cargados</span>
 </div>
 
@@ -55,15 +58,18 @@
                         <img src="@equipo.Bandera" style="height:24px;" alt="bandera" />
                     }
                 </td>
-                <td>
-                    <button class="btn btn-sm btn-outline-secondary"
-                            @onclick="() => AbrirModalEditar(equipo)">
-                        Editar
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger ms-1"
-                            @onclick="() => Eliminar(equipo.Nombre)">
-                        Eliminar
-                    </button>
+                <td>                
+                    @if (_usuarioActual.TieneRol(Rol.Administrador))
+                    {
+                        <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="() => AbrirModalEditar(equipo)">
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger ms-1"
+                                @onclick="() => Eliminar(equipo.Nombre)">
+                            Eliminar
+                        </button>
+                    }
                 </td>
             </tr>
         }
@@ -179,9 +185,9 @@
             Nav.NavigateTo("/login");
             return;
         }
-        if (!_usuarioActual.TieneRol(Rol.Editor))
+        if (!_usuarioActual.TieneRol(Rol.Administrador) && !_usuarioActual.TieneRol(Rol.Periodista))
         {
-            _mensajeError = "No tenés permisos para gestionar equipos. Se requiere rol Editor.";
+            _mensajeError = "No tenés permisos para ver esta página.";
             _cargado = true;
             return;
         }

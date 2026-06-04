@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repositorios;
 
@@ -11,9 +12,11 @@ using Repositorios;
 namespace Repositorios.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    partial class SqlContextModelSnapshot : ModelSnapshot
+    [Migration("20260604121636_PersistirGrupoPosicionesPartido")]
+    partial class PersistirGrupoPosicionesPartido
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,9 +33,6 @@ namespace Repositorios.Migrations
                     b.Property<string>("Nombre")
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
-
-                    b.Property<string>("Bandera")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Confederacion")
                         .IsRequired()
@@ -68,37 +68,6 @@ namespace Repositorios.Migrations
                     b.HasKey("Nombre");
 
                     b.ToTable("Estadios");
-                });
-
-            modelBuilder.Entity("Dominio.Entidades.Fixture", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("CrucesGenerados")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("EstaGenerado")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("FechaInicioTorneo")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MaxPartidosPorDia")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SemillaFixture")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SeparacionEntreFechas")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Fixtures");
                 });
 
             modelBuilder.Entity("Dominio.Entidades.Grupo", b =>
@@ -308,36 +277,6 @@ namespace Repositorios.Migrations
                     b.ToTable("Usuarios");
                 });
 
-            modelBuilder.Entity("FixtureEquipos", b =>
-                {
-                    b.Property<int>("FixtureId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EquipoNombre")
-                        .HasColumnType("nvarchar(60)");
-
-                    b.HasKey("FixtureId", "EquipoNombre");
-
-                    b.HasIndex("EquipoNombre");
-
-                    b.ToTable("FixtureEquipos");
-                });
-
-            modelBuilder.Entity("FixtureEstadios", b =>
-                {
-                    b.Property<int>("FixtureId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EstadioNombre")
-                        .HasColumnType("nvarchar(80)");
-
-                    b.HasKey("FixtureId", "EstadioNombre");
-
-                    b.HasIndex("EstadioNombre");
-
-                    b.ToTable("FixtureEstadios");
-                });
-
             modelBuilder.Entity("Dominio.Entidades.LogAuditoria", b =>
                 {
                     b.HasOne("Dominio.Entidades.Usuario", "Usuario")
@@ -418,36 +357,6 @@ namespace Repositorios.Migrations
                     b.Navigation("Equipo");
 
                     b.Navigation("Grupo");
-                });
-
-            modelBuilder.Entity("FixtureEquipos", b =>
-                {
-                    b.HasOne("Dominio.Entidades.Equipo", null)
-                        .WithMany()
-                        .HasForeignKey("EquipoNombre")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Dominio.Entidades.Fixture", null)
-                        .WithMany()
-                        .HasForeignKey("FixtureId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FixtureEstadios", b =>
-                {
-                    b.HasOne("Dominio.Entidades.Estadio", null)
-                        .WithMany()
-                        .HasForeignKey("EstadioNombre")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Dominio.Entidades.Fixture", null)
-                        .WithMany()
-                        .HasForeignKey("FixtureId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Dominio.Entidades.Grupo", b =>

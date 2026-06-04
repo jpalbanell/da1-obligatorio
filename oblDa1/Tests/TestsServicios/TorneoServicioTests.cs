@@ -88,7 +88,31 @@ namespace Tests
                 .Options;
             return new AuditoriaRepositorio(new SqlContext(options));
         }
-        
+
+        private PartidoRepositorio CrearPartidoRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new PartidoRepositorio(new SqlContext(options));
+        }
+
+        private GrupoRepositorio CrearGrupoRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new GrupoRepositorio(new SqlContext(options));
+        }
+
+        private FixtureRepositorio CrearFixtureRepositorio()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            return new FixtureRepositorio(new SqlContext(options));
+        }
+
         private Estadio CrearEstadioValido()
         {
             var estadio = new Estadio();
@@ -123,7 +147,7 @@ namespace Tests
             estadio.Nombre = "Centenario";
             estadio.Ciudad = "Montevideo";
             estadio.Capacidad = 25000;
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             partido.Codigo = "GA-1";
             partido.Fecha = new DateTime(2026, 6, 1);
             partido.Fase = FaseTorneo.FaseGrupos;
@@ -474,7 +498,7 @@ namespace Tests
         [ExpectedException(typeof(InvalidOperationException))]
         public void SimularPartido_SinEquipos_LanzaExcepcion()
         {
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             partido.Codigo = "TEST";
             partido.Fecha = new DateTime(2026, 6, 1);
             partido.Fase = FaseTorneo.FaseGrupos;
@@ -630,7 +654,7 @@ namespace Tests
         {
             var local = new Equipo { Nombre = "Local", Confederacion = Confederacion.CONMEBOL, RankingFifa = rankingLocal };
             var visitante = new Equipo { Nombre = "Visitante", Confederacion = Confederacion.UEFA, RankingFifa = rankingVisitante };
-            var partido = new Partido(id);
+            var partido = new Partido() { Id = id };
             partido.Codigo = $"P{id:D3}";
             partido.Fecha = new DateTime(2026, 6, 1);
             partido.EquipoLocal = local;
@@ -741,7 +765,7 @@ namespace Tests
         private void AgregarPartidoConResultado(Grupo grupo, Equipo local, Equipo visitante,
             int golesLocal, int golesVisitante, Estadio estadio, int id)
         {
-            var partido = new Partido(id);
+            var partido = new Partido() { Id = id };
             partido.Codigo = $"G{id}";
             partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
             partido.Fase = FaseTorneo.FaseGrupos;
@@ -992,8 +1016,8 @@ namespace Tests
 
             var repo2 = CrearEquipoRepositorio();
             var sesion2 = new SesionServicio();
-            var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), new PartidoRepositorio(),
-                new GrupoRepositorio(), new FixtureRepositorio(),
+            var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), CrearPartidoRepositorio(),
+                CrearGrupoRepositorio(), CrearFixtureRepositorio(),
                 new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
             var admin2 = new Usuario { Nombre = "A", Apellido = "B", Email = "a@b.com",
                 FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
@@ -1368,9 +1392,9 @@ namespace Tests
 
             var eqRepo2 = CrearEquipoRepositorio();
             var estRepo2 = CrearEstadioRepositorio();
-            var partRepo2 = new PartidoRepositorio();
-            var grpRepo2 = new GrupoRepositorio();
-            var fixRepo2 = new FixtureRepositorio();
+            var partRepo2 = CrearPartidoRepositorio();
+            var grpRepo2 = CrearGrupoRepositorio();
+            var fixRepo2 = CrearFixtureRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(eqRepo2, estRepo2, partRepo2, grpRepo2, fixRepo2,
                 new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
@@ -1544,10 +1568,10 @@ namespace Tests
                 .Select(p => p.EquipoLocal.Nombre + "-" + p.EquipoVisitante.Nombre)
                 .ToList();
 
-            var grpRepo2 = new GrupoRepositorio();
-            var partRepo2 = new PartidoRepositorio();
+            var grpRepo2 = CrearGrupoRepositorio();
+            var partRepo2 = CrearPartidoRepositorio();
             var estRepo2 = CrearEstadioRepositorio();
-            var fixRepo2 = new FixtureRepositorio();
+            var fixRepo2 = CrearFixtureRepositorio();
             var sesion2 = new SesionServicio();
             var torneo2 = new TorneoServicio(CrearEquipoRepositorio(), estRepo2, partRepo2, grpRepo2, fixRepo2,
                 new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
@@ -1569,7 +1593,7 @@ namespace Tests
                     (e1, e2, 3, 0), (e3, e4, 2, 1), (e1, e3, 1, 0),
                     (e2, e4, 2, 0), (e1, e4, 1, 0), (e2, e3, 1, 1) })
                 {
-                    var p = new Partido(idP);
+                    var p = new Partido() { Id = idP };
                     p.Codigo = $"G{idP}"; p.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
                     p.Fase = FaseTorneo.FaseGrupos;
                     p.EquipoLocal = loc; p.EquipoVisitante = vis;
@@ -1769,7 +1793,7 @@ namespace Tests
         [TestMethod]
         public void ObtenerPartidosPorEstadio_PartidoSinEstadio_NoLanzaExcepcion()
         {
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
             var resultado = _torneoServicio.ObtenerPartidosPorEstadio("Centenario");
             Assert.AreEqual(0, resultado.Count);
@@ -1778,7 +1802,7 @@ namespace Tests
         [TestMethod]
         public void ObtenerPartidosPorGrupo_PartidoSinGrupo_NoLanzaExcepcion()
         {
-            var partido = new Partido(1);
+            var partido = new Partido() { Id = 1 };
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
             var resultado = _torneoServicio.ObtenerPartidosPorGrupo("A");
             Assert.AreEqual(0, resultado.Count);
@@ -1798,7 +1822,7 @@ namespace Tests
         public void EditarPartido_ConResultado_PropagaVencedorAlSiguientePartido()
         {
             var partido = CrearPartidoValido();
-            var siguiente = new Partido(2);
+            var siguiente = new Partido() { Id = 2 };
             siguiente.OrigenLocal = partido;
             _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido, siguiente });
@@ -2108,7 +2132,7 @@ namespace Tests
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
             actual.Fase = FaseTorneo.Dieciseisavos;
-            var siguiente = new Partido(2); siguiente.OrigenLocal = actual;
+            var siguiente = new Partido() { Id = 2 }; siguiente.OrigenLocal = actual;
             _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(actual);
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { actual, siguiente });
 
@@ -2122,7 +2146,7 @@ namespace Tests
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
             actual.Fase = FaseTorneo.Dieciseisavos;
-            var siguiente = new Partido(2); siguiente.OrigenVisitante = actual;
+            var siguiente = new Partido() { Id = 2 }; siguiente.OrigenVisitante = actual;
             _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(actual);
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { actual, siguiente });
 
@@ -2136,7 +2160,7 @@ namespace Tests
         {
             var semifinal = CrearPartidoParaSimular(2500, 300, 1);
             semifinal.Fase = FaseTorneo.Semifinal;
-            var tercerPuesto = new Partido(2);
+            var tercerPuesto = new Partido() { Id = 2 };
             tercerPuesto.OrigenLocal = semifinal;
             tercerPuesto.EsPorPerdedor = true;
             _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(semifinal);
@@ -2153,7 +2177,7 @@ namespace Tests
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
             actual.Fase = FaseTorneo.Dieciseisavos;
-            var siguiente = new Partido(2); siguiente.OrigenLocal = actual;
+            var siguiente = new Partido() { Id = 2 }; siguiente.OrigenLocal = actual;
             _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { actual, siguiente });
 
             _torneoServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);

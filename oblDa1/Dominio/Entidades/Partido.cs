@@ -7,14 +7,14 @@ namespace Dominio.Entidades
         private Equipo _equipoLocal;
         private Equipo _equipoVisitante;
         private Estadio _estadio;
-        private Grupo _grupo;
+        private Grupo? _grupo;
         private int _golesLocal;
         private int _golesVisitante;
         private Equipo _vencedor;
 
         public int Id { get; set; }
-        public Partido OrigenLocal { get; set; }
-        public Partido OrigenVisitante { get; set; }
+        public virtual Partido OrigenLocal { get; set; }
+        public virtual Partido OrigenVisitante { get; set; }
         public bool EstaBloqueado { get; set; }
         public bool TieneResultado { get; set; } = false;
         public bool EsPorPerdedor { get; set; } = false;
@@ -43,13 +43,13 @@ namespace Dominio.Entidades
 
         public FaseTorneo Fase { get; set; }
 
-        public Equipo EquipoLocal
+        public virtual Equipo EquipoLocal
         {
             get => _equipoLocal;
             set { _equipoLocal = value; }
         }
 
-        public Equipo EquipoVisitante
+        public virtual Equipo EquipoVisitante
         {
             get => _equipoVisitante;
             set
@@ -60,7 +60,7 @@ namespace Dominio.Entidades
             }
         }
 
-        public Estadio Estadio
+        public virtual Estadio Estadio
         {
             get => _estadio;
             set
@@ -70,7 +70,7 @@ namespace Dominio.Entidades
             }
         }
 
-        public Grupo Grupo
+        public virtual Grupo Grupo
         {
             get => _grupo;
             set
@@ -100,7 +100,7 @@ namespace Dominio.Entidades
             }
         }
 
-        public Equipo Vencedor
+        public virtual Equipo Vencedor
         {
             get => _vencedor;
             set
@@ -111,11 +111,7 @@ namespace Dominio.Entidades
         }
         public Partido() { }
 
-        public Partido(int id)
-        {
-            Id = id;
-        }
-        
+
         private void ValidarNoNuloOVacio(string valor, string campo)
         {
             if (string.IsNullOrEmpty(valor))

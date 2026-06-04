@@ -20,10 +20,10 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<IEquipoRepositorio, EquipoRepositorio>();
 builder.Services.AddScoped<IEstadioRepositorio, EstadioRepositorio>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
-builder.Services.AddSingleton<IPartidoRepositorio, PartidoRepositorio>();
-builder.Services.AddSingleton<IGrupoRepositorio, GrupoRepositorio>();
+builder.Services.AddScoped<IPartidoRepositorio, PartidoRepositorio>();
+builder.Services.AddScoped<IGrupoRepositorio, GrupoRepositorio>();
 builder.Services.AddScoped<IAuditoriaRepositorio, AuditoriaRepositorio>();
-builder.Services.AddSingleton<IFixtureRepositorio, FixtureRepositorio>();
+builder.Services.AddScoped<IFixtureRepositorio, FixtureRepositorio>();
 
 
 builder.Services.AddScoped<ITorneoServicio, TorneoServicio>();
