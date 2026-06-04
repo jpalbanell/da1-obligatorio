@@ -5,6 +5,7 @@ namespace Dominio.Entidades
         private string _nombre;
         public Confederacion Confederacion { get; set; }
         private int _rankingFifa;
+        public string? Bandera { get; set; }
 
         public string Nombre
         {
@@ -25,7 +26,7 @@ namespace Dominio.Entidades
                 _rankingFifa = value;
             }
         }
-        
+
         private void ValidarNombre(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
