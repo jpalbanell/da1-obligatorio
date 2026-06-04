@@ -107,6 +107,6 @@ namespace Tests
         {
             var equipo = new Equipo();
             Assert.IsNull(equipo.Bandera);
-        }add .
+        }
     }
 }
