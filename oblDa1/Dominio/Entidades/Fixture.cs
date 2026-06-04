@@ -9,8 +9,11 @@
         public int SeparacionEntreFechas { get; set; } = 3;
         public bool EstaGenerado { get; set; } = false;
         public bool CrucesGenerados { get; set; } = false;
-        public List<Equipo> Equipos { get; private set; } = new List<Equipo>();
-        public List<Estadio> Estadios { get; private set; } = new List<Estadio>();
+        private List<Equipo> _equipos = new List<Equipo>();
+        private List<Estadio> _estadios = new List<Estadio>();
+
+        public List<Equipo> Equipos => _equipos;
+        public List<Estadio> Estadios => _estadios;
 
         public void AgregarEquipo(Equipo equipo)
         {
