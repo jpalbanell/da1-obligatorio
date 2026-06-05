@@ -87,5 +87,17 @@ namespace Tests.TestsServicios
 
             Assert.AreEqual(2, resultado.Count);
         }
+
+        [TestMethod]
+        public void ObtenerTodas_UsuarioConNotificaciones_DelegaEnRepositorio()
+        {
+            var periodista = CrearUsuarioValido();
+            var notificaciones = new List<Notificacion> { new Notificacion(), new Notificacion(), new Notificacion() };
+            _notificacionRepoMock.Setup(r => r.ObtenerPorUsuario(periodista)).Returns(notificaciones);
+
+            var resultado = _servicio.ObtenerTodas(periodista);
+
+            Assert.AreEqual(3, resultado.Count);
+        }
     }
 }
