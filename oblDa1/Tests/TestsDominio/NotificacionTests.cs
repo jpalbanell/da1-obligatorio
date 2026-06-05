@@ -52,5 +52,14 @@ namespace Tests
             notificacion.MarcarLeida();
             Assert.IsTrue(notificacion.Leida);
         }
+
+        [TestMethod]
+        public void MarcarLeida_NotificacionYaLeida_PermaneceTrue()
+        {
+            var notificacion = new Notificacion();
+            notificacion.MarcarLeida();
+            notificacion.MarcarLeida();
+            Assert.IsTrue(notificacion.Leida);
+        }
     }
 }
