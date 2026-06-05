@@ -41,5 +41,16 @@ namespace Tests.TestsServicios
 
             _notificacionRepoMock.Verify(r => r.Agregar(It.IsAny<Notificacion>()), Times.Once);
         }
+
+        [TestMethod]
+        public void NotificarPorRol_RolConDosUsuarios_LlamaAgregarDosVeces()
+        {
+            var periodistas = new List<Usuario> { CrearUsuarioValido(), CrearUsuarioValido() };
+            _usuarioRepoMock.Setup(r => r.ObtenerPorRol(Rol.Periodista)).Returns(periodistas);
+
+            _servicio.NotificarPorRol("Resultado simulado", Rol.Periodista);
+
+            _notificacionRepoMock.Verify(r => r.Agregar(It.IsAny<Notificacion>()), Times.Exactly(2));
+        }
     }
 }
