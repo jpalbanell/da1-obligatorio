@@ -20,5 +20,13 @@ namespace Tests
             var notificacion = new Notificacion();
             notificacion.Mensaje = "   ";
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Crear_MensajeMayorA500Caracteres_LanzaExcepcion()
+        {
+            var notificacion = new Notificacion();
+            notificacion.Mensaje = new string('a', 501);
+        }
     }
 }

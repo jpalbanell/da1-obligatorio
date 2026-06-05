@@ -18,6 +18,8 @@ namespace Dominio.Entidades
         {
             if (string.IsNullOrWhiteSpace(mensaje))
                 throw new ArgumentException("El mensaje es obligatorio.");
+            if (mensaje.Length > 500)
+                throw new ArgumentException("El mensaje no puede superar los 500 caracteres.");
         }
     }
 }
