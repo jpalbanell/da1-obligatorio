@@ -165,5 +165,32 @@ namespace Tests
                 Assert.IsTrue(resultado.Roles.Contains(Rol.Periodista));
             }
         }
+
+        [TestMethod]
+        public void ObtenerPorRol_RolPeriodista_RetornaUsuariosConEseRol()
+        {
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            var periodista = CrearUsuarioValido("Juan", "Pérez", "juan@ejemplo.com");
+            periodista.Roles.Add(Rol.Periodista);
+            var editor = CrearUsuarioValido("Ana", "García", "ana@ejemplo.com");
+            editor.Roles.Add(Rol.Editor);
+
+            using (var contextEscritura = new SqlContext(options))
+            {
+                var repo = new UsuarioRepositorio(contextEscritura);
+                repo.Agregar(periodista);
+                repo.Agregar(editor);
+            }
+
+            using (var contextLectura = new SqlContext(options))
+            {
+                var resultado = new UsuarioRepositorio(contextLectura).ObtenerPorRol(Rol.Periodista);
+                Assert.AreEqual(1, resultado.Count);
+                Assert.IsTrue(resultado[0].Roles.Contains(Rol.Periodista));
+            }
+        }
     }
 }

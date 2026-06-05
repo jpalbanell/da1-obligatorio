@@ -6,6 +6,8 @@ namespace Dominio.Entidades
         private DateTime _fechaCreacion;
         private Usuario _periodista;
 
+        public int Id { get; set; }
+
         public string Mensaje
         {
             get => _mensaje;
