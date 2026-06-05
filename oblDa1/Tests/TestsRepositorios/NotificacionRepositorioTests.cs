@@ -69,5 +69,26 @@ namespace Tests
             Assert.IsNotNull(resultado);
             Assert.AreEqual(notificacion.Mensaje, resultado.Mensaje);
         }
+
+        [TestMethod]
+        public void ObtenerNoLeidasPorUsuario_UsuarioConNotificaciones_RetornaSoloNoLeidas()
+        {
+            var periodista = CrearUsuarioValido();
+            _context.Usuarios.Add(periodista);
+            _context.SaveChanges();
+
+            var noLeida = CrearNotificacionValida(periodista);
+            var leida = CrearNotificacionValida(periodista);
+            _repositorio.Agregar(noLeida);
+            _repositorio.Agregar(leida);
+
+            leida.MarcarLeida();
+            _repositorio.Actualizar(leida);
+
+            var resultado = _repositorio.ObtenerNoLeidasPorUsuario(periodista);
+
+            Assert.AreEqual(1, resultado.Count);
+            Assert.IsFalse(resultado[0].Leida);
+        }
     }
 }
