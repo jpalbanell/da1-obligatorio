@@ -19,6 +19,7 @@ namespace Tests
         private Mock<IFixtureRepositorio> _fixtureRepoMock;
         private Mock<IAuditoriaServicio> _auditoriaMock;
         private Mock<ISesionServicio> _sesionMock;
+        private Mock<INotificacionServicio> _notificacionMock;
 
         // Aliases de backward-compat para helpers e tests [Ignore]-d
         private IEquipoRepositorio _equipoRepositorio => _equipoRepoMock.Object;
@@ -39,6 +40,7 @@ namespace Tests
             _fixtureRepoMock = new Mock<IFixtureRepositorio>();
             _auditoriaMock = new Mock<IAuditoriaServicio>();
             _sesionMock = new Mock<ISesionServicio>();
+            _notificacionMock = new Mock<INotificacionServicio>();
 
             _equipoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Equipo>());
             _estadioRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Estadio>());
@@ -53,7 +55,8 @@ namespace Tests
 
             _torneoServicio = new TorneoServicio(
                 _equipoRepoMock.Object, _estadioRepoMock.Object, _partidoRepoMock.Object,
-                _grupoRepoMock.Object, _fixtureRepoMock.Object, _auditoriaMock.Object, _sesionMock.Object);
+                _grupoRepoMock.Object, _fixtureRepoMock.Object, _auditoriaMock.Object,
+                _sesionMock.Object, _notificacionMock.Object);
         }
 
         private Equipo CrearEquipoValido()
@@ -853,7 +856,8 @@ namespace Tests
             var torneo2 = new TorneoServicio(
                 equipoMock2.Object, new Mock<IEstadioRepositorio>().Object,
                 new Mock<IPartidoRepositorio>().Object, new Mock<IGrupoRepositorio>().Object,
-                fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object);
+                fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object,
+                new Mock<INotificacionServicio>().Object);
 
             torneo2.CompletarEquiposAutomaticamente(42);
             var rankings2 = equiposRun2.Select(e => e.RankingFifa).ToList();
@@ -1234,7 +1238,8 @@ namespace Tests
             grupMock2.Setup(r => r.Agregar(It.IsAny<Grupo>())).Callback<Grupo>(g => grupos2.Add(g));
             var torneo2 = new TorneoServicio(
                 equipoMock2.Object, estadioMock2.Object, partidoMock2.Object,
-                grupMock2.Object, fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object);
+                grupMock2.Object, fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object,
+                new Mock<INotificacionServicio>().Object);
             torneo2.GenerarFixture(new Fixture { SemillaFixture = 42 });
             var primerEquipo2 = grupos2[0].ListaPosiciones[0].Equipo.Nombre;
 
@@ -1480,7 +1485,8 @@ namespace Tests
                 .Callback<Partido>(p => { p.Id = nextId2++; partidos2.Add(p); });
             var torneo2 = new TorneoServicio(
                 equipoMock2.Object, estadioMock2.Object, partidoMock2.Object,
-                grupMock2.Object, fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object);
+                grupMock2.Object, fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object,
+                new Mock<INotificacionServicio>().Object);
             torneo2.GenerarCruces(42);
             var orden2 = partidos2.Where(p => p.Fase == FaseTorneo.Dieciseisavos)
                 .OrderBy(p => p.Codigo)
@@ -2075,6 +2081,54 @@ namespace Tests
             _torneoServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
 
             Assert.IsTrue(faseGrupos.EstaBloqueado);
+        }
+
+        [TestMethod]
+        public void EditarPartido_ConResultado_NotificaAPeriodistas()
+        {
+            var estadio = CrearEstadioValido();
+            var local = CrearEquipoValido();
+            var visitante = CrearEquipoValido();
+            visitante.Nombre = "Argentina";
+            var partido = new Partido();
+            partido.Fecha = DateTime.Now;
+            partido.Estadio = estadio;
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            partido.Fase = FaseTorneo.FaseGrupos;
+
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre(estadio.Nombre)).Returns(estadio);
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor));
+
+            _torneoServicio.EditarPartido(1, DateTime.Now, estadio.Nombre, true, 2, 1);
+
+            _notificacionMock.Verify(n => n.NotificarPorRol(It.IsAny<string>(), Rol.Periodista), Times.Once);
+        }
+
+        [TestMethod]
+        public void SimularPartido_Valido_NotificaAPeriodistas()
+        {
+            var partido = CrearPartidoParaSimular(2000, 1800);
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(partido);
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor));
+
+            _torneoServicio.SimularPartido(1, 42);
+
+            _notificacionMock.Verify(n => n.NotificarPorRol(It.IsAny<string>(), Rol.Periodista), Times.Once);
+        }
+
+        [TestMethod]
+        public void SimularFase_Valido_NotificaAPeriodistas()
+        {
+            var partido = CrearPartidoParaSimular(2000, 1800);
+            partido.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor));
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            _notificacionMock.Verify(n => n.NotificarPorRol(It.IsAny<string>(), Rol.Periodista), Times.Once);
         }
     }
 }
