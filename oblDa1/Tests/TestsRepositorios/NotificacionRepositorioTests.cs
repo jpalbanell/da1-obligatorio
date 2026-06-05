@@ -110,5 +110,35 @@ namespace Tests
 
             Assert.AreEqual(2, resultado.Count);
         }
+
+        [TestMethod]
+        public void Actualizar_NotificacionLeida_PersisteCambio()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            var options = new DbContextOptionsBuilder<SqlContext>()
+                .UseInMemoryDatabase(dbName)
+                .Options;
+
+            var periodista = CrearUsuarioValido();
+            int notificacionId;
+
+            using (var contextEscritura = new SqlContext(options))
+            {
+                contextEscritura.Usuarios.Add(periodista);
+                contextEscritura.SaveChanges();
+                var notificacion = CrearNotificacionValida(periodista);
+                var repo = new NotificacionRepositorio(contextEscritura);
+                repo.Agregar(notificacion);
+                notificacionId = notificacion.Id;
+                notificacion.MarcarLeida();
+                repo.Actualizar(notificacion);
+            }
+
+            using (var contextLectura = new SqlContext(options))
+            {
+                var resultado = new NotificacionRepositorio(contextLectura).ObtenerPorId(notificacionId);
+                Assert.IsTrue(resultado.Leida);
+            }
+        }
     }
 }
