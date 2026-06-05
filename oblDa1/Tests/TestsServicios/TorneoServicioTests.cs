@@ -2084,7 +2084,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void EditarPartido_ConResultado_NotificaAPeriodistas()
+        public void EditarPartido_ConResultadoCargado_GeneraNotificacion()
         {
             var estadio = CrearEstadioValido();
             var local = CrearEquipoValido();
@@ -2104,6 +2104,29 @@ namespace Tests
             _torneoServicio.EditarPartido(1, DateTime.Now, estadio.Nombre, true, 2, 1);
 
             _notificacionMock.Verify(n => n.NotificarPorRol(It.IsAny<string>(), Rol.Periodista), Times.Once);
+        }
+
+        [TestMethod]
+        public void EditarPartido_SinCargarResultado_NoGeneraNotificacion()
+        {
+            var estadio = CrearEstadioValido();
+            var local = CrearEquipoValido();
+            var visitante = CrearEquipoValido();
+            visitante.Nombre = "Argentina";
+            var partido = new Partido();
+            partido.Fecha = DateTime.Now;
+            partido.Estadio = estadio;
+            partido.EquipoLocal = local;
+            partido.EquipoVisitante = visitante;
+            partido.Fase = FaseTorneo.FaseGrupos;
+
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre(estadio.Nombre)).Returns(estadio);
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor));
+
+            _torneoServicio.EditarPartido(1, DateTime.Now.AddDays(1), estadio.Nombre, false, 0, 0);
+
+            _notificacionMock.Verify(n => n.NotificarPorRol(It.IsAny<string>(), Rol.Periodista), Times.Never);
         }
 
         [TestMethod]

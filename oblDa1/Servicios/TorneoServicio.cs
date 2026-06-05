@@ -744,15 +744,15 @@ namespace Servicios
                 partido.RegistrarResultado(golesLocal, golesVisitante);
                 partido.Grupo?.ActualizarPosiciones(partido);
                 PropagarResultado(partido);
+                _notificacionServicio.NotificarPorRol(
+                    $"El partido {partido.Id} tiene resultado cargado.",
+                    Rol.Periodista);
             }
 
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar(
                 $"Modificación de partido: {partido.Id}",
                 _sesionServicio.ObtenerUsuarioActual());
-            _notificacionServicio.NotificarPorRol(
-                $"El partido {partido.Id} fue editado.",
-                Rol.Periodista);
         }
 
         public void SimularPartido(int partidoId, int semillaSimulation)
