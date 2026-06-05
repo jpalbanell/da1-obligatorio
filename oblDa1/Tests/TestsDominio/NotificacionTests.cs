@@ -36,5 +36,13 @@ namespace Tests
             var notificacion = new Notificacion();
             notificacion.FechaCreacion = default;
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Crear_PeriodistaNull_LanzaExcepcion()
+        {
+            var notificacion = new Notificacion();
+            notificacion.Periodista = null;
+        }
     }
 }

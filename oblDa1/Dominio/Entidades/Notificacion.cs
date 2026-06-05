@@ -4,6 +4,7 @@ namespace Dominio.Entidades
     {
         private string _mensaje;
         private DateTime _fechaCreacion;
+        private Usuario _periodista;
 
         public string Mensaje
         {
@@ -22,6 +23,17 @@ namespace Dominio.Entidades
             {
                 ValidarFechaCreacion(value);
                 _fechaCreacion = value;
+            }
+        }
+
+        public virtual Usuario Periodista
+        {
+            get => _periodista;
+            set
+            {
+                if (value == null)
+                    throw new ArgumentException("El periodista es obligatorio.");
+                _periodista = value;
             }
         }
 
