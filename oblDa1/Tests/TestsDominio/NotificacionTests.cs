@@ -12,5 +12,13 @@ namespace Tests
             var notificacion = new Notificacion();
             notificacion.Mensaje = null;
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Crear_MensajeVacio_LanzaExcepcion()
+        {
+            var notificacion = new Notificacion();
+            notificacion.Mensaje = "   ";
+        }
     }
 }
