@@ -53,5 +53,21 @@ namespace Tests
 
             Assert.AreEqual(1, _context.Notificaciones.Count());
         }
+
+        [TestMethod]
+        public void ObtenerPorId_IdExistente_RetornaNotificacion()
+        {
+            var periodista = CrearUsuarioValido();
+            _context.Usuarios.Add(periodista);
+            _context.SaveChanges();
+
+            var notificacion = CrearNotificacionValida(periodista);
+            _repositorio.Agregar(notificacion);
+
+            var resultado = _repositorio.ObtenerPorId(notificacion.Id);
+
+            Assert.IsNotNull(resultado);
+            Assert.AreEqual(notificacion.Mensaje, resultado.Mensaje);
+        }
     }
 }
