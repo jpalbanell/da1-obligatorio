@@ -90,5 +90,25 @@ namespace Tests
             Assert.AreEqual(1, resultado.Count);
             Assert.IsFalse(resultado[0].Leida);
         }
+
+        [TestMethod]
+        public void ObtenerPorUsuario_UsuarioConNotificaciones_RetornaTodas()
+        {
+            var periodista = CrearUsuarioValido();
+            _context.Usuarios.Add(periodista);
+            _context.SaveChanges();
+
+            var notificacion1 = CrearNotificacionValida(periodista);
+            var notificacion2 = CrearNotificacionValida(periodista);
+            _repositorio.Agregar(notificacion1);
+            _repositorio.Agregar(notificacion2);
+
+            notificacion2.MarcarLeida();
+            _repositorio.Actualizar(notificacion2);
+
+            var resultado = _repositorio.ObtenerPorUsuario(periodista);
+
+            Assert.AreEqual(2, resultado.Count);
+        }
     }
 }
