@@ -75,5 +75,17 @@ namespace Tests.TestsServicios
 
             _servicio.MarcarLeida(99);
         }
+
+        [TestMethod]
+        public void ObtenerNoLeidas_UsuarioConNotificaciones_DelegaEnRepositorio()
+        {
+            var periodista = CrearUsuarioValido();
+            var notificaciones = new List<Notificacion> { new Notificacion(), new Notificacion() };
+            _notificacionRepoMock.Setup(r => r.ObtenerNoLeidasPorUsuario(periodista)).Returns(notificaciones);
+
+            var resultado = _servicio.ObtenerNoLeidas(periodista);
+
+            Assert.AreEqual(2, resultado.Count);
+        }
     }
 }
