@@ -52,5 +52,19 @@ namespace Tests.TestsServicios
 
             _notificacionRepoMock.Verify(r => r.Agregar(It.IsAny<Notificacion>()), Times.Exactly(2));
         }
+
+        [TestMethod]
+        public void MarcarLeida_IdExistente_LlamaActualizar()
+        {
+            var notificacion = new Notificacion();
+            notificacion.Mensaje = "Partido editado";
+            notificacion.FechaCreacion = DateTime.Now;
+            notificacion.Periodista = CrearUsuarioValido();
+            _notificacionRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(notificacion);
+
+            _servicio.MarcarLeida(1);
+
+            _notificacionRepoMock.Verify(r => r.Actualizar(notificacion), Times.Once);
+        }
     }
 }
