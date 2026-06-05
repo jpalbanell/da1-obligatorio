@@ -28,5 +28,13 @@ namespace Tests
             var notificacion = new Notificacion();
             notificacion.Mensaje = new string('a', 501);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Crear_FechaCreacionPorDefecto_LanzaExcepcion()
+        {
+            var notificacion = new Notificacion();
+            notificacion.FechaCreacion = default;
+        }
     }
 }
