@@ -65,54 +65,6 @@ namespace Tests
             return equipo;
         }
         
-        private EstadioRepositorio CrearEstadioRepositorio()
-        {
-            var options = new DbContextOptionsBuilder<SqlContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            return new EstadioRepositorio(new SqlContext(options));
-        }
-        
-        private EquipoRepositorio CrearEquipoRepositorio()
-        {
-            var options = new DbContextOptionsBuilder<SqlContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            return new EquipoRepositorio(new SqlContext(options));
-        }
-
-        private AuditoriaRepositorio CrearAuditoriaRepositorio()
-        {
-            var options = new DbContextOptionsBuilder<SqlContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            return new AuditoriaRepositorio(new SqlContext(options));
-        }
-
-        private PartidoRepositorio CrearPartidoRepositorio()
-        {
-            var options = new DbContextOptionsBuilder<SqlContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            return new PartidoRepositorio(new SqlContext(options));
-        }
-
-        private GrupoRepositorio CrearGrupoRepositorio()
-        {
-            var options = new DbContextOptionsBuilder<SqlContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            return new GrupoRepositorio(new SqlContext(options));
-        }
-
-        private FixtureRepositorio CrearFixtureRepositorio()
-        {
-            var options = new DbContextOptionsBuilder<SqlContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            return new FixtureRepositorio(new SqlContext(options));
-        }
-
         private Estadio CrearEstadioValido()
         {
             var estadio = new Estadio();
@@ -120,19 +72,6 @@ namespace Tests
             estadio.Ciudad = "Montevideo";
             estadio.Capacidad = 25000;
             return estadio;
-        }
-        
-        private void IniciarSesionComoEditor()
-        {
-            _sesionServicio.CerrarSesion();
-            var editor = new Usuario();
-            editor.Nombre = "Editor";
-            editor.Apellido = "Test";
-            editor.Email = "editor@test.com";
-            editor.FechaNacimiento = new DateTime(1990, 1, 1);
-            editor.Contrasena = "Password@1";
-            editor.Roles.Add(Rol.Editor);
-            _sesionServicio.IniciarSesion(editor);
         }
         
         private Partido CrearPartidoValido()
@@ -331,10 +270,8 @@ namespace Tests
         }
         
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_CsvValido_ImportaCorrectamente()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nArgentina,CONMEBOL,1600";
 
             var resultado = _torneoServicio.ImportarEquipos(csv);
@@ -344,10 +281,8 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_FilaConError_RegistraError()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMal,ConfederacionInvalida,999";
 
             var resultado = _torneoServicio.ImportarEquipos(csv);
@@ -357,10 +292,10 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_NombreDuplicado_RegistraError()
         {
-            IniciarSesionComoEditor();
+            var fixtureCompartido = new Fixture();
+            _fixtureRepoMock.Setup(r => r.Obtener()).Returns(fixtureCompartido);
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nUruguay,CONMEBOL,1600";
 
             var resultado = _torneoServicio.ImportarEquipos(csv);
@@ -370,45 +305,21 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(UnauthorizedAccessException))]
         public void ImportarEquipos_SinRolEditor_LanzaExcepcion()
         {
-            _sesionServicio.CerrarSesion();
-            var admin = new Usuario();
-            admin.Nombre = "Admin";
-            admin.Apellido = "Test";
-            admin.Email = "admin2@test.com";
-            admin.FechaNacimiento = new DateTime(1990, 1, 1);
-            admin.Contrasena = "Password@1";
-            admin.Roles.Add(Rol.Administrador);
-            _sesionServicio.IniciarSesion(admin);
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor)).Throws<UnauthorizedAccessException>();
 
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500";
             _torneoServicio.ImportarEquipos(csv);
         }
         
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_CondicionesValidas_GeneraFixture()
         {
-            // Completar equipos como admin
-            _torneoServicio.CompletarEquiposAutomaticamente(42);
-
-            // Agregar estadios como admin
-            for (int i = 1; i <= 4; i++)
-            {
-                var estadio = new Estadio();
-                estadio.Nombre = $"Estadio {i}";
-                estadio.Ciudad = "Montevideo";
-                estadio.Capacidad = 25000;
-                _torneoServicio.AgregarEstadio(estadio);
-            }
-
-            // Generar fixture como editor
-            IniciarSesionComoEditor();
-            var fixture = new Fixture();
-            fixture.SemillaFixture = 42;
+            _equipoRepoMock.Setup(r => r.ObtenerTodos()).Returns(CrearLista48Equipos());
+            _estadioRepoMock.Setup(r => r.ObtenerTodos()).Returns(CrearLista4Estadios());
+            var fixture = new Fixture { SemillaFixture = 42 };
 
             _torneoServicio.GenerarFixture(fixture);
 
@@ -416,59 +327,44 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(UnauthorizedAccessException))]
         public void GenerarFixture_SinRolEditor_LanzaExcepcion()
         {
-            var fixture = new Fixture();
-            _torneoServicio.GenerarFixture(fixture);
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor)).Throws<UnauthorizedAccessException>();
+
+            _torneoServicio.GenerarFixture(new Fixture());
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarFixture_MenosDe48Equipos_LanzaExcepcion()
         {
-            IniciarSesionComoEditor();
-            var fixture = new Fixture();
-            _torneoServicio.GenerarFixture(fixture);
+            _torneoServicio.GenerarFixture(new Fixture());
         }
         
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(UnauthorizedAccessException))]
         public void GenerarCruces_SinRolEditor_LanzaExcepcion()
         {
+            _sesionMock.Setup(s => s.ValidarRol(Rol.Editor)).Throws<UnauthorizedAccessException>();
+
             _torneoServicio.GenerarCruces(42);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarCruces_FixtureNoGenerado_LanzaExcepcion()
         {
-            IniciarSesionComoEditor();
             _torneoServicio.GenerarCruces(42);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarCruces_PartidosSinResultado_LanzaExcepcion()
         {
-            _torneoServicio.CompletarEquiposAutomaticamente(42);
-            for (int i = 1; i <= 4; i++)
-            {
-                var estadio = new Estadio();
-                estadio.Nombre = $"Estadio {i}";
-                estadio.Ciudad = "Montevideo";
-                estadio.Capacidad = 25000;
-                _torneoServicio.AgregarEstadio(estadio);
-            }
-            IniciarSesionComoEditor();
-            var fixture = new Fixture();
-            fixture.SemillaFixture = 42;
-            _torneoServicio.GenerarFixture(fixture);
+            _fixtureRepoMock.Setup(r => r.Obtener()).Returns(new Fixture { EstaGenerado = true });
+            var sinResultado = new Partido { Id = 1, Fase = FaseTorneo.FaseGrupos };
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { sinResultado });
 
             _torneoServicio.GenerarCruces(42);
         }
@@ -662,7 +558,7 @@ namespace Tests
             return partido;
         }
 
-        private void CargarEquipos48EnRepositorio()
+        private List<Equipo> CrearLista48Equipos()
         {
             Confederacion[] confs = {
                 Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
@@ -679,17 +575,12 @@ namespace Tests
                 Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
                 Confederacion.OFC
             };
-            for (int i = 0; i < 48; i++)
-            {
-                var e = new Equipo();
-                e.Nombre = $"Equipo_{i + 1}";
-                e.Confederacion = confs[i];
-                e.RankingFifa = 2500 - (i * 45);
-                _equipoRepositorio.Agregar(e);
-            }
+            return Enumerable.Range(0, 48)
+                .Select(i => new Equipo { Nombre = $"Equipo_{i + 1}", Confederacion = confs[i], RankingFifa = 2500 - (i * 45) })
+                .ToList();
         }
 
-        private void CargarEquipos48ConEmpatesEnRepositorio()
+        private List<Equipo> CrearLista48EquiposConEmpates()
         {
             Confederacion[] confs = {
                 Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
@@ -714,19 +605,14 @@ namespace Tests
                 1150, 1100, 1050, 1000, 950, 900, 850, 800, 750,
                 700, 650, 600, 600, 550, 500, 450, 400, 350
             };
-            for (int i = 0; i < 48; i++)
-            {
-                var e = new Equipo();
-                e.Nombre = $"Equipo_{i + 1}";
-                e.Confederacion = confs[i];
-                e.RankingFifa = rankings[i];
-                _equipoRepositorio.Agregar(e);
-            }
+            return Enumerable.Range(0, 48)
+                .Select(i => new Equipo { Nombre = $"Equipo_{i + 1}", Confederacion = confs[i], RankingFifa = rankings[i] })
+                .ToList();
         }
 
-        private void CargarEquiposParaForzarConflictoConfederacion()
+        private List<Equipo> CrearLista48EquiposConflictoConfederacion()
         {
-            var confs = new[] {
+            Confederacion[] confs = {
                 Confederacion.CONMEBOL, Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
                 Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
                 Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
@@ -740,113 +626,34 @@ namespace Tests
                 Confederacion.AFC,     Confederacion.AFC,     Confederacion.AFC,    Confederacion.AFC,
                 Confederacion.AFC,     Confederacion.AFC,     Confederacion.UEFA,   Confederacion.OFC
             };
-            for (int i = 0; i < 48; i++)
-            {
-                var e = new Equipo();
-                e.Nombre = $"Equipo_{i + 1}";
-                e.Confederacion = confs[i];
-                e.RankingFifa = 2500 - (i * 45);
-                _equipoRepositorio.Agregar(e);
-            }
+            return Enumerable.Range(0, 48)
+                .Select(i => new Equipo { Nombre = $"Equipo_{i + 1}", Confederacion = confs[i], RankingFifa = 2500 - (i * 45) })
+                .ToList();
         }
 
-        private void CargarEstadiosEnRepositorio(int cantidad)
-        {
-            for (int i = 1; i <= cantidad; i++)
-            {
-                var estadio = new Estadio();
-                estadio.Nombre = $"Estadio_{i}";
-                estadio.Ciudad = $"Ciudad_{i}";
-                estadio.Capacidad = 40000;
-                _estadioRepositorio.Agregar(estadio);
-            }
-        }
+        private List<Estadio> CrearLista4Estadios() =>
+            Enumerable.Range(1, 4)
+                .Select(i => new Estadio { Nombre = $"Estadio_{i}", Ciudad = $"Ciudad_{i}", Capacidad = 40000 })
+                .ToList();
 
-        private void AgregarPartidoConResultado(Grupo grupo, Equipo local, Equipo visitante,
-            int golesLocal, int golesVisitante, Estadio estadio, int id)
+        private (List<Grupo> grupos, List<Partido> partidos) SetupYGenerarFixture(
+            List<Equipo> equipos = null, List<Estadio> estadios = null, int semilla = 42)
         {
-            var partido = new Partido() { Id = id };
-            partido.Codigo = $"G{id}";
-            partido.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
-            partido.Fase = FaseTorneo.FaseGrupos;
-            partido.EquipoLocal = local;
-            partido.EquipoVisitante = visitante;
-            partido.Estadio = estadio;
-            partido.Grupo = grupo;
-            partido.GolesLocal = golesLocal;
-            partido.GolesVisitante = golesVisitante;
-            partido.Vencedor = golesLocal > golesVisitante ? local
-                : golesVisitante > golesLocal ? visitante : null;
-            partido.TieneResultado = true;
-            grupo.ListaPartidos.Add(partido);
-            _partidoRepositorio.Agregar(partido);
-            if (_estadioRepositorio.ObtenerPorNombre(estadio.Nombre) == null)
-                _estadioRepositorio.Agregar(estadio);
-        }
+            equipos ??= CrearLista48Equipos();
+            estadios ??= CrearLista4Estadios();
+            _equipoRepoMock.Setup(r => r.ObtenerTodos()).Returns(equipos);
+            _estadioRepoMock.Setup(r => r.ObtenerTodos()).Returns(estadios);
 
-        private void CargarDoceGruposCompletos()
-        {
-            var etiquetas = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
-            int id = 1;
-            foreach (var etiqueta in etiquetas)
-            {
-                var grupo = new Grupo(); grupo.Etiqueta = etiqueta;
-                var estadio = new Estadio { Nombre = "Estadio " + etiqueta, Ciudad = "Ciudad", Capacidad = 60000 };
-                var e1 = new Equipo { Nombre = etiqueta + "_1", Confederacion = Confederacion.UEFA, RankingFifa = 2000 };
-                var e2 = new Equipo { Nombre = etiqueta + "_2", Confederacion = Confederacion.UEFA, RankingFifa = 1900 };
-                var e3 = new Equipo { Nombre = etiqueta + "_3", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
-                var e4 = new Equipo { Nombre = etiqueta + "_4", Confederacion = Confederacion.UEFA, RankingFifa = 1700 };
-                foreach (var e in new[] { e1, e2, e3, e4 })
-                    grupo.ListaPosiciones.Add(new PosicionesGrupo { Equipo = e, Grupo = grupo });
-                AgregarPartidoConResultado(grupo, e1, e2, 3, 0, estadio, id++);
-                AgregarPartidoConResultado(grupo, e3, e4, 2, 1, estadio, id++);
-                AgregarPartidoConResultado(grupo, e1, e3, 1, 0, estadio, id++);
-                AgregarPartidoConResultado(grupo, e2, e4, 2, 0, estadio, id++);
-                AgregarPartidoConResultado(grupo, e1, e4, 1, 0, estadio, id++);
-                AgregarPartidoConResultado(grupo, e2, e3, 1, 1, estadio, id++);
-                foreach (var partido in grupo.ListaPartidos)
-                    grupo.ActualizarPosiciones(partido);
-                _grupoRepositorio.Agregar(grupo);
-            }
-        }
+            var gruposCapturados = new List<Grupo>();
+            _grupoRepoMock.Setup(r => r.Agregar(It.IsAny<Grupo>()))
+                .Callback<Grupo>(g => gruposCapturados.Add(g));
 
-        private void CargarDoceGruposEmpateTotal()
-        {
-            var etiquetas = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
-            int id = 1;
-            foreach (var etiqueta in etiquetas)
-            {
-                var grupo = new Grupo(); grupo.Etiqueta = etiqueta;
-                var estadio = new Estadio { Nombre = "Estadio " + etiqueta, Ciudad = "Ciudad", Capacidad = 60000 };
-                var e1 = new Equipo { Nombre = etiqueta + "_1", Confederacion = Confederacion.UEFA, RankingFifa = 2000 };
-                var e2 = new Equipo { Nombre = etiqueta + "_2", Confederacion = Confederacion.UEFA, RankingFifa = 1900 };
-                var e3 = new Equipo { Nombre = etiqueta + "_3", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
-                var e4 = new Equipo { Nombre = etiqueta + "_4", Confederacion = Confederacion.UEFA, RankingFifa = 1700 };
-                foreach (var e in new[] { e1, e2, e3, e4 })
-                    grupo.ListaPosiciones.Add(new PosicionesGrupo { Equipo = e, Grupo = grupo });
-                AgregarPartidoConResultado(grupo, e1, e2, 0, 0, estadio, id++);
-                AgregarPartidoConResultado(grupo, e3, e4, 0, 0, estadio, id++);
-                AgregarPartidoConResultado(grupo, e1, e3, 0, 0, estadio, id++);
-                AgregarPartidoConResultado(grupo, e2, e4, 0, 0, estadio, id++);
-                AgregarPartidoConResultado(grupo, e1, e4, 0, 0, estadio, id++);
-                AgregarPartidoConResultado(grupo, e2, e3, 0, 0, estadio, id++);
-                foreach (var partido in grupo.ListaPartidos)
-                    grupo.ActualizarPosiciones(partido);
-                _grupoRepositorio.Agregar(grupo);
-            }
-        }
+            var partidosCapturados = new List<Partido>();
+            _partidoRepoMock.Setup(r => r.Agregar(It.IsAny<Partido>()))
+                .Callback<Partido>(p => partidosCapturados.Add(p));
 
-        private void PrepararFixtureGenerado()
-        {
-            _torneoServicio.CompletarEquiposAutomaticamente(42);
-            for (int i = 1; i <= 4; i++)
-            {
-                var estadio = new Estadio { Nombre = $"Estadio {i}", Ciudad = "Montevideo", Capacidad = 25000 };
-                _torneoServicio.AgregarEstadio(estadio);
-            }
-            IniciarSesionComoEditor();
-            var fixture = new Fixture { SemillaFixture = 42 };
-            _torneoServicio.GenerarFixture(fixture);
+            _torneoServicio.GenerarFixture(new Fixture { SemillaFixture = semilla });
+            return (gruposCapturados, partidosCapturados);
         }
 
         // ==================== EQUIPO (faltantes) ====================
@@ -974,57 +781,82 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_Con48Equipos_NoAgregaNinguno()
         {
+            var equiposLlenos = new List<Equipo>();
+            equiposLlenos.AddRange(Enumerable.Range(1, 16).Select(i => new Equipo { Nombre = $"UEFA_{i:D2}", Confederacion = Confederacion.UEFA, RankingFifa = 1500 }));
+            equiposLlenos.AddRange(Enumerable.Range(1, 7).Select(i => new Equipo { Nombre = $"CONMEBOL_{i:D2}", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1500 }));
+            equiposLlenos.AddRange(Enumerable.Range(1, 7).Select(i => new Equipo { Nombre = $"CONCACAF_{i:D2}", Confederacion = Confederacion.CONCACAF, RankingFifa = 1500 }));
+            equiposLlenos.AddRange(Enumerable.Range(1, 9).Select(i => new Equipo { Nombre = $"CAF_{i:D2}", Confederacion = Confederacion.CAF, RankingFifa = 1500 }));
+            equiposLlenos.AddRange(Enumerable.Range(1, 8).Select(i => new Equipo { Nombre = $"AFC_{i:D2}", Confederacion = Confederacion.AFC, RankingFifa = 1500 }));
+            equiposLlenos.Add(new Equipo { Nombre = "OFC_01", Confederacion = Confederacion.OFC, RankingFifa = 1500 });
+            _equipoRepoMock.Setup(r => r.ObtenerTodos()).Returns(equiposLlenos);
+
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            _torneoServicio.CompletarEquiposAutomaticamente(42);
-            Assert.AreEqual(48, _torneoServicio.ObtenerTodos().Count);
+
+            _equipoRepoMock.Verify(r => r.Agregar(It.IsAny<Equipo>()), Times.Never);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_RespetaCuposPorConfederacion()
         {
+            var equiposAgregados = new List<Equipo>();
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposAgregados.Add(e));
+
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var equipos = _torneoServicio.ObtenerTodos();
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.UEFA) <= 16);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.CONMEBOL) <= 7);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.CONCACAF) <= 7);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.CAF) <= 9);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.AFC) <= 8);
-            Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.OFC) <= 1);
+
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.UEFA) <= 16);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.CONMEBOL) <= 7);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.CONCACAF) <= 7);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.CAF) <= 9);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.AFC) <= 8);
+            Assert.IsTrue(equiposAgregados.Count(e => e.Confederacion == Confederacion.OFC) <= 1);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_GeneraNombresDeterministicos()
         {
+            var equiposAgregados = new List<Equipo>();
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposAgregados.Add(e));
+
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var equipos = _torneoServicio.ObtenerTodos();
-            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("AFC_")));
-            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("CAF_")));
-            Assert.IsTrue(equipos.Any(e => e.Nombre.StartsWith("UEFA_")));
+
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre.StartsWith("AFC_")));
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre.StartsWith("CAF_")));
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre.StartsWith("UEFA_")));
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_ConMismaSemilla_ProduceMismoRankingFifa()
         {
+            var equiposRun1 = new List<Equipo>();
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposRun1.Add(e));
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var rankings1 = _torneoServicio.ObtenerTodos().Select(e => e.RankingFifa).ToList();
+            var rankings1 = equiposRun1.Select(e => e.RankingFifa).ToList();
 
-            var repo2 = CrearEquipoRepositorio();
-            var sesion2 = new SesionServicio();
-            var torneo2 = new TorneoServicio(repo2, CrearEstadioRepositorio(), CrearPartidoRepositorio(),
-                CrearGrupoRepositorio(), CrearFixtureRepositorio(),
-                new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
+            var equipoMock2 = new Mock<IEquipoRepositorio>();
+            var fixtureMock2 = new Mock<IFixtureRepositorio>();
+            var sesionMock2 = new Mock<ISesionServicio>();
+            var auditoriaMock2 = new Mock<IAuditoriaServicio>();
+            equipoMock2.Setup(r => r.ObtenerTodos()).Returns(new List<Equipo>());
+            fixtureMock2.Setup(r => r.Obtener()).Returns((Fixture)null);
             var admin2 = new Usuario { Nombre = "A", Apellido = "B", Email = "a@b.com",
                 FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
             admin2.Roles.Add(Rol.Administrador);
-            sesion2.IniciarSesion(admin2);
+            sesionMock2.Setup(s => s.ObtenerUsuarioActual()).Returns(admin2);
+            var equiposRun2 = new List<Equipo>();
+            equipoMock2.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposRun2.Add(e));
+            var torneo2 = new TorneoServicio(
+                equipoMock2.Object, new Mock<IEstadioRepositorio>().Object,
+                new Mock<IPartidoRepositorio>().Object, new Mock<IGrupoRepositorio>().Object,
+                fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object);
+
             torneo2.CompletarEquiposAutomaticamente(42);
-            var rankings2 = torneo2.ObtenerTodos().Select(e => e.RankingFifa).ToList();
+            var rankings2 = equiposRun2.Select(e => e.RankingFifa).ToList();
 
             CollectionAssert.AreEqual(rankings1, rankings2);
         }
@@ -1038,25 +870,27 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_RegistraLogConDetallePorConfederacion()
         {
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var log = _auditoriaServicio.ObtenerTodos().First();
-            Assert.IsTrue(log.Accion.Contains("UEFA"));
-            Assert.IsTrue(log.Accion.Contains("CONMEBOL"));
-            Assert.IsTrue(log.Accion.Contains("42"));
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("UEFA") && s.Contains("CONMEBOL") && s.Contains("42")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void CompletarEquiposAutomaticamente_NombreGenerado_DebeEmpezarDesdeUnosPorConfederacion()
         {
+            var equiposAgregados = new List<Equipo>();
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposAgregados.Add(e));
+
             _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var equipos = _torneoServicio.ObtenerTodos();
-            Assert.IsTrue(equipos.Any(e => e.Nombre == "UEFA_01"));
-            Assert.IsTrue(equipos.Any(e => e.Nombre == "CAF_01"));
-            Assert.IsTrue(equipos.Any(e => e.Nombre == "AFC_01"));
+
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre == "UEFA_01"));
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre == "CAF_01"));
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre == "AFC_01"));
         }
 
         [TestMethod]
@@ -1204,80 +1038,82 @@ namespace Tests
         // ==================== IMPORTACION (faltantes) ====================
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConRankingFueraDeRango_RegistraError()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,9999";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(0, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConFilaInvalidaEntreValidas_ImportaLasValidas()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMalo,INVALIDA,1500\nArgentina,CONMEBOL,2000";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(2, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConSoloEncabezado_RetornaCeroImportados()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(0, resultado.EquiposImportados);
             Assert.AreEqual(0, resultado.Errores.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_RegistraAuditoria()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500";
+
             _torneoServicio.ImportarEquipos(csv);
-            var logs = _auditoriaServicio.ObtenerTodos();
-            Assert.AreEqual(1, logs.Count);
-            Assert.IsTrue(logs[0].Accion.Contains("Importación"));
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("Importación")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConErrores_RegistraAuditoriaConErrores()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,1500\nMalo,INVALIDA,1500";
+
             _torneoServicio.ImportarEquipos(csv);
-            var logs = _auditoriaServicio.ObtenerTodos();
-            Assert.AreEqual(1, logs.Count);
-            Assert.IsTrue(logs[0].Accion.Contains("1 errores"));
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("1 errores")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ConRankingFueraDeRangoInferior_RegistraError()
         {
-            IniciarSesionComoEditor();
             var csv = "Nombre,Confederacion,RankingFifa\nUruguay,CONMEBOL,100";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(0, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void ImportarEquipos_ExcediendoCupoConfederacion_RegistraError()
         {
-            IniciarSesionComoEditor();
+            var fixtureCompartido = new Fixture();
+            _fixtureRepoMock.Setup(r => r.Obtener()).Returns(fixtureCompartido);
             var csv = "Nombre,Confederacion,RankingFifa\nOFC_A,OFC,1500\nOFC_B,OFC,1600";
+
             var resultado = _torneoServicio.ImportarEquipos(csv);
+
             Assert.AreEqual(1, resultado.EquiposImportados);
             Assert.AreEqual(1, resultado.Errores.Count);
         }
@@ -1285,52 +1121,44 @@ namespace Tests
         // ==================== FIXTURE (faltantes) ====================
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarFixture_Sin4Estadios_LanzaExcepcion()
         {
-            _torneoServicio.CompletarEquiposAutomaticamente(42);
-            IniciarSesionComoEditor();
-            var fixture = new Fixture { SemillaFixture = 42 };
-            _torneoServicio.GenerarFixture(fixture);
+            _equipoRepoMock.Setup(r => r.ObtenerTodos()).Returns(CrearLista48Equipos());
+
+            _torneoServicio.GenerarFixture(new Fixture { SemillaFixture = 42 });
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GenerarFixture_YaGenerado_LanzaExcepcion()
         {
-            _torneoServicio.CompletarEquiposAutomaticamente(42);
-            for (int i = 1; i <= 4; i++)
-                _torneoServicio.AgregarEstadio(new Estadio { Nombre = $"Estadio {i}", Ciudad = "Ciudad", Capacidad = 25000 });
-            IniciarSesionComoEditor();
-            var fixture = new Fixture { SemillaFixture = 42, EstaGenerado = true };
-            _torneoServicio.GenerarFixture(fixture);
+            _torneoServicio.GenerarFixture(new Fixture { SemillaFixture = 42, EstaGenerado = true });
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_Crea12Grupos()
         {
-            PrepararFixtureGenerado();
-            Assert.AreEqual(12, _grupoRepositorio.ObtenerTodos().Count);
+            var (grupos, _) = SetupYGenerarFixture();
+
+            Assert.AreEqual(12, grupos.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_CadaGrupoTiene4Equipos()
         {
-            PrepararFixtureGenerado();
-            foreach (var grupo in _grupoRepositorio.ObtenerTodos())
+            var (grupos, _) = SetupYGenerarFixture();
+
+            foreach (var grupo in grupos)
                 Assert.AreEqual(4, grupo.ListaPosiciones.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_NoRepiteConfederacionExceptoUefa()
         {
-            PrepararFixtureGenerado();
-            foreach (var grupo in _grupoRepositorio.ObtenerTodos())
+            var (grupos, _) = SetupYGenerarFixture();
+
+            foreach (var grupo in grupos)
             {
                 var equipos = grupo.ListaPosiciones.Select(p => p.Equipo).ToList();
                 Assert.IsTrue(equipos.Count(e => e.Confederacion == Confederacion.UEFA) <= 2,
@@ -1342,139 +1170,111 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_Crea72Partidos()
         {
-            PrepararFixtureGenerado();
-            Assert.AreEqual(72, _partidoRepositorio.ObtenerTodos().Count);
+            var (_, partidos) = SetupYGenerarFixture();
+
+            Assert.AreEqual(72, partidos.Count);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_AsignaHorasValidas()
         {
-            PrepararFixtureGenerado();
+            var (_, partidos) = SetupYGenerarFixture();
+
             var horasValidas = new[] { 14, 18, 22 };
-            foreach (var partido in _partidoRepositorio.ObtenerTodos())
+            foreach (var partido in partidos)
                 Assert.IsTrue(horasValidas.Contains(partido.Fecha.Hour),
                     $"Hora {partido.Fecha.Hour} no válida");
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_AsignaEstadiosPorRotacion()
         {
-            PrepararFixtureGenerado();
-            var estadiosOrdenados = _estadioRepositorio.ObtenerTodos().OrderBy(e => e.Nombre).ToList();
-            var partidos = _partidoRepositorio.ObtenerTodos();
+            var estadios = CrearLista4Estadios();
+            var (_, partidos) = SetupYGenerarFixture(estadios: estadios);
+            var estadiosOrdenados = estadios.OrderBy(e => e.Nombre).ToList();
+
             for (int i = 0; i < partidos.Count; i++)
                 Assert.AreEqual(estadiosOrdenados[i % estadiosOrdenados.Count].Nombre, partidos[i].Estadio.Nombre);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_RegistraAuditoria()
         {
-            PrepararFixtureGenerado();
-            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Count > 0);
+            SetupYGenerarFixture();
+
+            _auditoriaMock.Verify(a => a.Registrar(It.IsAny<string>(), It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConEmpatesDeRanking_MismaSemillaGeneraMismoOrden()
         {
-            CargarEquipos48ConEmpatesEnRepositorio();
-            CargarEstadiosEnRepositorio(4);
-            IniciarSesionComoEditor();
-            var fixture1 = new Fixture { SemillaFixture = 42 };
-            _torneoServicio.GenerarFixture(fixture1);
-            var primerEquipo1 = _grupoRepositorio.ObtenerTodos()[0].ListaPosiciones[0].Equipo.Nombre;
+            var equiposConEmpates = CrearLista48EquiposConEmpates();
+            var estadios = CrearLista4Estadios();
+            var grupos1 = new List<Grupo>();
+            _equipoRepoMock.Setup(r => r.ObtenerTodos()).Returns(equiposConEmpates);
+            _estadioRepoMock.Setup(r => r.ObtenerTodos()).Returns(estadios);
+            _grupoRepoMock.Setup(r => r.Agregar(It.IsAny<Grupo>())).Callback<Grupo>(g => grupos1.Add(g));
+            _partidoRepoMock.Setup(r => r.Agregar(It.IsAny<Partido>()));
+            _torneoServicio.GenerarFixture(new Fixture { SemillaFixture = 42 });
+            var primerEquipo1 = grupos1[0].ListaPosiciones[0].Equipo.Nombre;
 
-            var eqRepo2 = CrearEquipoRepositorio();
-            var estRepo2 = CrearEstadioRepositorio();
-            var partRepo2 = CrearPartidoRepositorio();
-            var grpRepo2 = CrearGrupoRepositorio();
-            var fixRepo2 = CrearFixtureRepositorio();
-            var sesion2 = new SesionServicio();
-            var torneo2 = new TorneoServicio(eqRepo2, estRepo2, partRepo2, grpRepo2, fixRepo2,
-                new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
-            Confederacion[] confs2 = {
-                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
-                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
-                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
-                Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,    Confederacion.UEFA,
-                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
-                Confederacion.CONMEBOL, Confederacion.CONMEBOL, Confederacion.CONMEBOL,
-                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
-                Confederacion.CONCACAF, Confederacion.CONCACAF, Confederacion.CONCACAF,
-                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
-                Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF, Confederacion.CAF,
-                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
-                Confederacion.AFC, Confederacion.AFC, Confederacion.AFC, Confederacion.AFC,
-                Confederacion.OFC
-            };
-            int[] rankings2 = {
-                2500, 2450, 2400, 2350, 2300, 2300, 2250, 2200,
-                2150, 2100, 2050, 2000, 1950, 1900, 1850, 1800,
-                1750, 1750, 1700, 1650, 1600, 1550, 1500,
-                1450, 1400, 1350, 1300, 1300, 1250, 1200,
-                1150, 1100, 1050, 1000, 950, 900, 850, 800, 750,
-                700, 650, 600, 600, 550, 500, 450, 400, 350
-            };
-            for (int i = 0; i < 48; i++)
-            {
-                var e = new Equipo { Nombre = $"Equipo_{i + 1}", Confederacion = confs2[i], RankingFifa = rankings2[i] };
-                eqRepo2.Agregar(e);
-            }
-            for (int i = 1; i <= 4; i++)
-                estRepo2.Agregar(new Estadio { Nombre = $"Estadio_{i}", Ciudad = $"Ciudad_{i}", Capacidad = 40000 });
-            var editor2 = new Usuario { Nombre = "E", Apellido = "T", Email = "e@t.com",
-                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
-            editor2.Roles.Add(Rol.Editor);
-            sesion2.IniciarSesion(editor2);
-            var fixture2 = new Fixture { SemillaFixture = 42 };
-            torneo2.GenerarFixture(fixture2);
-            var primerEquipo2 = grpRepo2.ObtenerTodos()[0].ListaPosiciones[0].Equipo.Nombre;
+            var equipoMock2 = new Mock<IEquipoRepositorio>();
+            var estadioMock2 = new Mock<IEstadioRepositorio>();
+            var grupMock2 = new Mock<IGrupoRepositorio>();
+            var partidoMock2 = new Mock<IPartidoRepositorio>();
+            var fixtureMock2 = new Mock<IFixtureRepositorio>();
+            var auditoriaMock2 = new Mock<IAuditoriaServicio>();
+            var sesionMock2 = new Mock<ISesionServicio>();
+            equipoMock2.Setup(r => r.ObtenerTodos()).Returns(equiposConEmpates);
+            estadioMock2.Setup(r => r.ObtenerTodos()).Returns(estadios);
+            fixtureMock2.Setup(r => r.Obtener()).Returns((Fixture)null);
+            var grupos2 = new List<Grupo>();
+            grupMock2.Setup(r => r.Agregar(It.IsAny<Grupo>())).Callback<Grupo>(g => grupos2.Add(g));
+            var torneo2 = new TorneoServicio(
+                equipoMock2.Object, estadioMock2.Object, partidoMock2.Object,
+                grupMock2.Object, fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object);
+            torneo2.GenerarFixture(new Fixture { SemillaFixture = 42 });
+            var primerEquipo2 = grupos2[0].ListaPosiciones[0].Equipo.Nombre;
 
             Assert.AreEqual(primerEquipo1, primerEquipo2);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_MaximoTresPartidosPorDia()
         {
-            PrepararFixtureGenerado();
-            var porDia = _partidoRepositorio.ObtenerTodos().GroupBy(p => p.Fecha.Date);
+            var (_, partidos) = SetupYGenerarFixture();
+
+            var porDia = partidos.GroupBy(p => p.Fecha.Date);
             foreach (var dia in porDia)
                 Assert.IsTrue(dia.Count() <= 3, $"El día {dia.Key:dd/MM} tiene {dia.Count()} partidos");
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConEstadiosConTildesYMayusculas_OrdenaPorNombreNormalizado()
         {
-            _torneoServicio.CompletarEquiposAutomaticamente(42);
-            var nombres = new[] { "Tróccoli", "  CENTENARIO", "campeón del siglo", "Parque Viera" };
-            foreach (var nombre in nombres)
-                _torneoServicio.AgregarEstadio(new Estadio { Nombre = nombre, Ciudad = "Montevideo", Capacidad = 40000 });
-            IniciarSesionComoEditor();
-            _torneoServicio.GenerarFixture(new Fixture { SemillaFixture = 42 });
-            var partidos = _partidoRepositorio.ObtenerTodos();
+            var estadiosTildes = new List<Estadio>
+            {
+                new Estadio { Nombre = "Tróccoli",         Ciudad = "Montevideo", Capacidad = 40000 },
+                new Estadio { Nombre = "  CENTENARIO",     Ciudad = "Montevideo", Capacidad = 40000 },
+                new Estadio { Nombre = "campeón del siglo",Ciudad = "Montevideo", Capacidad = 40000 },
+                new Estadio { Nombre = "Parque Viera",     Ciudad = "Montevideo", Capacidad = 40000 },
+            };
+            var (_, partidos) = SetupYGenerarFixture(estadios: estadiosTildes);
+
             Assert.AreEqual("campeón del siglo", partidos[0].Estadio.Nombre);
             Assert.AreEqual("  CENTENARIO",      partidos[1].Estadio.Nombre);
-            Assert.AreEqual("Parque Viera",       partidos[2].Estadio.Nombre);
-            Assert.AreEqual("Tróccoli",           partidos[3].Estadio.Nombre);
+            Assert.AreEqual("Parque Viera",      partidos[2].Estadio.Nombre);
+            Assert.AreEqual("Tróccoli",          partidos[3].Estadio.Nombre);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConOrdenQueRompeRoundRobin_NoRepiteConfederacionNoUefa()
         {
-            CargarEquiposParaForzarConflictoConfederacion();
-            CargarEstadiosEnRepositorio(4);
-            IniciarSesionComoEditor();
-            _torneoServicio.GenerarFixture(new Fixture { SemillaFixture = 42 });
-            foreach (var grupo in _grupoRepositorio.ObtenerTodos())
+            var (grupos, _) = SetupYGenerarFixture(equipos: CrearLista48EquiposConflictoConfederacion());
+
+            foreach (var grupo in grupos)
             {
                 var noUefa = grupo.ListaPosiciones.Select(p => p.Equipo)
                     .Where(e => e.Confederacion != Confederacion.UEFA).ToList();
@@ -1484,12 +1284,11 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_AsignaCodigosConPrefijoGrupo()
         {
-            PrepararFixtureGenerado();
-            var partidos = _partidoRepositorio.ObtenerTodos();
-            foreach (var grupo in _grupoRepositorio.ObtenerTodos())
+            var (grupos, partidos) = SetupYGenerarFixture();
+
+            foreach (var grupo in grupos)
             {
                 var del = partidos.Where(p => p.Grupo.Etiqueta == grupo.Etiqueta).ToList();
                 Assert.AreEqual(6, del.Count);
@@ -1499,12 +1298,12 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_ConDatosValidos_CadaEquipoDescansaAlMenos3Dias()
         {
-            PrepararFixtureGenerado();
-            var partidos = _partidoRepositorio.ObtenerTodos();
-            foreach (var equipo in _equipoRepositorio.ObtenerTodos())
+            var equipos = CrearLista48Equipos();
+            var (_, partidos) = SetupYGenerarFixture(equipos: equipos);
+
+            foreach (var equipo in equipos)
             {
                 var del = partidos
                     .Where(p => p.EquipoLocal.Nombre == equipo.Nombre || p.EquipoVisitante.Nombre == equipo.Nombre)
@@ -1519,67 +1318,20 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarFixture_RegistraAuditoriaIncluyendoSemilla()
         {
-            PrepararFixtureGenerado();
-            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Any(l => l.Accion.Contains("42")));
+            SetupYGenerarFixture(semilla: 42);
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("42")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
-        // ==================== CRUCES (faltantes) ====================
-
-        [TestMethod]
-        [Ignore("pendiente refactor Moq")]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void GenerarCruces_CrucesYaGenerados_LanzaExcepcion()
+        private List<Grupo> CrearDoceGruposCompletos()
         {
-            var fixture = new Fixture { EstaGenerado = true, CrucesGenerados = true };
-            _fixtureRepositorio.Guardar(fixture);
-            IniciarSesionComoEditor();
-            _torneoServicio.GenerarCruces(42);
-        }
-
-        [TestMethod]
-        [Ignore("pendiente refactor Moq")]
-        public void GenerarCruces_Crea16PartidosDeDieciseisavos()
-        {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
-            _torneoServicio.GenerarCruces(42);
-            var dieciseisavos = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.Fase == FaseTorneo.Dieciseisavos).ToList();
-            Assert.AreEqual(16, dieciseisavos.Count);
-        }
-
-        [TestMethod]
-        [Ignore("pendiente refactor Moq")]
-        public void GenerarCruces_MismaSemilla_GeneraMismoOrden()
-        {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
-            _torneoServicio.GenerarCruces(42);
-            var orden1 = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
-                .OrderBy(p => p.Codigo)
-                .Select(p => p.EquipoLocal.Nombre + "-" + p.EquipoVisitante.Nombre)
-                .ToList();
-
-            var grpRepo2 = CrearGrupoRepositorio();
-            var partRepo2 = CrearPartidoRepositorio();
-            var estRepo2 = CrearEstadioRepositorio();
-            var fixRepo2 = CrearFixtureRepositorio();
-            var sesion2 = new SesionServicio();
-            var torneo2 = new TorneoServicio(CrearEquipoRepositorio(), estRepo2, partRepo2, grpRepo2, fixRepo2,
-                new AuditoriaServicio(CrearAuditoriaRepositorio()), sesion2);
-            var fixture2 = new Fixture { EstaGenerado = true };
-            fixRepo2.Guardar(fixture2);
-            var etiquetas = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
-            int idP = 1;
-            foreach (var etiqueta in etiquetas)
+            var grupos = new List<Grupo>();
+            int id = 1;
+            foreach (var etiqueta in new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" })
             {
                 var grupo = new Grupo { Etiqueta = etiqueta };
                 var estadio = new Estadio { Nombre = "Estadio " + etiqueta, Ciudad = "Ciudad", Capacidad = 60000 };
@@ -1593,30 +1345,144 @@ namespace Tests
                     (e1, e2, 3, 0), (e3, e4, 2, 1), (e1, e3, 1, 0),
                     (e2, e4, 2, 0), (e1, e4, 1, 0), (e2, e3, 1, 1) })
                 {
-                    var p = new Partido() { Id = idP };
-                    p.Codigo = $"G{idP}"; p.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
+                    var p = new Partido { Id = id };
+                    id++;
+                    p.Codigo = $"G{p.Id}";
+                    p.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
                     p.Fase = FaseTorneo.FaseGrupos;
-                    p.EquipoLocal = loc; p.EquipoVisitante = vis;
-                    p.Estadio = estadio; p.Grupo = grupo;
-                    p.GolesLocal = gl; p.GolesVisitante = gv;
+                    p.EquipoLocal = loc;
+                    p.EquipoVisitante = vis;
+                    p.Estadio = estadio;
+                    p.Grupo = grupo;
+                    p.GolesLocal = gl;
+                    p.GolesVisitante = gv;
                     p.Vencedor = gl > gv ? loc : gv > gl ? vis : null;
                     p.TieneResultado = true;
                     grupo.ListaPartidos.Add(p);
-                    partRepo2.Agregar(p);
-                    if (estRepo2.ObtenerPorNombre(estadio.Nombre) == null) estRepo2.Agregar(estadio);
-                    idP++;
                 }
                 foreach (var partido in grupo.ListaPartidos)
                     grupo.ActualizarPosiciones(partido);
-                grpRepo2.Agregar(grupo);
+                grupos.Add(grupo);
             }
-            var editor2 = new Usuario { Nombre = "E", Apellido = "T", Email = "e@t.com",
-                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1" };
-            editor2.Roles.Add(Rol.Editor);
-            sesion2.IniciarSesion(editor2);
+            return grupos;
+        }
+
+        private List<Grupo> CrearDoceGruposEmpateTotal()
+        {
+            var grupos = new List<Grupo>();
+            int id = 1;
+            foreach (var etiqueta in new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" })
+            {
+                var grupo = new Grupo { Etiqueta = etiqueta };
+                var estadio = new Estadio { Nombre = "Estadio " + etiqueta, Ciudad = "Ciudad", Capacidad = 60000 };
+                var e1 = new Equipo { Nombre = etiqueta + "_1", Confederacion = Confederacion.UEFA, RankingFifa = 2000 };
+                var e2 = new Equipo { Nombre = etiqueta + "_2", Confederacion = Confederacion.UEFA, RankingFifa = 1900 };
+                var e3 = new Equipo { Nombre = etiqueta + "_3", Confederacion = Confederacion.UEFA, RankingFifa = 1800 };
+                var e4 = new Equipo { Nombre = etiqueta + "_4", Confederacion = Confederacion.UEFA, RankingFifa = 1700 };
+                foreach (var e in new[] { e1, e2, e3, e4 })
+                    grupo.ListaPosiciones.Add(new PosicionesGrupo { Equipo = e, Grupo = grupo });
+                foreach (var (loc, vis) in new[] { (e1, e2), (e3, e4), (e1, e3), (e2, e4), (e1, e4), (e2, e3) })
+                {
+                    var p = new Partido { Id = id };
+                    id++;
+                    p.Codigo = $"G{p.Id}";
+                    p.Fecha = new DateTime(2026, 6, 1, 14, 0, 0);
+                    p.Fase = FaseTorneo.FaseGrupos;
+                    p.EquipoLocal = loc;
+                    p.EquipoVisitante = vis;
+                    p.Estadio = estadio;
+                    p.Grupo = grupo;
+                    p.GolesLocal = 0;
+                    p.GolesVisitante = 0;
+                    p.TieneResultado = true;
+                    grupo.ListaPartidos.Add(p);
+                }
+                foreach (var partido in grupo.ListaPartidos)
+                    grupo.ActualizarPosiciones(partido);
+                grupos.Add(grupo);
+            }
+            return grupos;
+        }
+
+        private (List<Partido> partidos, Fixture fixture) SetupParaGenerarCruces(
+            List<Grupo> grupos, List<Estadio> estadios = null)
+        {
+            estadios ??= CrearLista4Estadios();
+            var fixture = new Fixture { EstaGenerado = true };
+            _fixtureRepoMock.Setup(r => r.Obtener()).Returns(fixture);
+
+            _grupoRepoMock.Setup(r => r.ObtenerTodos()).Returns(grupos);
+            _grupoRepoMock.Setup(r => r.ObtenerPorEtiqueta(It.IsAny<string>()))
+                .Returns<string>(etiqueta => grupos.FirstOrDefault(g => g.Etiqueta == etiqueta));
+
+            var todosLosPartidos = grupos.SelectMany(g => g.ListaPartidos).ToList();
+            int nextId = todosLosPartidos.Count + 1;
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(() => todosLosPartidos);
+            _partidoRepoMock.Setup(r => r.Agregar(It.IsAny<Partido>()))
+                .Callback<Partido>(p => { p.Id = nextId++; todosLosPartidos.Add(p); });
+
+            _estadioRepoMock.Setup(r => r.ObtenerTodos()).Returns(estadios);
+            return (todosLosPartidos, fixture);
+        }
+
+        // ==================== CRUCES (faltantes) ====================
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenerarCruces_CrucesYaGenerados_LanzaExcepcion()
+        {
+            _fixtureRepoMock.Setup(r => r.Obtener())
+                .Returns(new Fixture { EstaGenerado = true, CrucesGenerados = true });
+
+            _torneoServicio.GenerarCruces(42);
+        }
+
+        [TestMethod]
+        public void GenerarCruces_Crea16PartidosDeDieciseisavos()
+        {
+            var grupos = CrearDoceGruposCompletos();
+            var (partidos, _) = SetupParaGenerarCruces(grupos);
+
+            _torneoServicio.GenerarCruces(42);
+
+            Assert.AreEqual(16, partidos.Count(p => p.Fase == FaseTorneo.Dieciseisavos));
+        }
+
+        [TestMethod]
+        public void GenerarCruces_MismaSemilla_GeneraMismoOrden()
+        {
+            var grupos1 = CrearDoceGruposCompletos();
+            var (partidos1, _) = SetupParaGenerarCruces(grupos1);
+            _torneoServicio.GenerarCruces(42);
+            var orden1 = partidos1.Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+                .OrderBy(p => p.Codigo)
+                .Select(p => p.EquipoLocal.Nombre + "-" + p.EquipoVisitante.Nombre)
+                .ToList();
+
+            var grupos2 = CrearDoceGruposCompletos();
+            var fixture2 = new Fixture { EstaGenerado = true };
+            var equipoMock2 = new Mock<IEquipoRepositorio>();
+            var estadioMock2 = new Mock<IEstadioRepositorio>();
+            var grupMock2 = new Mock<IGrupoRepositorio>();
+            var partidoMock2 = new Mock<IPartidoRepositorio>();
+            var fixtureMock2 = new Mock<IFixtureRepositorio>();
+            var auditoriaMock2 = new Mock<IAuditoriaServicio>();
+            var sesionMock2 = new Mock<ISesionServicio>();
+            fixtureMock2.Setup(r => r.Obtener()).Returns(fixture2);
+            grupMock2.Setup(r => r.ObtenerTodos()).Returns(grupos2);
+            grupMock2.Setup(r => r.ObtenerPorEtiqueta(It.IsAny<string>()))
+                .Returns<string>(e => grupos2.FirstOrDefault(g => g.Etiqueta == e));
+            estadioMock2.Setup(r => r.ObtenerTodos()).Returns(CrearLista4Estadios());
+            var partidos2 = grupos2.SelectMany(g => g.ListaPartidos).ToList();
+            int nextId2 = partidos2.Count + 1;
+            partidoMock2.Setup(r => r.ObtenerTodos()).Returns(() => partidos2);
+            partidoMock2.Setup(r => r.Agregar(It.IsAny<Partido>()))
+                .Callback<Partido>(p => { p.Id = nextId2++; partidos2.Add(p); });
+            var torneo2 = new TorneoServicio(
+                equipoMock2.Object, estadioMock2.Object, partidoMock2.Object,
+                grupMock2.Object, fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object);
             torneo2.GenerarCruces(42);
-            var orden2 = partRepo2.ObtenerTodos()
-                .Where(p => p.Fase == FaseTorneo.Dieciseisavos)
+            var orden2 = partidos2.Where(p => p.Fase == FaseTorneo.Dieciseisavos)
                 .OrderBy(p => p.Codigo)
                 .Select(p => p.EquipoLocal.Nombre + "-" + p.EquipoVisitante.Nombre)
                 .ToList();
@@ -1627,158 +1493,144 @@ namespace Tests
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_NingunaPareja_DelMismoGrupo()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            var (partidos, _) = SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            var dieciseisavos = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.Fase == FaseTorneo.Dieciseisavos).ToList();
+
+            var dieciseisavos = partidos.Where(p => p.Fase == FaseTorneo.Dieciseisavos).ToList();
             foreach (var partido in dieciseisavos)
                 Assert.AreNotEqual(partido.EquipoLocal.Nombre.Split('_')[0],
                     partido.EquipoVisitante.Nombre.Split('_')[0]);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_AsignaCodigosCorrectos()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            var (partidos, _) = SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            var partidos = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.Fase == FaseTorneo.Dieciseisavos).ToList();
-            Assert.IsTrue(partidos.Any(p => p.Codigo == "A1"));
-            Assert.IsTrue(partidos.Any(p => p.Codigo == "A8"));
-            Assert.IsTrue(partidos.Any(p => p.Codigo == "B1"));
-            Assert.IsTrue(partidos.Any(p => p.Codigo == "B8"));
+
+            var dieciseisavos = partidos.Where(p => p.Fase == FaseTorneo.Dieciseisavos).ToList();
+            Assert.IsTrue(dieciseisavos.Any(p => p.Codigo == "A1"));
+            Assert.IsTrue(dieciseisavos.Any(p => p.Codigo == "A8"));
+            Assert.IsTrue(dieciseisavos.Any(p => p.Codigo == "B1"));
+            Assert.IsTrue(dieciseisavos.Any(p => p.Codigo == "B8"));
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_BloquearPartidosDeFaseGrupos()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            var grupos = _grupoRepositorio.ObtenerTodos();
+
             Assert.IsTrue(grupos.SelectMany(g => g.ListaPartidos).All(p => p.EstaBloqueado));
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_RegistraAuditoria()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            var logs = _auditoriaServicio.ObtenerTodos();
-            Assert.AreEqual(1, logs.Count);
-            Assert.IsTrue(logs[0].Accion.Contains("cruces"));
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("cruces")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_MarcaCrucesComoGenerados()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            var (_, fixture) = SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            Assert.IsTrue(_fixtureRepositorio.Obtener().CrucesGenerados);
+
+            Assert.IsTrue(fixture.CrucesGenerados);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_TercerPuesto_UsaPerdedoresDeSemifinales()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            var (partidos, _) = SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            var tp = _partidoRepositorio.ObtenerTodos().First(p => p.Codigo == "TP");
-            Assert.IsTrue(tp.EsPorPerdedor);
+
+            Assert.IsTrue(partidos.First(p => p.Codigo == "TP").EsPorPerdedor);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_BloquearTodosLosPartidosDeFaseGruposEnRepositorio()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            var (partidos, _) = SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            var fase = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.Fase == FaseTorneo.FaseGrupos).ToList();
-            Assert.IsTrue(fase.All(p => p.EstaBloqueado));
+
+            Assert.IsTrue(partidos.Where(p => p.Fase == FaseTorneo.FaseGrupos).All(p => p.EstaBloqueado));
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_AplicaSemillaEnAuditoria()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposEmpateTotal();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposEmpateTotal();
+            SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            Assert.IsTrue(_auditoriaServicio.ObtenerTodos().Any(l => l.Accion.Contains("SemillaCrucesFase: 42")));
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("SemillaCrucesFase: 42")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_AsignaIdsQueNoChocanConPartidosExistentes()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            var (partidos, _) = SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            var ids = _partidoRepositorio.ObtenerTodos().Select(p => p.Id).ToList();
+
+            var ids = partidos.Select(p => p.Id).ToList();
             Assert.AreEqual(ids.Count, ids.Distinct().Count());
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_RotaEstadiosPorNombreNormalizado()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            _estadioRepositorio.Agregar(new Estadio { Nombre = "Maracaná",   Ciudad = "Rio",    Capacidad = 60000 });
-            _estadioRepositorio.Agregar(new Estadio { Nombre = "Centenario", Ciudad = "MVD",    Capacidad = 60000 });
-            _estadioRepositorio.Agregar(new Estadio { Nombre = "Azteca",     Ciudad = "México", Capacidad = 60000 });
-            _estadioRepositorio.Agregar(new Estadio { Nombre = "Wembley",    Ciudad = "Londres",Capacidad = 60000 });
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            var estadios = new List<Estadio>
+            {
+                new Estadio { Nombre = "Maracaná",   Ciudad = "Rio",    Capacidad = 60000 },
+                new Estadio { Nombre = "Centenario", Ciudad = "MVD",    Capacidad = 60000 },
+                new Estadio { Nombre = "Azteca",     Ciudad = "México", Capacidad = 60000 },
+                new Estadio { Nombre = "Wembley",    Ciudad = "Londres",Capacidad = 60000 },
+            };
+            var (partidos, _) = SetupParaGenerarCruces(grupos, estadios);
+
             _torneoServicio.GenerarCruces(42);
-            var eliminatorios = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.Fase != FaseTorneo.FaseGrupos).ToList();
+
+            var eliminatorios = partidos.Where(p => p.Fase != FaseTorneo.FaseGrupos).ToList();
             Assert.IsTrue(eliminatorios.Select(p => p.Estadio.Nombre).Distinct().Count() > 1);
         }
 
         [TestMethod]
-        [Ignore("pendiente refactor Moq")]
         public void GenerarCruces_AsignaFechasDistintasParaFasesEliminatorias()
         {
-            var fixture = new Fixture { EstaGenerado = true };
-            _fixtureRepositorio.Guardar(fixture);
-            CargarDoceGruposCompletos();
-            IniciarSesionComoEditor();
+            var grupos = CrearDoceGruposCompletos();
+            var (partidos, _) = SetupParaGenerarCruces(grupos);
+
             _torneoServicio.GenerarCruces(42);
-            var eliminatorios = _partidoRepositorio.ObtenerTodos()
-                .Where(p => p.Fase != FaseTorneo.FaseGrupos).ToList();
+
+            var eliminatorios = partidos.Where(p => p.Fase != FaseTorneo.FaseGrupos).ToList();
             Assert.IsTrue(eliminatorios.Select(p => p.Fecha.Date).Distinct().Count() > 1);
         }
 
