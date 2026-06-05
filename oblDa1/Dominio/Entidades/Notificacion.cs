@@ -37,6 +37,10 @@ namespace Dominio.Entidades
             }
         }
 
+        public bool Leida { get; private set; } = false;
+
+        public void MarcarLeida() => Leida = true;
+
         private void ValidarMensaje(string mensaje)
         {
             if (string.IsNullOrWhiteSpace(mensaje))

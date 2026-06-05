@@ -44,5 +44,13 @@ namespace Tests
             var notificacion = new Notificacion();
             notificacion.Periodista = null;
         }
+
+        [TestMethod]
+        public void MarcarLeida_NotificacionNoLeida_CambiaLeidaATrue()
+        {
+            var notificacion = new Notificacion();
+            notificacion.MarcarLeida();
+            Assert.IsTrue(notificacion.Leida);
+        }
     }
 }
