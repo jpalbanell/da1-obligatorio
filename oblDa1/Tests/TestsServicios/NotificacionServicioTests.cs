@@ -66,5 +66,14 @@ namespace Tests.TestsServicios
 
             _notificacionRepoMock.Verify(r => r.Actualizar(notificacion), Times.Once);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void MarcarLeida_IdInexistente_LanzaKeyNotFoundException()
+        {
+            _notificacionRepoMock.Setup(r => r.ObtenerPorId(99)).Returns((Notificacion)null);
+
+            _servicio.MarcarLeida(99);
+        }
     }
 }
