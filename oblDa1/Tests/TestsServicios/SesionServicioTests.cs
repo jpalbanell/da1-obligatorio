@@ -102,5 +102,20 @@ namespace Tests.TestsServicios
 
             _sesionServicio.ValidarAlgunRol(Rol.Administrador, Rol.Periodista);
         }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ValidarAlgunRol_UsuarioNoTieneNingunRolPermitido_Lanza()
+        {
+            var usuario = new Usuario
+            {
+                Nombre = "Edi", Apellido = "Tor", Email = "edi@test.com",
+                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1"
+            };
+            usuario.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuario);
+
+            _sesionServicio.ValidarAlgunRol(Rol.Administrador, Rol.Periodista);
+        }
     }
 }
