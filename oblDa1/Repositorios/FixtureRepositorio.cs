@@ -18,11 +18,10 @@ namespace Repositorios
             var existente = _context.Fixtures
                 .Include(f => f.Equipos)
                 .Include(f => f.Estadios)
-                .FirstOrDefault(f => f.Id == 1);
+                .FirstOrDefault(); 
 
             if (existente == null)
             {
-                fixture.Id = 1;
                 _context.Fixtures.Add(fixture);
             }
             else
@@ -51,7 +50,7 @@ namespace Repositorios
             return _context.Fixtures
                 .Include(f => f.Equipos)
                 .Include(f => f.Estadios)
-                .FirstOrDefault(f => f.Id == 1);
+                .FirstOrDefault();
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Servicios
         private readonly IFixtureRepositorio _fixtureRepositorio;
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
+        private readonly INotificacionServicio _notificacionServicio;
 
         public TorneoServicio(
             IEquipoRepositorio equipoRepositorio,
@@ -22,7 +23,8 @@ namespace Servicios
             IGrupoRepositorio grupoRepositorio,
             IFixtureRepositorio fixtureRepositorio,
             IAuditoriaServicio auditoriaServicio,
-            ISesionServicio sesionServicio)
+            ISesionServicio sesionServicio,
+            INotificacionServicio notificacionServicio)
         {
             _equipoRepositorio = equipoRepositorio;
             _estadioRepositorio = estadioRepositorio;
@@ -31,6 +33,7 @@ namespace Servicios
             _fixtureRepositorio = fixtureRepositorio;
             _auditoriaServicio = auditoriaServicio;
             _sesionServicio = sesionServicio;
+            _notificacionServicio = notificacionServicio;
         }
         
         public void AgregarEquipo(Equipo equipo)
@@ -274,7 +277,6 @@ namespace Servicios
 
             fixture.AsignarFechasAPartidos(partidosPorGrupo);
             AsignarEstadiosEnRotacion(partidosPorGrupo);
-            PersistirPartidos(partidosPorGrupo);
             PersistirGrupos(grupos);
 
             fixture.EstaGenerado = true;
@@ -741,6 +743,9 @@ namespace Servicios
                 partido.RegistrarResultado(golesLocal, golesVisitante);
                 partido.Grupo?.ActualizarPosiciones(partido);
                 PropagarResultado(partido);
+                _notificacionServicio.NotificarPorRol(
+                    $"El partido {partido.Id} tiene resultado cargado.",
+                    Rol.Periodista);
             }
 
             _partidoRepositorio.Actualizar(partido);
@@ -769,6 +774,9 @@ namespace Servicios
             _auditoriaServicio.Registrar(
                 $"Simulación de partido: {partidoId} con SemillaSimulation: {semillaSimulation}",
                 _sesionServicio.ObtenerUsuarioActual());
+            _notificacionServicio.NotificarPorRol(
+                $"Se simuló el partido {partidoId}.",
+                Rol.Periodista);
         }
 
         public void SimularFase(FaseTorneo fase, int semillaSimulation)
@@ -795,6 +803,9 @@ namespace Servicios
             _auditoriaServicio.Registrar(
                 $"Simulación de fase: {fase} con SemillaSimulation: {semillaSimulation}",
                 _sesionServicio.ObtenerUsuarioActual());
+            _notificacionServicio.NotificarPorRol(
+                $"Se simuló la fase {fase}.",
+                Rol.Periodista);
         }
 
         private int GenerarGoles(int rankingFifa, Random random)

@@ -1,0 +1,95 @@
+@page "/notificaciones"
+@using Dominio.Entidades
+@using IServicios
+@inject INotificacionServicio NotificacionServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+
+@if (!_cargado)
+{
+    <p>Cargando...</p>
+    return;
+}
+
+@if (!_usuarioActual.TieneRol(Rol.Periodista))
+{
+    <p>No tenés permisos para ver esta página.</p>
+    return;
+}
+
+<h3>Notificaciones</h3>
+
+<div class="mb-3">
+    <label>
+        <input type="checkbox" @bind="_mostrarTodas" @bind:after="Cargar" />
+        Mostrar todas (incluye leídas)
+    </label>
+</div>
+
+@if (_notificaciones.Count == 0)
+{
+    <p>No hay notificaciones.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Mensaje</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var notificacion in _notificaciones)
+            {
+                <tr>
+                    <td>@notificacion.FechaCreacion.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@notificacion.Mensaje</td>
+                    <td>@(notificacion.Leida ? "Leída" : "No leída")</td>
+                    <td>
+                        @if (!notificacion.Leida)
+                        {
+                            <button class="btn btn-sm btn-primary" @onclick="() => MarcarLeida(notificacion.Id)">
+                                Marcar como leída
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool _cargado = false;
+    private bool _mostrarTodas = false;
+    private Usuario? _usuarioActual;
+    private List<Notificacion> _notificaciones = new();
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        Cargar();
+        _cargado = true;
+    }
+
+    private void Cargar()
+    {
+        _notificaciones = _mostrarTodas
+            ? NotificacionServicio.ObtenerTodas(_usuarioActual)
+            : NotificacionServicio.ObtenerNoLeidas(_usuarioActual);
+    }
+
+    private void MarcarLeida(int id)
+    {
+        NotificacionServicio.MarcarLeida(id);
+        Cargar();
+    }
+}
