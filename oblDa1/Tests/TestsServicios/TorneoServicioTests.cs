@@ -1718,6 +1718,25 @@ namespace Tests
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "EstadioInexistente", false, 0, 0);
         }
 
+        [TestMethod]
+        public void EditarPartido_ConIncidencias_DeberiaRegistrarlas()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre(partido.Estadio.Nombre)).Returns(partido.Estadio);
+
+            var incidencias = new List<Incidencia>
+            {
+                new Incidencia { Tipo = TipoIncidencia.TarjetaAmarilla, Equipo = partido.EquipoLocal, Cantidad = 2 }
+            };
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, partido.Estadio.Nombre, false, 0, 0, incidencias);
+
+            Assert.AreEqual(1, partido.Incidencias.Count);
+            Assert.AreEqual(TipoIncidencia.TarjetaAmarilla, partido.Incidencias[0].Tipo);
+            Assert.AreEqual(2, partido.Incidencias[0].Cantidad);
+        }
+
         // ==================== SIMULACION (faltantes) ====================
 
         [TestMethod]
@@ -2028,6 +2047,21 @@ namespace Tests
         }
 
         [TestMethod]
+        public void SimularFase_DeberiaGenerarIncidenciasEnTodosLosPartidos()
+        {
+            var p1 = CrearPartidoParaSimular(1500, 1500, 1); p1.Fase = FaseTorneo.FaseGrupos;
+            var p2 = CrearPartidoParaSimular(1500, 1500, 2); p2.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { p1, p2 });
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.IsTrue(p1.Incidencias.Any(i => i.Equipo == p1.EquipoLocal));
+            Assert.IsTrue(p1.Incidencias.Any(i => i.Equipo == p1.EquipoVisitante));
+            Assert.IsTrue(p2.Incidencias.Any(i => i.Equipo == p2.EquipoLocal));
+            Assert.IsTrue(p2.Incidencias.Any(i => i.Equipo == p2.EquipoVisitante));
+        }
+
+        [TestMethod]
         public void SimularFase_PropagaVencedorAlSiguientePartido()
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
@@ -2078,6 +2112,68 @@ namespace Tests
             _torneoServicio.SimularFase(FaseTorneo.Dieciseisavos, 42);
 
             Assert.IsTrue(faseGrupos.EstaBloqueado);
+        }
+
+        [TestMethod]
+        public void SimularPartido_DeberiaGenerarIncidenciasParaAmbosEquipos()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(partido.Incidencias.Any(i => i.Equipo == partido.EquipoLocal));
+            Assert.IsTrue(partido.Incidencias.Any(i => i.Equipo == partido.EquipoVisitante));
+        }
+
+        [TestMethod]
+        public void SimularPartido_Incidencias_CantidadesEstanDentroDeRango()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(partido.Incidencias
+                .Where(i => i.Tipo == TipoIncidencia.TarjetaAmarilla)
+                .All(i => i.Cantidad >= 1 && i.Cantidad <= 4));
+            Assert.IsTrue(partido.Incidencias
+                .Where(i => i.Tipo == TipoIncidencia.TarjetaRoja)
+                .All(i => i.Cantidad >= 1 && i.Cantidad <= 2));
+        }
+
+        [TestMethod]
+        public void SimularPartido_AlResimular_NoDuplicaIncidencias()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+            var cantidadPrimera = partido.Incidencias.Count;
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.AreEqual(cantidadPrimera, partido.Incidencias.Count);
+        }
+
+        [TestMethod]
+        public void SimularPartido_ConMismaSemilla_ProduceMismasIncidencias()
+        {
+            var p1 = CrearPartidoParaSimular(1500, 1500, 1);
+            var p2 = CrearPartidoParaSimular(1500, 1500, 1);
+
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(p1);
+            _torneoServicio.SimularPartido(1, 42);
+
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(p2);
+            _torneoServicio.SimularPartido(1, 42);
+
+            Assert.AreEqual(p1.Incidencias.Count, p2.Incidencias.Count);
+            for (int i = 0; i < p1.Incidencias.Count; i++)
+            {
+                Assert.AreEqual(p1.Incidencias[i].Tipo, p2.Incidencias[i].Tipo);
+                Assert.AreEqual(p1.Incidencias[i].Cantidad, p2.Incidencias[i].Cantidad);
+            }
         }
 
         [TestMethod]

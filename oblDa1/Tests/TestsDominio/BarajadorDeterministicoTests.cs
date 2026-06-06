@@ -1,4 +1,5 @@
-﻿using Dominio;
+﻿
+using Dominio;
 
 namespace Tests
 {

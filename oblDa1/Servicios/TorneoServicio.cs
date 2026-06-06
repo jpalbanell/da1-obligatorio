@@ -15,7 +15,7 @@ namespace Servicios
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
         private readonly INotificacionServicio _notificacionServicio;
-
+     
         public TorneoServicio(
             IEquipoRepositorio equipoRepositorio,
             IEstadioRepositorio estadioRepositorio,
@@ -723,7 +723,7 @@ namespace Servicios
         private const int MinGolesMaximos = 1;
 
         public void EditarPartido(int partidoId, DateTime fecha, string nombreEstadio,
-            bool cargarResultado, int golesLocal, int golesVisitante)
+            bool cargarResultado, int golesLocal, int golesVisitante, List<Incidencia>? incidencias = null)
         {
             _sesionServicio.ValidarRol(Rol.Editor);
             var partido = _partidoRepositorio.ObtenerPorId(partidoId);
@@ -748,6 +748,13 @@ namespace Servicios
                     Rol.Periodista);
             }
 
+            if (incidencias != null)
+            {
+                partido.Incidencias.Clear();
+                foreach (var i in incidencias)
+                    partido.Incidencias.Add(i);
+            }
+
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar(
                 $"Modificación de partido: {partido.Id}",
@@ -768,6 +775,7 @@ namespace Servicios
             var golesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
 
             partido.RegistrarResultado(golesLocal, golesVisitante, random);
+            GenerarIncidencias(partido, random);
             partido.Grupo?.ActualizarPosiciones(partido);
             PropagarResultado(partido);
             _partidoRepositorio.Actualizar(partido);
@@ -795,6 +803,7 @@ namespace Servicios
                 var golesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
                 var golesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
                 partido.RegistrarResultado(golesLocal, golesVisitante, random);
+                GenerarIncidencias(partido, random);
                 partido.Grupo?.ActualizarPosiciones(partido);
                 PropagarResultado(partido);
                 _partidoRepositorio.Actualizar(partido);
@@ -813,6 +822,26 @@ namespace Servicios
             double fuerza = rankingFifa / RankingMaximo;
             int maxGoles = Math.Max(MinGolesMaximos, (int)(fuerza * MaxGolesBase));
             return random.Next(0, maxGoles + 1);
+        }
+
+        private const int MaxTarjetasAmarillas = 4;
+        private const int MaxTarjetasRojas = 2;
+
+        private void GenerarIncidencias(Partido partido, Random random)
+        {
+            partido.Incidencias.Clear();
+            AgregarIncidenciasEquipo(partido, partido.EquipoLocal, random);
+            AgregarIncidenciasEquipo(partido, partido.EquipoVisitante, random);
+        }
+
+        private void AgregarIncidenciasEquipo(Partido partido, Equipo equipo, Random random)
+        {
+            var amarillas = random.Next(1, MaxTarjetasAmarillas + 1);
+            partido.Incidencias.Add(new Incidencia { Tipo = TipoIncidencia.TarjetaAmarilla, Equipo = equipo, Cantidad = amarillas });
+
+            var rojas = random.Next(0, MaxTarjetasRojas + 1);
+            if (rojas > 0)
+                partido.Incidencias.Add(new Incidencia { Tipo = TipoIncidencia.TarjetaRoja, Equipo = equipo, Cantidad = rojas });
         }
 
         private void PropagarResultado(Partido partido)

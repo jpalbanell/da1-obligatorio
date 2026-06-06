@@ -83,6 +83,40 @@
         </div>
     }
 
+    <div class="form-check mb-3">
+        <InputCheckbox class="form-check-input" @bind-Value="_form.CargarIncidencias" />
+        <label class="form-check-label">Cargar incidencias</label>
+    </div>
+
+    @if (_form.CargarIncidencias)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-title">Tarjetas</h6>
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Amarillas @(_partido.EquipoLocal?.Nombre ?? "Local")</label>
+                        <InputNumber class="form-control" @bind-Value="_form.TarjetasAmarillasLocal" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Rojas @(_partido.EquipoLocal?.Nombre ?? "Local")</label>
+                        <InputNumber class="form-control" @bind-Value="_form.TarjetasRojasLocal" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Amarillas @(_partido.EquipoVisitante?.Nombre ?? "Visitante")</label>
+                        <InputNumber class="form-control" @bind-Value="_form.TarjetasAmarillasVisitante" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Rojas @(_partido.EquipoVisitante?.Nombre ?? "Visitante")</label>
+                        <InputNumber class="form-control" @bind-Value="_form.TarjetasRojasVisitante" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <button type="submit" class="btn btn-primary">Guardar</button>
     <button type="button" class="btn btn-secondary" @onclick="Volver">Cancelar</button>
 </EditForm>
@@ -120,13 +154,28 @@
     {
         try
         {
+            List<Incidencia>? incidencias = null;
+            if (_form.CargarIncidencias && _partido!.TieneEquiposCompletos())
+            {
+                incidencias = new List<Incidencia>();
+                if (_form.TarjetasAmarillasLocal > 0)
+                    incidencias.Add(new Incidencia { Tipo = TipoIncidencia.TarjetaAmarilla, Equipo = _partido.EquipoLocal, Cantidad = _form.TarjetasAmarillasLocal });
+                if (_form.TarjetasRojasLocal > 0)
+                    incidencias.Add(new Incidencia { Tipo = TipoIncidencia.TarjetaRoja, Equipo = _partido.EquipoLocal, Cantidad = _form.TarjetasRojasLocal });
+                if (_form.TarjetasAmarillasVisitante > 0)
+                    incidencias.Add(new Incidencia { Tipo = TipoIncidencia.TarjetaAmarilla, Equipo = _partido.EquipoVisitante, Cantidad = _form.TarjetasAmarillasVisitante });
+                if (_form.TarjetasRojasVisitante > 0)
+                    incidencias.Add(new Incidencia { Tipo = TipoIncidencia.TarjetaRoja, Equipo = _partido.EquipoVisitante, Cantidad = _form.TarjetasRojasVisitante });
+            }
+
             TorneoServicio.EditarPartido(
                 _partido!.Id,
                 _form.Fecha,
                 _form.EstadioNombre,
                 _form.CargarResultado,
                 _form.GolesLocal,
-                _form.GolesVisitante);
+                _form.GolesVisitante,
+                incidencias);
 
             _mensajeExito = "Partido modificado correctamente.";
             _mensajeError = "";
