@@ -2143,6 +2143,20 @@ namespace Tests
         }
 
         [TestMethod]
+        public void SimularPartido_AlResimular_NoDuplicaIncidencias()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+            var cantidadPrimera = partido.Incidencias.Count;
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.AreEqual(cantidadPrimera, partido.Incidencias.Count);
+        }
+
+        [TestMethod]
         public void SimularPartido_ConMismaSemilla_ProduceMismasIncidencias()
         {
             var p1 = CrearPartidoParaSimular(1500, 1500, 1);

@@ -829,6 +829,7 @@ namespace Servicios
 
         private void GenerarIncidencias(Partido partido, Random random)
         {
+            partido.Incidencias.Clear();
             AgregarIncidenciasEquipo(partido, partido.EquipoLocal, random);
             AgregarIncidenciasEquipo(partido, partido.EquipoVisitante, random);
         }
