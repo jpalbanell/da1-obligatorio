@@ -24,12 +24,14 @@ builder.Services.AddScoped<IPartidoRepositorio, PartidoRepositorio>();
 builder.Services.AddScoped<IGrupoRepositorio, GrupoRepositorio>();
 builder.Services.AddScoped<IAuditoriaRepositorio, AuditoriaRepositorio>();
 builder.Services.AddScoped<IFixtureRepositorio, FixtureRepositorio>();
+builder.Services.AddScoped<INotificacionRepositorio, NotificacionRepositorio>();
 
 
 builder.Services.AddScoped<ITorneoServicio, TorneoServicio>();
 builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
 builder.Services.AddScoped<IAuditoriaServicio, AuditoriaServicio>();
 builder.Services.AddScoped<ISesionServicio, SesionServicio>();
+builder.Services.AddScoped<INotificacionServicio, NotificacionServicio>();
 
 var app = builder.Build();
 
