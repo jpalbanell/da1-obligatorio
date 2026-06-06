@@ -138,5 +138,25 @@ namespace Tests
 
             Assert.AreEqual(1230, nuevo);
         }
+        
+        [TestMethod]
+        public void CalcularNuevoRanking_EquipoEnElMaximo_NoSuperaElTope()
+        {
+            var equipo = new Equipo { Nombre = "Brasil", Confederacion = Confederacion.CONMEBOL, RankingFifa = 2500 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1000, 1.0, 1.5);
+
+            Assert.AreEqual(2500, nuevo);
+        }
+
+        [TestMethod]
+        public void CalcularNuevoRanking_EquipoEnElMinimo_NoBajaDelPiso()
+        {
+            var equipo = new Equipo { Nombre = "SanMarino", Confederacion = Confederacion.UEFA, RankingFifa = 300 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1500, 0.0, 1.5);
+
+            Assert.AreEqual(300, nuevo);
+        }
     }
 }
