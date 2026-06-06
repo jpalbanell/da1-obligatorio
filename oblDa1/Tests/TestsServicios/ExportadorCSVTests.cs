@@ -24,5 +24,24 @@ namespace Tests.TestsServicios
             string csv = Encoding.UTF8.GetString(resultado);
             Assert.AreEqual("Nombre,Confederacion\nUruguay,CONMEBOL\n", csv);
         }
+        
+        [TestMethod]
+        public void Exportar_ValorConComa_LoEnciertaEntreComillas()
+        {
+            var tabla = new TablaExportable
+            {
+                Encabezados = new List<string> { "Estadio", "Ciudad" },
+                Filas = new List<List<string>>
+                {
+                    new List<string> { "Arena, SP", "Sao Paulo" }
+                }
+            };
+            var exportador = new ExportadorCSV();
+
+            byte[] resultado = exportador.Exportar(tabla);
+
+            string csv = Encoding.UTF8.GetString(resultado);
+            Assert.AreEqual("Estadio,Ciudad\n\"Arena, SP\",Sao Paulo\n", csv);
+        }
     }
 }
