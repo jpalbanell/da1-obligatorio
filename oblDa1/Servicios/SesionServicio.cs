@@ -32,5 +32,14 @@ namespace Servicios
             if (!usuario.TieneRol(rolRequerido))
                 throw new UnauthorizedAccessException("No tiene permisos para realizar esta acción.");
         }
+        
+        public void ValidarAlgunRol(params Rol[] rolesPermitidos)
+        {
+            var usuario = ObtenerUsuarioActual();
+            if (usuario == null)
+                throw new InvalidOperationException("No hay una sesión activa.");
+            if (!rolesPermitidos.Any(rol => usuario.TieneRol(rol)))
+                throw new UnauthorizedAccessException("No tiene permisos para realizar esta acción.");
+        }
     }
 }
