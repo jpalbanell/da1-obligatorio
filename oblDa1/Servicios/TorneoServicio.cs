@@ -796,6 +796,7 @@ namespace Servicios
                 var golesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
                 var golesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
                 partido.RegistrarResultado(golesLocal, golesVisitante, random);
+                GenerarIncidencias(partido, random);
                 partido.Grupo?.ActualizarPosiciones(partido);
                 PropagarResultado(partido);
                 _partidoRepositorio.Actualizar(partido);

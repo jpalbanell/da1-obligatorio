@@ -2028,6 +2028,21 @@ namespace Tests
         }
 
         [TestMethod]
+        public void SimularFase_DeberiaGenerarIncidenciasEnTodosLosPartidos()
+        {
+            var p1 = CrearPartidoParaSimular(1500, 1500, 1); p1.Fase = FaseTorneo.FaseGrupos;
+            var p2 = CrearPartidoParaSimular(1500, 1500, 2); p2.Fase = FaseTorneo.FaseGrupos;
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { p1, p2 });
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            Assert.IsTrue(p1.Incidencias.Any(i => i.Equipo == p1.EquipoLocal));
+            Assert.IsTrue(p1.Incidencias.Any(i => i.Equipo == p1.EquipoVisitante));
+            Assert.IsTrue(p2.Incidencias.Any(i => i.Equipo == p2.EquipoLocal));
+            Assert.IsTrue(p2.Incidencias.Any(i => i.Equipo == p2.EquipoVisitante));
+        }
+
+        [TestMethod]
         public void SimularFase_PropagaVencedorAlSiguientePartido()
         {
             var actual = CrearPartidoParaSimular(2500, 300, 1);
