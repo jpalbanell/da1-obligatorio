@@ -128,5 +128,15 @@ namespace Tests
 
             Assert.AreEqual(1510, nuevo);
         }
+        
+        [TestMethod]
+        public void CalcularNuevoRanking_GanaEnEliminatorias_CambiaMasQueEnGrupos()
+        {
+            var equipo = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1200 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1500, 1.0, 1.5);
+
+            Assert.AreEqual(1230, nuevo);
+        }
     }
 }
