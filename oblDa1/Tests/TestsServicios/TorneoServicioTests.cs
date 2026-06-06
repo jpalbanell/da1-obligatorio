@@ -2108,6 +2108,22 @@ namespace Tests
         }
 
         [TestMethod]
+        public void SimularPartido_Incidencias_CantidadesEstanDentroDeRango()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(partido.Incidencias
+                .Where(i => i.Tipo == TipoIncidencia.TarjetaAmarilla)
+                .All(i => i.Cantidad >= 1 && i.Cantidad <= 4));
+            Assert.IsTrue(partido.Incidencias
+                .Where(i => i.Tipo == TipoIncidencia.TarjetaRoja)
+                .All(i => i.Cantidad >= 1 && i.Cantidad <= 2));
+        }
+
+        [TestMethod]
         public void EditarPartido_ConResultadoCargado_GeneraNotificacion()
         {
             var estadio = CrearEstadioValido();

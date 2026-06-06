@@ -15,7 +15,7 @@ namespace Servicios
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
         private readonly INotificacionServicio _notificacionServicio;
-
+     
         public TorneoServicio(
             IEquipoRepositorio equipoRepositorio,
             IEstadioRepositorio estadioRepositorio,
