@@ -2124,6 +2124,26 @@ namespace Tests
         }
 
         [TestMethod]
+        public void SimularPartido_ConMismaSemilla_ProduceMismasIncidencias()
+        {
+            var p1 = CrearPartidoParaSimular(1500, 1500, 1);
+            var p2 = CrearPartidoParaSimular(1500, 1500, 1);
+
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(p1);
+            _torneoServicio.SimularPartido(1, 42);
+
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(p2);
+            _torneoServicio.SimularPartido(1, 42);
+
+            Assert.AreEqual(p1.Incidencias.Count, p2.Incidencias.Count);
+            for (int i = 0; i < p1.Incidencias.Count; i++)
+            {
+                Assert.AreEqual(p1.Incidencias[i].Tipo, p2.Incidencias[i].Tipo);
+                Assert.AreEqual(p1.Incidencias[i].Cantidad, p2.Incidencias[i].Cantidad);
+            }
+        }
+
+        [TestMethod]
         public void EditarPartido_ConResultadoCargado_GeneraNotificacion()
         {
             var estadio = CrearEstadioValido();
