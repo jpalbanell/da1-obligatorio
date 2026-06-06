@@ -50,5 +50,40 @@ namespace Tests.TestsServicios
             StringAssert.Contains(csv, "Codigo,Fase,Local,Visitante");
             StringAssert.Contains(csv, "A1,FaseGrupos,Uruguay,Alemania,2,1");
         }
+        
+        [TestMethod]
+        public void ExportarAuditoria_EnCsv_GeneraElCsvDeLosLogs()
+        {
+            var usuario = new Usuario
+            {
+                Nombre = "Admin", Apellido = "Test", Email = "admin@test.com",
+                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1"
+            };
+            var log = new LogAuditoria
+            {
+                Timestamp = new DateTime(2026, 6, 5, 14, 30, 0),
+                Accion = "Creacion de usuario",
+                Usuario = usuario
+            };
+            _auditoriaMock.Setup(a => a.ObtenerEntreFechas(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(new List<LogAuditoria> { log });
+
+            byte[] resultado = _exportacionServicio.ExportarAuditoria(
+                FormatoExportacion.CSV, new DateTime(2026, 6, 1), new DateTime(2026, 6, 30));
+
+            string csv = Encoding.UTF8.GetString(resultado);
+            StringAssert.Contains(csv, "Fecha,Accion,Usuario");
+            StringAssert.Contains(csv, "Creacion de usuario,admin@test.com");
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ExportarFixture_SinRolPermitido_Lanza()
+        {
+            _sesionMock.Setup(s => s.ValidarAlgunRol(It.IsAny<Rol[]>()))
+                .Throws(new UnauthorizedAccessException());
+
+            _exportacionServicio.ExportarFixture(FormatoExportacion.CSV);
+        }
     }
 }
