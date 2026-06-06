@@ -40,5 +40,18 @@ namespace Dominio.Entidades
             if (ranking < 300 || ranking > 2500)
                 throw new ArgumentException("El ranking FIFA debe estar entre 300 y 2500.");
         }
+        
+        public int CalcularNuevoRanking(int rankingOponente, double resultado, double multiplicadorFase)
+        {
+            const double FactorDeDesarrollo = 30;
+            const int RankingMinimo = 300;
+            const int RankingMaximo = 2500;
+
+            double probabilidad = 1.0 / (1.0 + Math.Pow(10, (rankingOponente - RankingFifa) / 1000.0));
+            double rankingNuevo = RankingFifa + (FactorDeDesarrollo * (resultado - probabilidad)) * multiplicadorFase;
+            int redondeado = (int)Math.Round(rankingNuevo, MidpointRounding.AwayFromZero);
+
+            return Math.Clamp(redondeado, RankingMinimo, RankingMaximo);
+        }
     }
 }

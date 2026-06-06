@@ -108,5 +108,15 @@ namespace Tests
             var equipo = new Equipo();
             Assert.IsNull(equipo.Bandera);
         }
+        
+        [TestMethod]
+        public void CalcularNuevoRanking_GanaElDebilEnFaseGrupos_SubeMucho()
+        {
+            var equipo = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1200 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1500, 1.0, 1.0);
+
+            Assert.AreEqual(1220, nuevo);
+        }
     }
 }
