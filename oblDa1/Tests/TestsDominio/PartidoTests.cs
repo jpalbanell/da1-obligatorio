@@ -533,5 +533,26 @@ namespace Tests
             Assert.AreEqual(1480, visitante.RankingFifa);
         }
         
+        [TestMethod]
+        public void ActualizarRankings_CorreccionDeResultado_RecalculaDesdeElRankingOriginal()
+        {
+            var local = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1200 };
+            var visitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1500 };
+            var partido = new Partido
+            {
+                EquipoLocal = local,
+                EquipoVisitante = visitante,
+                Fase = FaseTorneo.FaseGrupos
+            };
+
+            partido.RegistrarResultado(2, 0);
+            partido.ActualizarRankings();
+            
+            partido.RegistrarResultado(1, 1);
+            partido.ActualizarRankings();
+
+            Assert.AreEqual(1205, local.RankingFifa);
+            Assert.AreEqual(1495, visitante.RankingFifa);
+        }
     }
 }
