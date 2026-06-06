@@ -5,9 +5,11 @@ public class Incidencia
     private int _cantidad;
     private Equipo _equipo;
 
+    public int Id { get; set; }
+
     public TipoIncidencia Tipo { get; set; }
 
-    public Equipo Equipo
+    public virtual Equipo Equipo
     {
         get => _equipo;
         set

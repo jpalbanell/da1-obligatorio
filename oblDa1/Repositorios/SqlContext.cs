@@ -14,6 +14,7 @@ namespace Repositorios
         public DbSet<Partido> Partidos { get; set; }
         public DbSet<Fixture> Fixtures { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
+        public DbSet<Incidencia> Incidencias { get; set; }
 
         public SqlContext(DbContextOptions<SqlContext> options) : base(options)
         {
