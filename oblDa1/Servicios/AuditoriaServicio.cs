@@ -41,5 +41,12 @@ namespace Servicios
             if (usuario == null)
                 throw new ArgumentException("Usuario no puede ser nulo");
         }
+        
+        public List<LogAuditoria> ObtenerEntreFechas(DateTime desde, DateTime hasta)
+        {
+            return _auditoriaRepositorio.ObtenerTodos()
+                .Where(log => log.Timestamp >= desde && log.Timestamp <= hasta)
+                .ToList();
+        }
     }
 }
