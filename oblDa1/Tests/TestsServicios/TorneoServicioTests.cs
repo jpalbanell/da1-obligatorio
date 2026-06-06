@@ -648,11 +648,8 @@ namespace Tests
             _grupoRepoMock.Setup(r => r.Agregar(It.IsAny<Grupo>()))
                 .Callback<Grupo>(g => gruposCapturados.Add(g));
 
-            var partidosCapturados = new List<Partido>();
-            _partidoRepoMock.Setup(r => r.Agregar(It.IsAny<Partido>()))
-                .Callback<Partido>(p => partidosCapturados.Add(p));
-
             _torneoServicio.GenerarFixture(new Fixture { SemillaFixture = semilla });
+            var partidosCapturados = gruposCapturados.SelectMany(g => g.ListaPartidos).ToList();
             return (gruposCapturados, partidosCapturados);
         }
 
