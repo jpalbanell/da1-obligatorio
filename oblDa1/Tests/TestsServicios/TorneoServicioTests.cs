@@ -2081,6 +2081,18 @@ namespace Tests
         }
 
         [TestMethod]
+        public void SimularPartido_DeberiaGenerarIncidenciasParaAmbosEquipos()
+        {
+            var partido = CrearPartidoParaSimular(1500, 1500, 1);
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            Assert.IsTrue(partido.Incidencias.Any(i => i.Equipo == partido.EquipoLocal));
+            Assert.IsTrue(partido.Incidencias.Any(i => i.Equipo == partido.EquipoVisitante));
+        }
+
+        [TestMethod]
         public void EditarPartido_ConResultadoCargado_GeneraNotificacion()
         {
             var estadio = CrearEstadioValido();
