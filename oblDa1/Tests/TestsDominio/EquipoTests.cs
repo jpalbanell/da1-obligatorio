@@ -118,5 +118,15 @@ namespace Tests
 
             Assert.AreEqual(1220, nuevo);
         }
+        
+        [TestMethod]
+        public void CalcularNuevoRanking_GanaElFavoritoEnFaseGrupos_SubePoco()
+        {
+            var equipo = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1500 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1200, 1.0, 1.0);
+
+            Assert.AreEqual(1510, nuevo);
+        }
     }
 }
