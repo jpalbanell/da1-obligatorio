@@ -274,7 +274,6 @@ namespace Servicios
 
             fixture.AsignarFechasAPartidos(partidosPorGrupo);
             AsignarEstadiosEnRotacion(partidosPorGrupo);
-            PersistirPartidos(partidosPorGrupo);
             PersistirGrupos(grupos);
 
             fixture.EstaGenerado = true;
