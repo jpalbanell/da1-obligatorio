@@ -93,5 +93,20 @@ namespace Tests.TestsServicios
             Assert.AreEqual(1, resultado.Count);
             Assert.AreEqual("Dentro", resultado[0].Accion);
         }
+        
+        [TestMethod]
+        public void ObtenerEntreFechas_LogsEnLosLimitesExactos_SonIncluidos()
+        {
+            var usuario = CrearUsuarioValido();
+            var logEnDesde = new LogAuditoria { Timestamp = new DateTime(2026, 6, 3), Accion = "EnDesde", Usuario = usuario };
+            var logEnHasta = new LogAuditoria { Timestamp = new DateTime(2026, 6, 7), Accion = "EnHasta", Usuario = usuario };
+            _repoMock.Setup(r => r.ObtenerTodos())
+                .Returns(new List<LogAuditoria> { logEnDesde, logEnHasta });
+
+            var resultado = _auditoriaServicio.ObtenerEntreFechas(
+                new DateTime(2026, 6, 3), new DateTime(2026, 6, 7));
+
+            Assert.AreEqual(2, resultado.Count);
+        }
     }
 }
