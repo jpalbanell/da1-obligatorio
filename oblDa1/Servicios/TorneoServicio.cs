@@ -743,6 +743,7 @@ namespace Servicios
                 partido.RegistrarResultado(golesLocal, golesVisitante);
                 partido.Grupo?.ActualizarPosiciones(partido);
                 PropagarResultado(partido);
+                RecalcularRankings(partido);
                 _notificacionServicio.NotificarPorRol(
                     $"El partido {partido.Id} tiene resultado cargado.",
                     Rol.Periodista);
@@ -761,6 +762,13 @@ namespace Servicios
                 _sesionServicio.ObtenerUsuarioActual());
         }
 
+        private void RecalcularRankings(Partido partido)
+        {
+            partido.ActualizarRankings();
+            _equipoRepositorio.Actualizar(partido.EquipoLocal, partido.EquipoLocal.Nombre);
+            _equipoRepositorio.Actualizar(partido.EquipoVisitante, partido.EquipoVisitante.Nombre);
+        }
+        
         public void SimularPartido(int partidoId, int semillaSimulation)
         {
             _sesionServicio.ValidarRol(Rol.Editor);
@@ -778,6 +786,7 @@ namespace Servicios
             GenerarIncidencias(partido, random);
             partido.Grupo?.ActualizarPosiciones(partido);
             PropagarResultado(partido);
+            RecalcularRankings(partido);
             _partidoRepositorio.Actualizar(partido);
             _auditoriaServicio.Registrar(
                 $"Simulación de partido: {partidoId} con SemillaSimulation: {semillaSimulation}",

@@ -2246,5 +2246,18 @@ namespace Tests
 
             _notificacionMock.Verify(n => n.NotificarPorRol(It.IsAny<string>(), Rol.Periodista), Times.Once);
         }
+        
+        [TestMethod]
+        public void EditarPartido_ConResultado_RecalculaRankings()
+        {
+            var partido = CrearPartidoValido();
+            int rankingLocalInicial = partido.EquipoLocal.RankingFifa;
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Centenario")).Returns(partido.Estadio);
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 2, 0);
+
+            Assert.AreNotEqual(rankingLocalInicial, partido.EquipoLocal.RankingFifa);
+        }
     }
 }

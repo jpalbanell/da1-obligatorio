@@ -195,6 +195,9 @@ namespace Dominio.Entidades
         
         public void ActualizarRankings()
         {
+            if (EquipoLocal == null || EquipoVisitante == null)
+                return;
+            
             if (RankingLocalAntes == -1)
             {
                 RankingLocalAntes = EquipoLocal.RankingFifa;
