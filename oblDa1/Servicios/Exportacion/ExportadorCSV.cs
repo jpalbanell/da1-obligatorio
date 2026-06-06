@@ -2,13 +2,13 @@ using System.Text;
 
 namespace Servicios.Exportacion
 {
-    public class ExportadorCSV
+    public class ExportadorCSV: Exportador
     {
         private const char SeparadorDeColumnas = ',';
         private const char SeparadorDeFilas = '\n';
         private const char Comilla = '"';
 
-        public byte[] Exportar(TablaExportable tabla)
+        public override byte[] Exportar(TablaExportable tabla)
         {
             var sb = new StringBuilder();
 
