@@ -1718,6 +1718,25 @@ namespace Tests
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "EstadioInexistente", false, 0, 0);
         }
 
+        [TestMethod]
+        public void EditarPartido_ConIncidencias_DeberiaRegistrarlas()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre(partido.Estadio.Nombre)).Returns(partido.Estadio);
+
+            var incidencias = new List<Incidencia>
+            {
+                new Incidencia { Tipo = TipoIncidencia.TarjetaAmarilla, Equipo = partido.EquipoLocal, Cantidad = 2 }
+            };
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, partido.Estadio.Nombre, false, 0, 0, incidencias);
+
+            Assert.AreEqual(1, partido.Incidencias.Count);
+            Assert.AreEqual(TipoIncidencia.TarjetaAmarilla, partido.Incidencias[0].Tipo);
+            Assert.AreEqual(2, partido.Incidencias[0].Cantidad);
+        }
+
         // ==================== SIMULACION (faltantes) ====================
 
         [TestMethod]

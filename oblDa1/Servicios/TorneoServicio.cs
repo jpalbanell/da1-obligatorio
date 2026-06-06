@@ -723,7 +723,7 @@ namespace Servicios
         private const int MinGolesMaximos = 1;
 
         public void EditarPartido(int partidoId, DateTime fecha, string nombreEstadio,
-            bool cargarResultado, int golesLocal, int golesVisitante)
+            bool cargarResultado, int golesLocal, int golesVisitante, List<Incidencia>? incidencias = null)
         {
             _sesionServicio.ValidarRol(Rol.Editor);
             var partido = _partidoRepositorio.ObtenerPorId(partidoId);
@@ -746,6 +746,13 @@ namespace Servicios
                 _notificacionServicio.NotificarPorRol(
                     $"El partido {partido.Id} tiene resultado cargado.",
                     Rol.Periodista);
+            }
+
+            if (incidencias != null)
+            {
+                partido.Incidencias.Clear();
+                foreach (var i in incidencias)
+                    partido.Incidencias.Add(i);
             }
 
             _partidoRepositorio.Actualizar(partido);
