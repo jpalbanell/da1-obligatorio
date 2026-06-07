@@ -451,68 +451,108 @@ namespace Tests
         }
         
         [TestMethod]
-public void RegistrarResultado_LocalGana_DeterminaVencedorLocal()
-{
-    var partido = new Partido();
-    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
-    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+        public void RegistrarResultado_LocalGana_DeterminaVencedorLocal()
+        {
+            var partido = new Partido();
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
 
-    partido.RegistrarResultado(2, 0);
+            partido.RegistrarResultado(2, 0);
 
-    Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
-}
+            Assert.AreEqual(partido.EquipoLocal, partido.Vencedor);
+        }
 
-[TestMethod]
-public void RegistrarResultado_VisitanteGana_DeterminaVencedorVisitante()
-{
-    var partido = new Partido();
-    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
-    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+        [TestMethod]
+        public void RegistrarResultado_VisitanteGana_DeterminaVencedorVisitante()
+        {
+            var partido = new Partido();
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
 
-    partido.RegistrarResultado(0, 3);
+            partido.RegistrarResultado(0, 3);
 
-    Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
-}
+            Assert.AreEqual(partido.EquipoVisitante, partido.Vencedor);
+        }
 
-[TestMethod]
-public void RegistrarResultado_EmpateEnGrupos_VencedorEsNull()
-{
-    var partido = new Partido();
-    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
-    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
-    partido.Fase = FaseTorneo.FaseGrupos;
+        [TestMethod]
+        public void RegistrarResultado_EmpateEnGrupos_VencedorEsNull()
+        {
+            var partido = new Partido();
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+            partido.Fase = FaseTorneo.FaseGrupos;
 
-    partido.RegistrarResultado(1, 1);
+            partido.RegistrarResultado(1, 1);
 
-    Assert.IsNull(partido.Vencedor);
-}
+            Assert.IsNull(partido.Vencedor);
+        }
 
-[TestMethod]
-public void RegistrarResultado_SegundoResultado_GuardaGolesAnteriores()
-{
-    var partido = new Partido();
-    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
-    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+        [TestMethod]
+        public void RegistrarResultado_SegundoResultado_GuardaGolesAnteriores()
+        {
+            var partido = new Partido();
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
 
-    partido.RegistrarResultado(2, 1);
-    partido.RegistrarResultado(3, 2);
+            partido.RegistrarResultado(2, 1);
+            partido.RegistrarResultado(3, 2);
 
-    Assert.AreEqual(2, partido.GolesLocalAnterior);
-    Assert.AreEqual(1, partido.GolesVisitanteAnterior);
-}
+            Assert.AreEqual(2, partido.GolesLocalAnterior);
+            Assert.AreEqual(1, partido.GolesVisitanteAnterior);
+        }
 
-[TestMethod]
-public void RegistrarResultado_PrimerResultado_GolesAnterioresSonMenosUno()
-{
-    var partido = new Partido();
-    partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
-    partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
+        [TestMethod]
+        public void RegistrarResultado_PrimerResultado_GolesAnterioresSonMenosUno()
+        {
+            var partido = new Partido();
+            partido.EquipoLocal = new Equipo { Nombre = "Uruguay", RankingFifa = 1500 };
+            partido.EquipoVisitante = new Equipo { Nombre = "Argentina", RankingFifa = 1600 };
 
-    partido.RegistrarResultado(2, 1);
+            partido.RegistrarResultado(2, 1);
 
-    Assert.AreEqual(-1, partido.GolesLocalAnterior);
-    Assert.AreEqual(-1, partido.GolesVisitanteAnterior);
-}
+            Assert.AreEqual(-1, partido.GolesLocalAnterior);
+            Assert.AreEqual(-1, partido.GolesVisitanteAnterior);
+        }
         
+        [TestMethod]
+        public void ActualizarRankings_PrimeraCargaGanaLocal_ActualizaAmbosEquipos()
+        {
+            var local = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1200 };
+            var visitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1500 };
+            var partido = new Partido
+            {
+                EquipoLocal = local,
+                EquipoVisitante = visitante,
+                Fase = FaseTorneo.FaseGrupos
+            };
+            partido.RegistrarResultado(2, 0); 
+
+            partido.ActualizarRankings();
+
+            Assert.AreEqual(1220, local.RankingFifa);
+            Assert.AreEqual(1480, visitante.RankingFifa);
+        }
+        
+        [TestMethod]
+        public void ActualizarRankings_CorreccionDeResultado_RecalculaDesdeElRankingOriginal()
+        {
+            var local = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1200 };
+            var visitante = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1500 };
+            var partido = new Partido
+            {
+                EquipoLocal = local,
+                EquipoVisitante = visitante,
+                Fase = FaseTorneo.FaseGrupos
+            };
+
+            partido.RegistrarResultado(2, 0);
+            partido.ActualizarRankings();
+            
+            partido.RegistrarResultado(1, 1);
+            partido.ActualizarRankings();
+
+            Assert.AreEqual(1205, local.RankingFifa);
+            Assert.AreEqual(1495, visitante.RankingFifa);
+        }
     }
 }

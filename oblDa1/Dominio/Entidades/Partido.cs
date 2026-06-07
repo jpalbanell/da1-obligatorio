@@ -21,6 +21,8 @@ namespace Dominio.Entidades
         public virtual List<Incidencia> Incidencias { get; private set; } = new List<Incidencia>();
         public int GolesLocalAnterior { get; set; } = -1;
         public int GolesVisitanteAnterior { get; set; } = -1;
+        public int RankingLocalAntes { get; set; } = -1;
+        public int RankingVisitanteAntes { get; set; } = -1;
 
         public string Codigo
         {
@@ -189,6 +191,52 @@ namespace Dominio.Entidades
             GolesVisitante = golesVisitante;
             TieneResultado = true;
             DeterminarVencedor(random);
+        }
+        
+        public void ActualizarRankings()
+        {
+            if (EquipoLocal == null || EquipoVisitante == null)
+                return;
+            
+            if (RankingLocalAntes == -1)
+            {
+                RankingLocalAntes = EquipoLocal.RankingFifa;
+                RankingVisitanteAntes = EquipoVisitante.RankingFifa;
+            }
+
+            double multiplicador = ObtenerMultiplicadorFase();
+            double resultadoLocal = ObtenerResultadoLocal();
+            double resultadoVisitante = 1.0 - resultadoLocal;
+
+            int nuevoLocal = CalcularRankingDesde(RankingLocalAntes, RankingVisitanteAntes, resultadoLocal, multiplicador);
+            int nuevoVisitante = CalcularRankingDesde(RankingVisitanteAntes, RankingLocalAntes, resultadoVisitante, multiplicador);
+
+            EquipoLocal.RankingFifa = nuevoLocal;
+            EquipoVisitante.RankingFifa = nuevoVisitante;
+        }
+
+        private int CalcularRankingDesde(int rankPropio, int rankOponente, double resultado, double multiplicador)
+        {
+            var equipoTemporal = new Equipo { RankingFifa = rankPropio };
+            return equipoTemporal.CalcularNuevoRanking(rankOponente, resultado, multiplicador);
+        }
+
+        private double ObtenerMultiplicadorFase()
+        {
+            const double MultiplicadorGrupos = 1.0;
+            const double MultiplicadorEliminatorias = 1.5;
+            return Fase == FaseTorneo.FaseGrupos ? MultiplicadorGrupos : MultiplicadorEliminatorias;
+        }
+
+        private double ObtenerResultadoLocal()
+        {
+            const double Victoria = 1.0;
+            const double Empate = 0.5;
+            const double Derrota = 0.0;
+
+            if (EsEmpate())
+                return Empate;
+            return Vencedor == EquipoLocal ? Victoria : Derrota;
         }
     }
 }

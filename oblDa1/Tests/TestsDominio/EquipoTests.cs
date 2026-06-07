@@ -108,5 +108,55 @@ namespace Tests
             var equipo = new Equipo();
             Assert.IsNull(equipo.Bandera);
         }
+        
+        [TestMethod]
+        public void CalcularNuevoRanking_GanaElDebilEnFaseGrupos_SubeMucho()
+        {
+            var equipo = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1200 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1500, 1.0, 1.0);
+
+            Assert.AreEqual(1220, nuevo);
+        }
+        
+        [TestMethod]
+        public void CalcularNuevoRanking_GanaElFavoritoEnFaseGrupos_SubePoco()
+        {
+            var equipo = new Equipo { Nombre = "Alemania", Confederacion = Confederacion.UEFA, RankingFifa = 1500 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1200, 1.0, 1.0);
+
+            Assert.AreEqual(1510, nuevo);
+        }
+        
+        [TestMethod]
+        public void CalcularNuevoRanking_GanaEnEliminatorias_CambiaMasQueEnGrupos()
+        {
+            var equipo = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1200 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1500, 1.0, 1.5);
+
+            Assert.AreEqual(1230, nuevo);
+        }
+        
+        [TestMethod]
+        public void CalcularNuevoRanking_EquipoEnElMaximo_NoSuperaElTope()
+        {
+            var equipo = new Equipo { Nombre = "Brasil", Confederacion = Confederacion.CONMEBOL, RankingFifa = 2500 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1000, 1.0, 1.5);
+
+            Assert.AreEqual(2500, nuevo);
+        }
+
+        [TestMethod]
+        public void CalcularNuevoRanking_EquipoEnElMinimo_NoBajaDelPiso()
+        {
+            var equipo = new Equipo { Nombre = "SanMarino", Confederacion = Confederacion.UEFA, RankingFifa = 300 };
+
+            int nuevo = equipo.CalcularNuevoRanking(1500, 0.0, 1.5);
+
+            Assert.AreEqual(300, nuevo);
+        }
     }
 }
