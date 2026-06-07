@@ -8,5 +8,6 @@ namespace IServicios
         Usuario ObtenerUsuarioActual();
         void CerrarSesion();
         void ValidarRol(Rol rolRequerido);
+        void ValidarAlgunRol(params Rol[] rolesPermitidos);
     }
 }

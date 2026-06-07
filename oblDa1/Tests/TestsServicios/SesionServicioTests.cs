@@ -88,5 +88,34 @@ namespace Tests.TestsServicios
 
             _sesionServicio.ValidarRol(Rol.Administrador);
         }
+        
+        [TestMethod]
+        public void ValidarAlgunRol_UsuarioTieneUnoDeLosRoles_NoLanza()
+        {
+            var usuario = new Usuario
+            {
+                Nombre = "Peri", Apellido = "Dista", Email = "peri@test.com",
+                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1"
+            };
+            usuario.Roles.Add(Rol.Periodista);
+            _sesionServicio.IniciarSesion(usuario);
+
+            _sesionServicio.ValidarAlgunRol(Rol.Administrador, Rol.Periodista);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void ValidarAlgunRol_UsuarioNoTieneNingunRolPermitido_Lanza()
+        {
+            var usuario = new Usuario
+            {
+                Nombre = "Edi", Apellido = "Tor", Email = "edi@test.com",
+                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1"
+            };
+            usuario.Roles.Add(Rol.Editor);
+            _sesionServicio.IniciarSesion(usuario);
+
+            _sesionServicio.ValidarAlgunRol(Rol.Administrador, Rol.Periodista);
+        }
     }
 }

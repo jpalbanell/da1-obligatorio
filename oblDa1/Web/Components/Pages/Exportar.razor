@@ -1,0 +1,93 @@
+@page "/exportar"
+@using Dominio.Entidades
+@using IServicios
+@inject IExportacionServicio ExportacionServicio
+@inject ISesionServicio SesionServicio
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+@if (_usuarioActual == null || !(_usuarioActual.TieneRol(Rol.Administrador) || _usuarioActual.TieneRol(Rol.Periodista)))
+{
+    <p>No tenés permisos para ver esta página.</p>
+    return;
+}
+
+<h3>Exportar</h3>
+
+@if (!string.IsNullOrEmpty(_mensajeError))
+{
+    <div class="alert alert-danger">@_mensajeError</div>
+}
+
+<hr />
+<h4>Fixture Final</h4>
+<button class="btn btn-primary" @onclick="() => ExportarFixture(FormatoExportacion.CSV)">Exportar CSV</button>
+<button class="btn btn-success" @onclick="() => ExportarFixture(FormatoExportacion.XLSX)">Exportar XLSX</button>
+
+<hr />
+<h4>Log de Auditoría</h4>
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label class="form-label">Desde</label>
+        <InputDate class="form-control" @bind-Value="_desde" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Hasta</label>
+        <InputDate class="form-control" @bind-Value="_hasta" />
+    </div>
+</div>
+<button class="btn btn-primary" @onclick="() => ExportarAuditoria(FormatoExportacion.CSV)">Exportar CSV</button>
+<button class="btn btn-success" @onclick="() => ExportarAuditoria(FormatoExportacion.XLSX)">Exportar XLSX</button>
+
+@code {
+    private Usuario? _usuarioActual;
+    private DateTime _desde = DateTime.Today.AddMonths(-1);
+    private DateTime _hasta = DateTime.Today;
+    private string _mensajeError = "";
+
+    protected override void OnInitialized()
+    {
+        _usuarioActual = SesionServicio.ObtenerUsuarioActual();
+        if (_usuarioActual == null)
+            Nav.NavigateTo("/login");
+    }
+
+    private async Task ExportarFixture(FormatoExportacion formato)
+    {
+        try
+        {
+            byte[] datos = ExportacionServicio.ExportarFixture(formato);
+            await Descargar(datos, "fixture", formato);
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+        }
+    }
+
+    private async Task ExportarAuditoria(FormatoExportacion formato)
+    {
+        try
+        {
+            byte[] datos = ExportacionServicio.ExportarAuditoria(formato, _desde, _hasta);
+            await Descargar(datos, "auditoria", formato);
+            _mensajeError = "";
+        }
+        catch (Exception ex)
+        {
+            _mensajeError = ex.Message;
+        }
+    }
+
+    private async Task Descargar(byte[] datos, string nombreBase, FormatoExportacion formato)
+    {
+        string extension = formato == FormatoExportacion.CSV ? "csv" : "xlsx";
+        string tipoMime = formato == FormatoExportacion.CSV
+            ? "text/csv"
+            : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        string nombreArchivo = $"{nombreBase}.{extension}";
+        string base64 = Convert.ToBase64String(datos);
+        await JS.InvokeVoidAsync("descargarArchivo", nombreArchivo, base64, tipoMime);
+    }
+}

@@ -32,6 +32,7 @@ builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
 builder.Services.AddScoped<IAuditoriaServicio, AuditoriaServicio>();
 builder.Services.AddScoped<ISesionServicio, SesionServicio>();
 builder.Services.AddScoped<INotificacionServicio, NotificacionServicio>();
+builder.Services.AddScoped<IExportacionServicio, ExportacionServicio>();
 
 var app = builder.Build();
 

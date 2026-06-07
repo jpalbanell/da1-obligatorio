@@ -6,5 +6,6 @@ namespace IServicios
     {
         void Registrar(string accion, Usuario usuario);
         List<LogAuditoria> ObtenerTodos();
+        List<LogAuditoria> ObtenerEntreFechas(DateTime desde, DateTime hasta);
     }
 }
