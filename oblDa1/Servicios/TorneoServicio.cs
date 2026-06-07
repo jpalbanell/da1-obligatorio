@@ -764,9 +764,21 @@ namespace Servicios
 
         private void RecalcularRankings(Partido partido)
         {
+            int localAntes = partido.EquipoLocal.RankingFifa;
+            int visitanteAntes = partido.EquipoVisitante.RankingFifa;
+
             partido.ActualizarRankings();
+
             _equipoRepositorio.Actualizar(partido.EquipoLocal, partido.EquipoLocal.Nombre);
             _equipoRepositorio.Actualizar(partido.EquipoVisitante, partido.EquipoVisitante.Nombre);
+
+            var usuario = _sesionServicio.ObtenerUsuarioActual();
+            _auditoriaServicio.Registrar(
+                $"Ranking {partido.EquipoLocal.Nombre}: {localAntes} -> {partido.EquipoLocal.RankingFifa}",
+                usuario);
+            _auditoriaServicio.Registrar(
+                $"Ranking {partido.EquipoVisitante.Nombre}: {visitanteAntes} -> {partido.EquipoVisitante.RankingFifa}",
+                usuario);
         }
         
         public void SimularPartido(int partidoId, int semillaSimulation)

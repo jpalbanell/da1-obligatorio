@@ -1816,7 +1816,9 @@ namespace Tests
 
             _torneoServicio.SimularPartido(partido.Id, 42);
 
-            _auditoriaMock.Verify(a => a.Registrar(It.IsAny<string>(), It.IsAny<Usuario>()), Times.Once);
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("Simulación")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]
@@ -2258,6 +2260,20 @@ namespace Tests
             _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 2, 0);
 
             Assert.AreNotEqual(rankingLocalInicial, partido.EquipoLocal.RankingFifa);
+        }
+        
+        [TestMethod]
+        public void EditarPartido_ConResultado_AuditaCambioDeRanking()
+        {
+            var partido = CrearPartidoValido();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            _estadioRepoMock.Setup(r => r.ObtenerPorNombre("Centenario")).Returns(partido.Estadio);
+
+            _torneoServicio.EditarPartido(partido.Id, partido.Fecha, "Centenario", true, 2, 0);
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("Ranking")),
+                It.IsAny<Usuario>()), Times.AtLeastOnce);
         }
     }
 }
