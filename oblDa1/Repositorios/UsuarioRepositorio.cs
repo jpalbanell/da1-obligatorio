@@ -25,7 +25,7 @@ namespace Repositorios
 
         public List<Usuario> ObtenerPorRol(Rol rol)
         {
-            return _context.Usuarios.Where(u => u.Roles.Contains(rol)).ToList();
+            return _context.Usuarios.AsEnumerable().Where(u => u.Roles.Contains(rol)).ToList();
         }
 
         public Usuario ObtenerPorId(int id)
