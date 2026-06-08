@@ -8,11 +8,19 @@ namespace Servicios
     {
         private readonly INotificacionRepositorio _notificacionRepositorio;
         private readonly IUsuarioRepositorio _usuarioRepositorio;
+        private readonly IAuditoriaServicio _auditoriaServicio;
+        private readonly ISesionServicio _sesionServicio;
 
-        public NotificacionServicio(INotificacionRepositorio notificacionRepositorio, IUsuarioRepositorio usuarioRepositorio)
+        public NotificacionServicio(
+            INotificacionRepositorio notificacionRepositorio,
+            IUsuarioRepositorio usuarioRepositorio,
+            IAuditoriaServicio auditoriaServicio,
+            ISesionServicio sesionServicio)
         {
             _notificacionRepositorio = notificacionRepositorio;
             _usuarioRepositorio = usuarioRepositorio;
+            _auditoriaServicio = auditoriaServicio;
+            _sesionServicio = sesionServicio;
         }
 
         public void Notificar(string mensaje, Usuario periodista)
@@ -48,6 +56,10 @@ namespace Servicios
                 throw new KeyNotFoundException("Notificación no encontrada.");
             notificacion.MarcarLeida();
             _notificacionRepositorio.Actualizar(notificacion);
+
+            _auditoriaServicio.Registrar(
+                $"Lectura de notificación: {notificacion.Mensaje}",
+                _sesionServicio.ObtenerUsuarioActual());
         }
     }
 }
