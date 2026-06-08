@@ -21,7 +21,7 @@ namespace Tests
         private Mock<IAuditoriaServicio> _auditoriaMock;
         private Mock<ISesionServicio> _sesionMock;
         private Mock<INotificacionServicio> _notificacionMock;
-        private Mock<IMotorSimulacionFactory> _motorFactoryMock;
+        private Mock<IMotorSimulacionSelector> _motorFactoryMock;
 
         // Aliases de backward-compat para helpers e tests [Ignore]-d
         private IEquipoRepositorio _equipoRepositorio => _equipoRepoMock.Object;
@@ -43,7 +43,7 @@ namespace Tests
             _auditoriaMock = new Mock<IAuditoriaServicio>();
             _sesionMock = new Mock<ISesionServicio>();
             _notificacionMock = new Mock<INotificacionServicio>();
-            _motorFactoryMock = new Mock<IMotorSimulacionFactory>();
+            _motorFactoryMock = new Mock<IMotorSimulacionSelector>();
             _motorFactoryMock.Setup(f => f.ObtenerNombres()).Returns(new[] { "Probabilístico" });
             _motorFactoryMock.Setup(f => f.Obtener(It.IsAny<string>()))
                 .Returns(new Servicios.Simulacion.MotorProbabilistico());

@@ -15,7 +15,7 @@ namespace Servicios
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
         private readonly INotificacionServicio _notificacionServicio;
-        private readonly IMotorSimulacionFactory _motorFactory;
+        private readonly IMotorSimulacionSelector _motorFactory;
 
         public TorneoServicio(
             IEquipoRepositorio equipoRepositorio,
@@ -26,7 +26,7 @@ namespace Servicios
             IAuditoriaServicio auditoriaServicio,
             ISesionServicio sesionServicio,
             INotificacionServicio notificacionServicio,
-            IMotorSimulacionFactory motorFactory)
+            IMotorSimulacionSelector motorFactory)
         {
             _equipoRepositorio = equipoRepositorio;
             _estadioRepositorio = estadioRepositorio;

@@ -2,11 +2,11 @@ using Dominio;
 
 namespace Servicios
 {
-    public class MotorSimulacionFactory : IMotorSimulacionFactory
+    public class MotorSimulacionSelector : IMotorSimulacionSelector
     {
         private readonly Dictionary<string, IMotorSimulacion> _motores;
 
-        public MotorSimulacionFactory(IEnumerable<IMotorSimulacion> motores)
+        public MotorSimulacionSelector(IEnumerable<IMotorSimulacion> motores)
         {
             _motores = motores.ToDictionary(m => m.Nombre);
         }
