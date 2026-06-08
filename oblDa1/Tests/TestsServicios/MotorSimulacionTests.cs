@@ -45,5 +45,22 @@ namespace Tests
             Assert.AreEqual(2, golesLocal);
             Assert.AreEqual(0, golesVisitante);
         }
+
+        [TestMethod]
+        public void MotorProbabilistico_Simular_RankingAlto_ProduceMasGolesEnPromedioQueRankingBajo()
+        {
+            var motor = new MotorProbabilistico();
+            int sumaAlto = 0, sumaBajo = 0;
+
+            for (int semilla = 0; semilla < 50; semilla++)
+            {
+                var (golesAlto, _) = motor.Simular(2500, 300, new Random(semilla));
+                var (golesBajo, _) = motor.Simular(300, 2500, new Random(semilla));
+                sumaAlto += golesAlto;
+                sumaBajo += golesBajo;
+            }
+
+            Assert.IsTrue(sumaAlto > sumaBajo);
+        }
     }
 }
