@@ -1,4 +1,4 @@
-namespace Dominio
+namespace IServicios
 {
     public interface IMotorSimulacionSelector
     {
