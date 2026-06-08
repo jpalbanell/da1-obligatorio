@@ -723,10 +723,6 @@ namespace Servicios
                     throw new InvalidOperationException($"El partido {partido.Codigo} no tiene resultado cargado.");
         }
         
-        private const double RankingMaximo = 2500.0;
-        private const int MaxGolesBase = 5;
-        private const int MinGolesMaximos = 1;
-
         public void EditarPartido(int partidoId, DateTime fecha, string nombreEstadio,
             bool cargarResultado, int golesLocal, int golesVisitante, List<Incidencia>? incidencias = null)
         {
@@ -848,13 +844,6 @@ namespace Servicios
             var fixture = _fixtureRepositorio.Obtener();
             var nombre = fixture?.NombreMotorSimulacion ?? "Probabilístico";
             return _motorFactory.Obtener(nombre);
-        }
-
-        private int GenerarGoles(int rankingFifa, Random random)
-        {
-            double fuerza = rankingFifa / RankingMaximo;
-            int maxGoles = Math.Max(MinGolesMaximos, (int)(fuerza * MaxGolesBase));
-            return random.Next(0, maxGoles + 1);
         }
 
         private const int MaxTarjetasAmarillas = 4;
