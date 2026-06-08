@@ -25,5 +25,13 @@ namespace Tests
             Assert.AreEqual(4, golesLocal);
             Assert.AreEqual(0, golesVisitante);
         }
+
+        [TestMethod]
+        public void MotorProbabilistico_Nombre_EsProbabilistico()
+        {
+            var motor = new MotorProbabilistico();
+
+            Assert.AreEqual("Probabilístico", motor.Nombre);
+        }
     }
 }
