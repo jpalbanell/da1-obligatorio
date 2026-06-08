@@ -53,6 +53,15 @@
                     <label class="form-label">Separación entre fechas (días)</label>
                     <input type="number" class="form-control" @bind="_form.SeparacionEntreFechas"/>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Motor de simulación</label>
+                    <select class="form-select" @bind="_form.NombreMotor">
+                        @foreach (var motor in _motoresDisponibles)
+                        {
+                            <option value="@motor">@motor</option>
+                        }
+                    </select>
+                </div>
                 <button class="btn btn-primary" @onclick="GenerarFixture">Generar fixture</button>
             </div>
         </div>
@@ -64,6 +73,10 @@
 }
 else
 {
+    @if (!string.IsNullOrEmpty(_motorUsado))
+    {
+        <p class="text-muted mb-2">Motor de simulación: <strong>@_motorUsado</strong></p>
+    }
     @if (_usuarioActual.TieneRol(Rol.Editor))
     {
         <div class="d-flex gap-3 align-items-end mb-3 flex-wrap">
@@ -285,6 +298,8 @@ else
     private string _mensajeExito = "";
     private List<GrupoResponse> _grupos = new();
     private GenerarFixtureRequest _form = new();
+    private List<string> _motoresDisponibles = new();
+    private string _motorUsado = "";
     private int _semillaCruces = 42;
     private int _semillaSimulacion = 42;
     private bool _faseGruposSimulada = false;
@@ -305,11 +320,16 @@ else
             return;
         }
 
+        _motoresDisponibles = TorneoServicio.ObtenerMotoresDisponibles();
+        if (_motoresDisponibles.Count > 0)
+            _form.NombreMotor = _motoresDisponibles[0];
+
         var fixture = TorneoServicio.ObtenerFixture();
         if (fixture != null)
         {
             _fixtureGenerado = fixture.EstaGenerado;
             _crucesGenerados = fixture.CrucesGenerados;
+            _motorUsado = fixture.NombreMotorSimulacion;
         }
 
         _cargado = true;
