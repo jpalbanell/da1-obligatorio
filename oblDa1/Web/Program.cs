@@ -29,9 +29,9 @@ builder.Services.AddScoped<IFixtureRepositorio, FixtureRepositorio>();
 builder.Services.AddScoped<INotificacionRepositorio, NotificacionRepositorio>();
 
 
-builder.Services.AddSingleton<IMotorSimulacion, MotorProbabilistico>();
-builder.Services.AddSingleton<IMotorSimulacion, MotorAleatorio>();
-builder.Services.AddSingleton<IMotorSimulacionFactory>(sp =>
+builder.Services.AddScoped<IMotorSimulacion, MotorProbabilistico>();
+builder.Services.AddScoped<IMotorSimulacion, MotorAleatorio>();
+builder.Services.AddScoped<IMotorSimulacionFactory>(sp =>
     new MotorSimulacionFactory(sp.GetServices<IMotorSimulacion>()));
 
 builder.Services.AddScoped<ITorneoServicio, TorneoServicio>();
