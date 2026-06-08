@@ -9,16 +9,24 @@ namespace Tests.TestsServicios
     [TestClass]
     public class NotificacionServicioTests
     {
-        private INotificacionServicio _servicio;
         private Mock<INotificacionRepositorio> _notificacionRepoMock;
         private Mock<IUsuarioRepositorio> _usuarioRepoMock;
+        private Mock<IAuditoriaServicio> _auditoriaMock;
+        private Mock<ISesionServicio> _sesionMock;
+        private NotificacionServicio _servicio;
 
         [TestInitialize]
         public void Setup()
         {
             _notificacionRepoMock = new Mock<INotificacionRepositorio>();
             _usuarioRepoMock = new Mock<IUsuarioRepositorio>();
-            _servicio = new NotificacionServicio(_notificacionRepoMock.Object, _usuarioRepoMock.Object);
+            _auditoriaMock = new Mock<IAuditoriaServicio>();
+            _sesionMock = new Mock<ISesionServicio>();
+            _servicio = new NotificacionServicio(
+                _notificacionRepoMock.Object,
+                _usuarioRepoMock.Object,
+                _auditoriaMock.Object,
+                _sesionMock.Object);
         }
 
         private Usuario CrearUsuarioValido()
@@ -98,6 +106,26 @@ namespace Tests.TestsServicios
             var resultado = _servicio.ObtenerTodas(periodista);
 
             Assert.AreEqual(3, resultado.Count);
+        }
+        
+        [TestMethod]
+        public void MarcarLeida_Audita()
+        {
+            var usuario = CrearUsuarioValido();
+            var notificacion = new Notificacion
+            {
+                Mensaje = "Partido editado",
+                FechaCreacion = DateTime.Now,
+                Periodista = usuario
+            };
+            _notificacionRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(notificacion);
+            _sesionMock.Setup(s => s.ObtenerUsuarioActual()).Returns(usuario);
+
+            _servicio.MarcarLeida(1);
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("ectura") && s.Contains("otificaci")),
+                usuario), Times.Once);
         }
     }
 }
