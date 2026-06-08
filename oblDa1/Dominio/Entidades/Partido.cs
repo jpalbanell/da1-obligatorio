@@ -18,7 +18,7 @@ namespace Dominio.Entidades
         public bool EstaBloqueado { get; set; }
         public bool TieneResultado { get; set; } = false;
         public bool EsPorPerdedor { get; set; } = false;
-        public virtual List<Incidencia> Incidencias { get; private set; } = new List<Incidencia>();
+        public virtual List<Incidencia> Incidencias { get; protected set; } = new List<Incidencia>();
         public int GolesLocalAnterior { get; set; } = -1;
         public int GolesVisitanteAnterior { get; set; } = -1;
 
