@@ -9,6 +9,18 @@
         public int SeparacionEntreFechas { get; set; } = 3;
         public bool EstaGenerado { get; set; } = false;
         public bool CrucesGenerados { get; set; } = false;
+
+        private string _nombreMotorSimulacion = "Probabilístico";
+        public string NombreMotorSimulacion
+        {
+            get => _nombreMotorSimulacion;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    throw new ArgumentException("El nombre del motor de simulación no puede estar vacío.");
+                _nombreMotorSimulacion = value;
+            }
+        }
         private List<Equipo> _equipos = new List<Equipo>();
         private List<Estadio> _estadios = new List<Estadio>();
 

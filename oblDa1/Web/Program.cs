@@ -4,6 +4,7 @@ using IRepositorios;
 using Repositorios;
 using IServicios;
 using Servicios;
+using Servicios.Simulacion;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +34,10 @@ builder.Services.AddScoped<IAuditoriaServicio, AuditoriaServicio>();
 builder.Services.AddScoped<ISesionServicio, SesionServicio>();
 builder.Services.AddScoped<INotificacionServicio, NotificacionServicio>();
 builder.Services.AddScoped<IExportacionServicio, ExportacionServicio>();
+builder.Services.AddScoped<IMotorSimulacion, MotorProbabilistico>();
+builder.Services.AddScoped<IMotorSimulacion, MotorAleatorio>();
+builder.Services.AddScoped<IMotorSimulacionSelector>(sp =>
+    new MotorSimulacionSelector(sp.GetServices<IMotorSimulacion>()));
 
 var app = builder.Build();
 

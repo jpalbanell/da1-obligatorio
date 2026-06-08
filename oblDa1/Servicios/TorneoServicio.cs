@@ -15,7 +15,8 @@ namespace Servicios
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
         private readonly INotificacionServicio _notificacionServicio;
-     
+        private readonly IMotorSimulacionSelector _motorFactory;
+
         public TorneoServicio(
             IEquipoRepositorio equipoRepositorio,
             IEstadioRepositorio estadioRepositorio,
@@ -24,7 +25,8 @@ namespace Servicios
             IFixtureRepositorio fixtureRepositorio,
             IAuditoriaServicio auditoriaServicio,
             ISesionServicio sesionServicio,
-            INotificacionServicio notificacionServicio)
+            INotificacionServicio notificacionServicio,
+            IMotorSimulacionSelector motorFactory)
         {
             _equipoRepositorio = equipoRepositorio;
             _estadioRepositorio = estadioRepositorio;
@@ -34,7 +36,10 @@ namespace Servicios
             _auditoriaServicio = auditoriaServicio;
             _sesionServicio = sesionServicio;
             _notificacionServicio = notificacionServicio;
+            _motorFactory = motorFactory;
         }
+
+        public List<string> ObtenerMotoresDisponibles() => _motorFactory.ObtenerNombres().ToList();
         
         public void AgregarEquipo(Equipo equipo)
         {
@@ -718,10 +723,6 @@ namespace Servicios
                     throw new InvalidOperationException($"El partido {partido.Codigo} no tiene resultado cargado.");
         }
         
-        private const double RankingMaximo = 2500.0;
-        private const int MaxGolesBase = 5;
-        private const int MinGolesMaximos = 1;
-
         public void EditarPartido(int partidoId, DateTime fecha, string nombreEstadio,
             bool cargarResultado, int golesLocal, int golesVisitante, List<Incidencia>? incidencias = null)
         {
@@ -791,8 +792,8 @@ namespace Servicios
                 throw new InvalidOperationException("No se puede simular: faltan equipos asignados.");
 
             var random = new Random(semillaSimulation + partidoId);
-            var golesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
-            var golesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
+            var motor = ObtenerMotorActual();
+            var (golesLocal, golesVisitante) = motor.Simular(partido.EquipoLocal.RankingFifa, partido.EquipoVisitante.RankingFifa, random);
 
             partido.RegistrarResultado(golesLocal, golesVisitante, random);
             GenerarIncidencias(partido, random);
@@ -817,12 +818,12 @@ namespace Servicios
 
             BloquearFaseAnterior(fase);
 
+            var motor = ObtenerMotorActual();
             foreach (var partido in partidos)
             {
                 if (!partido.TieneEquiposCompletos()) continue;
                 var random = new Random(semillaSimulation + partido.Id);
-                var golesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
-                var golesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
+                var (golesLocal, golesVisitante) = motor.Simular(partido.EquipoLocal.RankingFifa, partido.EquipoVisitante.RankingFifa, random);
                 partido.RegistrarResultado(golesLocal, golesVisitante, random);
                 GenerarIncidencias(partido, random);
                 partido.Grupo?.ActualizarPosiciones(partido);
@@ -838,11 +839,11 @@ namespace Servicios
                 Rol.Periodista);
         }
 
-        private int GenerarGoles(int rankingFifa, Random random)
+        private IMotorSimulacion ObtenerMotorActual()
         {
-            double fuerza = rankingFifa / RankingMaximo;
-            int maxGoles = Math.Max(MinGolesMaximos, (int)(fuerza * MaxGolesBase));
-            return random.Next(0, maxGoles + 1);
+            var fixture = _fixtureRepositorio.Obtener();
+            var nombre = fixture?.NombreMotorSimulacion ?? "Probabilístico";
+            return _motorFactory.Obtener(nombre);
         }
 
         private const int MaxTarjetasAmarillas = 4;

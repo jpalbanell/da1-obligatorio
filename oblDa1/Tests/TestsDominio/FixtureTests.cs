@@ -339,5 +339,14 @@ namespace Tests
                     "Los dos partidos de la última jornada deben jugarse el mismo día");
             }
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Fixture_NombreMotorSimulacion_Vacio_LanzaArgumentException()
+        {
+            var fixture = new Fixture();
+
+            fixture.NombreMotorSimulacion = string.Empty;
+        }
     }
 }

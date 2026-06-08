@@ -17,6 +17,7 @@ namespace Repositorios.Configs
             builder.Property(f => f.SeparacionEntreFechas);
             builder.Property(f => f.EstaGenerado);
             builder.Property(f => f.CrucesGenerados);
+            builder.Property(f => f.NombreMotorSimulacion).HasMaxLength(100);
 
             builder.HasMany(f => f.Equipos)
                    .WithMany()
