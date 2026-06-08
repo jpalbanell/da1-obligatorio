@@ -2292,5 +2292,26 @@ namespace Tests
 
             CollectionAssert.Contains(motores, "Aleatorio Puro");
         }
+
+        [TestMethod]
+        public void SimularPartido_UsaMotorDelFixture_LlamaSimularDelMotor()
+        {
+            var motorMock = new Mock<IMotorSimulacion>();
+            motorMock.Setup(m => m.Simular(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Random>()))
+                .Returns((2, 1));
+            _motorFactoryMock.Setup(f => f.Obtener("Probabilístico")).Returns(motorMock.Object);
+
+            var fixture = new Fixture { NombreMotorSimulacion = "Probabilístico" };
+            _fixtureRepoMock.Setup(r => r.Obtener()).Returns(fixture);
+
+            var partido = CrearPartidoValido();
+            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
+            int rankingLocal = partido.EquipoLocal.RankingFifa;
+            int rankingVisitante = partido.EquipoVisitante.RankingFifa;
+
+            _torneoServicio.SimularPartido(partido.Id, 42);
+
+            motorMock.Verify(m => m.Simular(rankingLocal, rankingVisitante, It.IsAny<Random>()), Times.Once);
+        }
     }
 }

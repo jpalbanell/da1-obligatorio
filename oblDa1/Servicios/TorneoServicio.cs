@@ -796,8 +796,8 @@ namespace Servicios
                 throw new InvalidOperationException("No se puede simular: faltan equipos asignados.");
 
             var random = new Random(semillaSimulation + partidoId);
-            var golesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
-            var golesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
+            var motor = ObtenerMotorActual();
+            var (golesLocal, golesVisitante) = motor.Simular(partido.EquipoLocal.RankingFifa, partido.EquipoVisitante.RankingFifa, random);
 
             partido.RegistrarResultado(golesLocal, golesVisitante, random);
             GenerarIncidencias(partido, random);
@@ -822,12 +822,12 @@ namespace Servicios
 
             BloquearFaseAnterior(fase);
 
+            var motor = ObtenerMotorActual();
             foreach (var partido in partidos)
             {
                 if (!partido.TieneEquiposCompletos()) continue;
                 var random = new Random(semillaSimulation + partido.Id);
-                var golesLocal = GenerarGoles(partido.EquipoLocal.RankingFifa, random);
-                var golesVisitante = GenerarGoles(partido.EquipoVisitante.RankingFifa, random);
+                var (golesLocal, golesVisitante) = motor.Simular(partido.EquipoLocal.RankingFifa, partido.EquipoVisitante.RankingFifa, random);
                 partido.RegistrarResultado(golesLocal, golesVisitante, random);
                 GenerarIncidencias(partido, random);
                 partido.Grupo?.ActualizarPosiciones(partido);
@@ -841,6 +841,13 @@ namespace Servicios
             _notificacionServicio.NotificarPorRol(
                 $"Se simuló la fase {fase}.",
                 Rol.Periodista);
+        }
+
+        private IMotorSimulacion ObtenerMotorActual()
+        {
+            var fixture = _fixtureRepositorio.Obtener();
+            var nombre = fixture?.NombreMotorSimulacion ?? "Probabilístico";
+            return _motorFactory.Obtener(nombre);
         }
 
         private int GenerarGoles(int rankingFifa, Random random)
