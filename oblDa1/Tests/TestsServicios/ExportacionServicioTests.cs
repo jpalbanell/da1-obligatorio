@@ -85,5 +85,43 @@ namespace Tests.TestsServicios
 
             _exportacionServicio.ExportarFixture(FormatoExportacion.CSV);
         }
+        
+        [TestMethod]
+        public void ExportarFixture_Audita()
+        {
+            var usuario = new Usuario
+            {
+                Nombre = "Admin", Apellido = "Test", Email = "admin@test.com",
+                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1"
+            };
+            _sesionMock.Setup(s => s.ObtenerUsuarioActual()).Returns(usuario);
+            _torneoMock.Setup(t => t.ObtenerTodosPartidos()).Returns(new List<Partido>());
+
+            _exportacionServicio.ExportarFixture(FormatoExportacion.CSV);
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("xporta") && s.Contains("ixture")),
+                usuario), Times.Once);
+        }
+        
+        [TestMethod]
+        public void ExportarAuditoria_Audita()
+        {
+            var usuario = new Usuario
+            {
+                Nombre = "Admin", Apellido = "Test", Email = "admin@test.com",
+                FechaNacimiento = new DateTime(1990, 1, 1), Contrasena = "Password@1"
+            };
+            _sesionMock.Setup(s => s.ObtenerUsuarioActual()).Returns(usuario);
+            _auditoriaMock.Setup(a => a.ObtenerEntreFechas(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(new List<LogAuditoria>());
+
+            _exportacionServicio.ExportarAuditoria(
+                FormatoExportacion.XLSX, new DateTime(2026, 6, 1), new DateTime(2026, 6, 30));
+
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("xporta") && s.Contains("uditor")),
+                usuario), Times.Once);
+        }
     }
 }
