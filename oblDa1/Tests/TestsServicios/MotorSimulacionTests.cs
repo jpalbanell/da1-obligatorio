@@ -33,5 +33,17 @@ namespace Tests
 
             Assert.AreEqual("Probabilístico", motor.Nombre);
         }
+
+        [TestMethod]
+        public void MotorProbabilistico_Simular_ConSemillaFija_RetornaGolesEsperados()
+        {
+            var motor = new MotorProbabilistico();
+            var random = new Random(42);
+
+            var (golesLocal, golesVisitante) = motor.Simular(1500, 2000, random);
+
+            Assert.AreEqual(2, golesLocal);
+            Assert.AreEqual(0, golesVisitante);
+        }
     }
 }
