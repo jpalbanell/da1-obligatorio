@@ -28,17 +28,16 @@ builder.Services.AddScoped<IFixtureRepositorio, FixtureRepositorio>();
 builder.Services.AddScoped<INotificacionRepositorio, NotificacionRepositorio>();
 
 
-builder.Services.AddScoped<IMotorSimulacion, MotorProbabilistico>();
-builder.Services.AddScoped<IMotorSimulacion, MotorAleatorio>();
-builder.Services.AddScoped<IMotorSimulacionSelector>(sp =>
-    new MotorSimulacionSelector(sp.GetServices<IMotorSimulacion>()));
-
 builder.Services.AddScoped<ITorneoServicio, TorneoServicio>();
 builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
 builder.Services.AddScoped<IAuditoriaServicio, AuditoriaServicio>();
 builder.Services.AddScoped<ISesionServicio, SesionServicio>();
 builder.Services.AddScoped<INotificacionServicio, NotificacionServicio>();
 builder.Services.AddScoped<IExportacionServicio, ExportacionServicio>();
+builder.Services.AddScoped<IMotorSimulacion, MotorProbabilistico>();
+builder.Services.AddScoped<IMotorSimulacion, MotorAleatorio>();
+builder.Services.AddScoped<IMotorSimulacionSelector>(sp =>
+    new MotorSimulacionSelector(sp.GetServices<IMotorSimulacion>()));
 
 var app = builder.Build();
 
