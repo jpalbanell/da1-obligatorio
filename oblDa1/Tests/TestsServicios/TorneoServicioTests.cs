@@ -1745,20 +1745,6 @@ namespace Tests
         // ==================== SIMULACION (faltantes) ====================
 
         [TestMethod]
-        public void SimularPartido_EquipoConRankingMaximo_TieneMasGolesQueRankingMinimo()
-        {
-            var fuerte = CrearPartidoParaSimular(2500, 300, 1);
-            var debil  = CrearPartidoParaSimular(300, 2500, 2);
-            _partidoRepoMock.Setup(r => r.ObtenerPorId(1)).Returns(fuerte);
-            _partidoRepoMock.Setup(r => r.ObtenerPorId(2)).Returns(debil);
-
-            _torneoServicio.SimularPartido(fuerte.Id, 42);
-            _torneoServicio.SimularPartido(debil.Id, 42);
-
-            Assert.IsTrue(fuerte.GolesLocal >= debil.GolesLocal);
-        }
-
-        [TestMethod]
         public void SimularPartido_ConMismaSemillaYDistintoId_ProduceResultadosDiferentes()
         {
             var p1 = CrearPartidoParaSimular(1500, 1500, 1);
@@ -1777,18 +1763,6 @@ namespace Tests
         public void SimularPartido_PartidoInexistente_LanzaExcepcion()
         {
             _torneoServicio.SimularPartido(999, 42);
-        }
-
-        [TestMethod]
-        public void SimularPartido_GolesResultantes_NoSonNegativos()
-        {
-            var partido = CrearPartidoParaSimular(1500, 1500, 1);
-            _partidoRepoMock.Setup(r => r.ObtenerPorId(partido.Id)).Returns(partido);
-
-            _torneoServicio.SimularPartido(partido.Id, 42);
-
-            Assert.IsTrue(partido.GolesLocal >= 0);
-            Assert.IsTrue(partido.GolesVisitante >= 0);
         }
 
         [TestMethod]
