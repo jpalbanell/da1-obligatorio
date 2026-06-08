@@ -15,7 +15,8 @@ namespace Servicios
         private readonly IAuditoriaServicio _auditoriaServicio;
         private readonly ISesionServicio _sesionServicio;
         private readonly INotificacionServicio _notificacionServicio;
-     
+        private readonly IMotorSimulacionFactory _motorFactory;
+
         public TorneoServicio(
             IEquipoRepositorio equipoRepositorio,
             IEstadioRepositorio estadioRepositorio,
@@ -24,7 +25,8 @@ namespace Servicios
             IFixtureRepositorio fixtureRepositorio,
             IAuditoriaServicio auditoriaServicio,
             ISesionServicio sesionServicio,
-            INotificacionServicio notificacionServicio)
+            INotificacionServicio notificacionServicio,
+            IMotorSimulacionFactory motorFactory)
         {
             _equipoRepositorio = equipoRepositorio;
             _estadioRepositorio = estadioRepositorio;
@@ -34,7 +36,10 @@ namespace Servicios
             _auditoriaServicio = auditoriaServicio;
             _sesionServicio = sesionServicio;
             _notificacionServicio = notificacionServicio;
+            _motorFactory = motorFactory;
         }
+
+        public List<string> ObtenerMotoresDisponibles() => _motorFactory.ObtenerNombres().ToList();
         
         public void AgregarEquipo(Equipo equipo)
         {

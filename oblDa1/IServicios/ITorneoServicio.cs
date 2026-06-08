@@ -32,5 +32,6 @@ namespace IServicios
         List<Partido> ObtenerPartidosPorFecha(DateTime fecha);
         List<Partido> ObtenerPartidosPorGrupo(string etiquetaGrupo);
         List<Partido> ObtenerPartidosPorEstadio(string nombreEstadio);
+        List<string> ObtenerMotoresDisponibles();
     }
 }

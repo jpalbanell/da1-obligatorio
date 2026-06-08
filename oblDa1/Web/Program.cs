@@ -1,9 +1,11 @@
 using Web.Components;
+using Dominio;
 using Dominio.Entidades;
 using IRepositorios;
 using Repositorios;
 using IServicios;
 using Servicios;
+using Servicios.Simulacion;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +28,11 @@ builder.Services.AddScoped<IAuditoriaRepositorio, AuditoriaRepositorio>();
 builder.Services.AddScoped<IFixtureRepositorio, FixtureRepositorio>();
 builder.Services.AddScoped<INotificacionRepositorio, NotificacionRepositorio>();
 
+
+builder.Services.AddSingleton<IMotorSimulacion, MotorProbabilistico>();
+builder.Services.AddSingleton<IMotorSimulacion, MotorAleatorio>();
+builder.Services.AddSingleton<IMotorSimulacionFactory>(sp =>
+    new MotorSimulacionFactory(sp.GetServices<IMotorSimulacion>()));
 
 builder.Services.AddScoped<ITorneoServicio, TorneoServicio>();
 builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();

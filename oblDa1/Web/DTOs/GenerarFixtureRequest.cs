@@ -8,6 +8,7 @@ namespace Web.DTOs
         public string FechaInicioTorneo { get; set; } = "2026-06-01";
         public int MaxPartidosPorDia { get; set; } = 3;
         public int SeparacionEntreFechas { get; set; } = 3;
+        public string NombreMotor { get; set; } = "Probabilístico";
 
         public Fixture ToEntity()
         {
@@ -19,6 +20,7 @@ namespace Web.DTOs
             fixture.FechaInicioTorneo = fecha;
             fixture.MaxPartidosPorDia = MaxPartidosPorDia;
             fixture.SeparacionEntreFechas = SeparacionEntreFechas;
+            fixture.NombreMotorSimulacion = NombreMotor;
             return fixture;
         }
     }

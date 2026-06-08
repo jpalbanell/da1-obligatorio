@@ -1,3 +1,4 @@
+using Dominio;
 using Dominio.Entidades;
 using IRepositorios;
 using IServicios;
@@ -20,6 +21,7 @@ namespace Tests
         private Mock<IAuditoriaServicio> _auditoriaMock;
         private Mock<ISesionServicio> _sesionMock;
         private Mock<INotificacionServicio> _notificacionMock;
+        private Mock<IMotorSimulacionFactory> _motorFactoryMock;
 
         // Aliases de backward-compat para helpers e tests [Ignore]-d
         private IEquipoRepositorio _equipoRepositorio => _equipoRepoMock.Object;
@@ -41,6 +43,10 @@ namespace Tests
             _auditoriaMock = new Mock<IAuditoriaServicio>();
             _sesionMock = new Mock<ISesionServicio>();
             _notificacionMock = new Mock<INotificacionServicio>();
+            _motorFactoryMock = new Mock<IMotorSimulacionFactory>();
+            _motorFactoryMock.Setup(f => f.ObtenerNombres()).Returns(new[] { "Probabilístico" });
+            _motorFactoryMock.Setup(f => f.Obtener(It.IsAny<string>()))
+                .Returns(new Servicios.Simulacion.MotorProbabilistico());
 
             _equipoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Equipo>());
             _estadioRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Estadio>());
@@ -56,7 +62,7 @@ namespace Tests
             _torneoServicio = new TorneoServicio(
                 _equipoRepoMock.Object, _estadioRepoMock.Object, _partidoRepoMock.Object,
                 _grupoRepoMock.Object, _fixtureRepoMock.Object, _auditoriaMock.Object,
-                _sesionMock.Object, _notificacionMock.Object);
+                _sesionMock.Object, _notificacionMock.Object, _motorFactoryMock.Object);
         }
 
         private Equipo CrearEquipoValido()
@@ -854,7 +860,7 @@ namespace Tests
                 equipoMock2.Object, new Mock<IEstadioRepositorio>().Object,
                 new Mock<IPartidoRepositorio>().Object, new Mock<IGrupoRepositorio>().Object,
                 fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object,
-                new Mock<INotificacionServicio>().Object);
+                new Mock<INotificacionServicio>().Object, _motorFactoryMock.Object);
 
             torneo2.CompletarEquiposAutomaticamente(42);
             var rankings2 = equiposRun2.Select(e => e.RankingFifa).ToList();
@@ -1236,7 +1242,7 @@ namespace Tests
             var torneo2 = new TorneoServicio(
                 equipoMock2.Object, estadioMock2.Object, partidoMock2.Object,
                 grupMock2.Object, fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object,
-                new Mock<INotificacionServicio>().Object);
+                new Mock<INotificacionServicio>().Object, _motorFactoryMock.Object);
             torneo2.GenerarFixture(new Fixture { SemillaFixture = 42 });
             var primerEquipo2 = grupos2[0].ListaPosiciones[0].Equipo.Nombre;
 
@@ -1483,7 +1489,7 @@ namespace Tests
             var torneo2 = new TorneoServicio(
                 equipoMock2.Object, estadioMock2.Object, partidoMock2.Object,
                 grupMock2.Object, fixtureMock2.Object, auditoriaMock2.Object, sesionMock2.Object,
-                new Mock<INotificacionServicio>().Object);
+                new Mock<INotificacionServicio>().Object, _motorFactoryMock.Object);
             torneo2.GenerarCruces(42);
             var orden2 = partidos2.Where(p => p.Fase == FaseTorneo.Dieciseisavos)
                 .OrderBy(p => p.Codigo)
@@ -2274,6 +2280,17 @@ namespace Tests
             _auditoriaMock.Verify(a => a.Registrar(
                 It.Is<string>(s => s.Contains("Ranking")),
                 It.IsAny<Usuario>()), Times.AtLeastOnce);
+        }
+
+        [TestMethod]
+        public void ObtenerMotoresDisponibles_RetornaMotoresDeFactory()
+        {
+            _motorFactoryMock.Setup(f => f.ObtenerNombres())
+                .Returns(new[] { "Aleatorio Puro", "Probabilístico" });
+
+            var motores = _torneoServicio.ObtenerMotoresDisponibles();
+
+            CollectionAssert.Contains(motores, "Aleatorio Puro");
         }
     }
 }
