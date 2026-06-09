@@ -64,6 +64,13 @@
                 equipoExistente.Nombre = equipo.Nombre;
         }
         
+        public void HidratarEquipos(IEnumerable<Equipo> equipos)
+        {
+            foreach (var equipo in equipos)
+                if (!_equipos.Any(e => e.Nombre == equipo.Nombre))
+                    _equipos.Add(equipo);
+        }
+
         public void AgregarEstadio(Estadio estadio)
         {
             if (Estadios.Any(e => e.Nombre == estadio.Nombre))

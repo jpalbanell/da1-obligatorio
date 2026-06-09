@@ -161,6 +161,20 @@ namespace Tests
         }
 
         [TestMethod]
+        public void EditarEquipo_EquipoEnRepoNoEnFixture_EditaCorrectamente()
+        {
+            var fixtureVacia = new Fixture();
+            var equipoEnRepo = CrearEquipoValido();
+            _fixtureRepoMock.Setup(r => r.Obtener()).Returns(fixtureVacia);
+            _equipoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Equipo> { equipoEnRepo });
+            var equipoEditado = new Equipo { Nombre = "Uruguay", Confederacion = Confederacion.CONMEBOL, RankingFifa = 1600 };
+
+            _torneoServicio.EditarEquipo(equipoEditado, "Uruguay");
+
+            _equipoRepoMock.Verify(r => r.Actualizar(It.IsAny<Equipo>(), "Uruguay"), Times.Once);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(UnauthorizedAccessException))]
         public void EditarEquipo_SinRolAdmin_LanzaExcepcion()
         {
