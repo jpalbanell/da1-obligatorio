@@ -188,6 +188,23 @@ namespace Tests
             usuario.Contrasena = "Abcdef1@";
             Assert.IsNotNull(usuario.Contrasena);
         }
+
+        [TestMethod]
+        [DataRow("Abcdef1%")]
+        [DataRow("Abcdef1^")]
+        [DataRow("Abcdef1&")]
+        [DataRow("Abcdef1*")]
+        [DataRow("Abcdef1!")]
+        [DataRow("Abcdef1_")]
+        [DataRow("Abcdef1-")]
+        [DataRow("Abcdef1+")]
+        [DataRow("Abcdef1=")]
+        public void CrearUsuario_ConNuevosCaracteresEspeciales_DeberiaAsignarContrasena(string contrasena)
+        {
+            var usuario = new Usuario();
+            usuario.Contrasena = contrasena;
+            Assert.IsNotNull(usuario.Contrasena);
+        }
         
         [TestMethod]
         public void CrearUsuario_ConAmbosRoles_DeberiaContenerAmbos()

@@ -2,6 +2,8 @@ namespace Dominio.Entidades
 {
     public class Usuario
     {
+        public const string CaracteresEspeciales = "@#$%^&*!_-+=.";
+
         private string _nombre;
         private string _apellido;
         private string _email;
@@ -106,8 +108,8 @@ namespace Dominio.Entidades
                 throw new ArgumentException("La contraseña debe incluir al menos una letra minúscula.");
             if (!contrasena.Any(char.IsDigit))
                 throw new ArgumentException("La contraseña debe incluir al menos un número.");
-            if (!contrasena.Any(c => "@#$.".Contains(c)))
-                throw new ArgumentException("La contraseña debe incluir al menos un carácter especial (@, #, $, .).");
+            if (!contrasena.Any(c => CaracteresEspeciales.Contains(c)))
+                throw new ArgumentException($"La contraseña debe incluir al menos un carácter especial ({string.Join(", ", CaracteresEspeciales)}).");
         }
 
         private string CifrarContrasena(string contrasena)
