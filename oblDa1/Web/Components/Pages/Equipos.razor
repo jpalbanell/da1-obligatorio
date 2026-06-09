@@ -92,7 +92,14 @@
                     }
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
-                        <input class="form-control" @bind="_form.Nombre"/>
+                        @if (_modoEdicion)
+                        {
+                            <input class="form-control" value="@_form.Nombre" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" @bind="_form.Nombre"/>
+                        }
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Confederación</label>
