@@ -4,6 +4,9 @@ namespace Dominio.Entidades
 {
     public class Fixture
     {
+        private const int HoraInicioPartidos = 14;
+        private const int SeparacionHorasEntrePartidos = 4;
+
         public int Id { get; set; }
         public int SemillaFixture { get; set; }
         public DateTime FechaInicioTorneo { get; set; } = new DateTime(2026, 6, 1);
@@ -111,7 +114,7 @@ namespace Dominio.Entidades
             {
                 fechaActual = BuscarFechaDisponible(fechaActual, partido, partidosPorDia, ultimoPartidoPorEquipo);
                 int turno = partidosPorDia.ContainsKey(fechaActual) ? partidosPorDia[fechaActual] : 0;
-                partido.Fecha = fechaActual.AddHours(14 + (turno * 4));
+                partido.Fecha = fechaActual.AddHours(HoraInicioPartidos + (turno * SeparacionHorasEntrePartidos));
                 ActualizarContadores(fechaActual, partido, partidosPorDia, ultimoPartidoPorEquipo);
             }
         }
@@ -141,8 +144,8 @@ namespace Dominio.Entidades
                     fechaActual = fechaActual.AddDays(1);
                 }
 
-                partidoA.Fecha = fechaActual.AddHours(14);
-                partidoB.Fecha = fechaActual.AddHours(14);
+                partidoA.Fecha = fechaActual.AddHours(HoraInicioPartidos);
+                partidoB.Fecha = fechaActual.AddHours(HoraInicioPartidos);
                 ActualizarContadores(fechaActual, partidoA, partidosPorDia, ultimoPartidoPorEquipo);
                 ActualizarContadores(fechaActual, partidoB, partidosPorDia, ultimoPartidoPorEquipo);
             }

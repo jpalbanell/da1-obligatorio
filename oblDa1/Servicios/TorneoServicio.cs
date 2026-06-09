@@ -265,6 +265,8 @@ namespace Servicios
         }
         
         private const int CantidadBombos = 4;
+        private const int HoraInicioPartidos = 14;
+        private const int SeparacionHorasEntrePartidos = 4;
         private const int TamanoBombo = 12;
 
         public void GenerarFixture(Fixture fixture)
@@ -693,7 +695,7 @@ namespace Servicios
                 _fechaActualEliminatorias = _fechaActualEliminatorias.AddDays(1);
                 _partidosEnFechaActual = 0;
             }
-            var hora = 14 + (_partidosEnFechaActual * 4);
+            var hora = HoraInicioPartidos + (_partidosEnFechaActual * SeparacionHorasEntrePartidos);
             var fecha = _fechaActualEliminatorias.AddHours(hora);
             _partidosEnFechaActual++;
             return fecha;
