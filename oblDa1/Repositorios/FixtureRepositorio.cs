@@ -18,7 +18,7 @@ namespace Repositorios
             var existente = _context.Fixtures
                 .Include(f => f.Equipos)
                 .Include(f => f.Estadios)
-                .FirstOrDefault(); 
+                .FirstOrDefault();
 
             if (existente == null)
             {
@@ -32,14 +32,24 @@ namespace Repositorios
                 existente.SeparacionEntreFechas = fixture.SeparacionEntreFechas;
                 existente.EstaGenerado = fixture.EstaGenerado;
                 existente.CrucesGenerados = fixture.CrucesGenerados;
+                existente.NombreMotorSimulacion = fixture.NombreMotorSimulacion;
+
+                var equipoNombres = fixture.Equipos.Select(e => e.Nombre).ToList();
+                var estadioNombres = fixture.Estadios.Select(e => e.Nombre).ToList();
 
                 existente.Equipos.Clear();
-                foreach (var equipo in fixture.Equipos)
-                    existente.Equipos.Add(equipo);
+                foreach (var nombre in equipoNombres)
+                {
+                    var equipo = _context.Equipos.Find(nombre);
+                    if (equipo != null) existente.Equipos.Add(equipo);
+                }
 
                 existente.Estadios.Clear();
-                foreach (var estadio in fixture.Estadios)
-                    existente.Estadios.Add(estadio);
+                foreach (var nombre in estadioNombres)
+                {
+                    var estadio = _context.Estadios.Find(nombre);
+                    if (estadio != null) existente.Estadios.Add(estadio);
+                }
             }
 
             _context.SaveChanges();

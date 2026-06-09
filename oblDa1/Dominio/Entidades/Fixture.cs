@@ -57,8 +57,11 @@
             var cantidadConfederacion = Equipos.Count(e => e.Confederacion == equipo.Confederacion && e.Nombre != nombreOriginal);
             if (cantidadConfederacion >= equipo.Confederacion.CupoMaximo())
                 throw new InvalidOperationException($"El cupo de {equipo.Confederacion} está completo.");
-            var indice = Equipos.IndexOf(equipoExistente);
-            Equipos[indice] = equipo;
+            equipoExistente.Confederacion = equipo.Confederacion;
+            equipoExistente.RankingFifa = equipo.RankingFifa;
+            equipoExistente.Bandera = equipo.Bandera;
+            if (equipoExistente.Nombre != equipo.Nombre)
+                equipoExistente.Nombre = equipo.Nombre;
         }
         
         public void AgregarEstadio(Estadio estadio)
