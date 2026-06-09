@@ -832,6 +832,7 @@ namespace Servicios
                 GenerarIncidencias(partido, random);
                 partido.Grupo?.ActualizarPosiciones(partido);
                 PropagarResultado(partido);
+                RecalcularRankings(partido);
                 _partidoRepositorio.Actualizar(partido);
             }
 
