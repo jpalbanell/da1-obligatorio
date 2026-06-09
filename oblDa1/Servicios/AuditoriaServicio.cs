@@ -19,7 +19,7 @@ namespace Servicios
             ValidarUsuario(usuario);
 
             var log = new LogAuditoria();
-            log.Timestamp = DateTime.Now;
+            log.Timestamp = DateTime.UtcNow;
             log.Accion = accion;
             log.Usuario = usuario;
             _auditoriaRepositorio.Agregar(log);
