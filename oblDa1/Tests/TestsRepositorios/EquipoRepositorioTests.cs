@@ -55,13 +55,19 @@ namespace Tests
         {
             var equipo = new Equipo();
             equipo.Nombre = "Uruguay";
+            equipo.RankingFifa = 1000;
+            equipo.Confederacion = Confederacion.CONMEBOL;
             _equipoRepositorio.Agregar(equipo);
 
             var equipoEditado = new Equipo();
-            equipoEditado.Nombre = "Argentina";
+            equipoEditado.Nombre = "Uruguay"; // mismo nombre
+            equipoEditado.RankingFifa = 1500; // cambia el ranking
+            equipoEditado.Confederacion = Confederacion.UEFA;
             _equipoRepositorio.Actualizar(equipoEditado, "Uruguay");
 
-            Assert.AreEqual("Argentina", _equipoRepositorio.ObtenerPorNombre("Argentina").Nombre);
+            var resultado = _equipoRepositorio.ObtenerPorNombre("Uruguay");
+            Assert.AreEqual(1500, resultado.RankingFifa);
+            Assert.AreEqual(Confederacion.UEFA, resultado.Confederacion);
         }
         
         [TestMethod]

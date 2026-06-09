@@ -1,5 +1,6 @@
 using Dominio.Entidades;
 using IRepositorios;
+using Microsoft.EntityFrameworkCore; // ExecuteSqlRaw
 
 namespace Repositorios
 {
@@ -33,15 +34,28 @@ namespace Repositorios
             var existente = _context.Equipos.FirstOrDefault(e => e.Nombre == nombreOriginal);
             ValidarEquipoNoNulo(existente);
 
-            if (nombreOriginal == equipo.Nombre)
+            existente.Confederacion = equipo.Confederacion;
+            existente.RankingFifa = equipo.RankingFifa;
+            existente.Bandera = equipo.Bandera;
+
+            if (nombreOriginal != equipo.Nombre)
             {
-                existente.Confederacion = equipo.Confederacion;
-                existente.RankingFifa = equipo.RankingFifa;
-            }
-            else
-            {
-                _context.Equipos.Remove(existente);
-                _context.Equipos.Add(equipo);
+                _context.Database.ExecuteSqlRaw(
+                    "UPDATE FixtureEquipos SET EquipoNombre = {0} WHERE EquipoNombre = {1}",
+                    equipo.Nombre, nombreOriginal);
+                _context.Database.ExecuteSqlRaw(
+                    "UPDATE Partidos SET EquipoLocalNombre = {0} WHERE EquipoLocalNombre = {1}",
+                    equipo.Nombre, nombreOriginal);
+                _context.Database.ExecuteSqlRaw(
+                    "UPDATE Partidos SET EquipoVisitanteNombre = {0} WHERE EquipoVisitanteNombre = {1}",
+                    equipo.Nombre, nombreOriginal);
+                _context.Database.ExecuteSqlRaw(
+                    "UPDATE Partidos SET VencedorNombre = {0} WHERE VencedorNombre = {1}",
+                    equipo.Nombre, nombreOriginal);
+                _context.Database.ExecuteSqlRaw(
+                    "UPDATE Incidencias SET EquipoNombre = {0} WHERE EquipoNombre = {1}",
+                    equipo.Nombre, nombreOriginal);
+                existente.Nombre = equipo.Nombre;
             }
 
             _context.SaveChanges();

@@ -55,7 +55,9 @@ namespace Servicios
 
         private Fixture ObtenerOCrearFixture()
         {
-            return _fixtureRepositorio.Obtener() ?? new Fixture();
+            var fixture = _fixtureRepositorio.Obtener() ?? new Fixture();
+            fixture.HidratarEquipos(_equipoRepositorio.ObtenerTodos());
+            return fixture;
         }
         
         public List<Equipo> ObtenerTodos()

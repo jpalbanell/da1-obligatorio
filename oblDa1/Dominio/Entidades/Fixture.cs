@@ -62,10 +62,20 @@ namespace Dominio.Entidades
             var cantidadConfederacion = Equipos.Count(e => e.Confederacion == equipo.Confederacion && e.Nombre != nombreOriginal);
             if (cantidadConfederacion >= equipo.Confederacion.CupoMaximo())
                 throw new InvalidOperationException($"El cupo de {equipo.Confederacion} está completo.");
-            var indice = Equipos.IndexOf(equipoExistente);
-            Equipos[indice] = equipo;
+            equipoExistente.Confederacion = equipo.Confederacion;
+            equipoExistente.RankingFifa = equipo.RankingFifa;
+            equipoExistente.Bandera = equipo.Bandera;
+            if (equipoExistente.Nombre != equipo.Nombre)
+                equipoExistente.Nombre = equipo.Nombre;
         }
         
+        public void HidratarEquipos(IEnumerable<Equipo> equipos)
+        {
+            foreach (var equipo in equipos)
+                if (!_equipos.Any(e => e.Nombre == equipo.Nombre))
+                    _equipos.Add(equipo);
+        }
+
         public void AgregarEstadio(Estadio estadio)
         {
             if (Estadios.Any(e => UtilTexto.Normalizar(e.Nombre) == UtilTexto.Normalizar(estadio.Nombre)))

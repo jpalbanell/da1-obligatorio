@@ -176,6 +176,30 @@ namespace Tests
         }
         
         [TestMethod]
+        public void HidratarEquipos_AgregaEquiposNoPresentes()
+        {
+            var fixture = new Fixture();
+            var equipo = CrearEquipoValido("Uruguay");
+
+            fixture.HidratarEquipos(new List<Equipo> { equipo });
+
+            Assert.AreEqual(1, fixture.Equipos.Count);
+            Assert.AreEqual("Uruguay", fixture.Equipos[0].Nombre);
+        }
+
+        [TestMethod]
+        public void HidratarEquipos_NoAgregaEquiposYaPresentes()
+        {
+            var fixture = new Fixture();
+            var equipo = CrearEquipoValido("Uruguay");
+            fixture.AgregarEquipo(equipo);
+
+            fixture.HidratarEquipos(new List<Equipo> { equipo });
+
+            Assert.AreEqual(1, fixture.Equipos.Count);
+        }
+
+        [TestMethod]
         public void AgregarEstadio_NombreUnico_AgregaCorrectamente()
         {
             var fixture = new Fixture();
