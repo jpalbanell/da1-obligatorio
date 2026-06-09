@@ -108,7 +108,7 @@ namespace Servicios
                     var equipo = new Equipo();
                     equipo.Nombre = $"{confederacion}_{contador:D2}";
                     equipo.Confederacion = confederacion;
-                    equipo.RankingFifa = random.Next(300, 2501);
+                    equipo.RankingFifa = random.Next(Equipo.RankingMinimo, Equipo.RankingMaximo + 1);
                     var fixture = ObtenerOCrearFixture();
                     fixture.AgregarEquipo(equipo);
                     _equipoRepositorio.Agregar(equipo);
