@@ -7,6 +7,8 @@ namespace Servicios
 {
     public class TorneoServicio : ITorneoServicio
     {
+        private const int CantidadEquiposRequeridos = 48;
+
         private readonly IEquipoRepositorio _equipoRepositorio;
         private readonly IEstadioRepositorio _estadioRepositorio;
         private readonly IPartidoRepositorio _partidoRepositorio;
@@ -293,7 +295,7 @@ namespace Servicios
 
         private void ValidarCantidadEquipos()
         {
-            if (_equipoRepositorio.ObtenerTodos().Count != 48)
+            if (_equipoRepositorio.ObtenerTodos().Count != CantidadEquiposRequeridos)
                 throw new InvalidOperationException("Se necesitan exactamente 48 equipos para generar el fixture.");
         }
 
