@@ -1,4 +1,6 @@
-﻿namespace Dominio.Entidades
+﻿using Dominio;
+
+namespace Dominio.Entidades
 {
     public class Fixture
     {
@@ -63,14 +65,14 @@
         
         public void AgregarEstadio(Estadio estadio)
         {
-            if (Estadios.Any(e => e.Nombre == estadio.Nombre))
+            if (Estadios.Any(e => UtilTexto.Normalizar(e.Nombre) == UtilTexto.Normalizar(estadio.Nombre)))
                 throw new InvalidOperationException("Ya existe un estadio con ese nombre.");
             Estadios.Add(estadio);
         }
-        
+
         public void EliminarEstadio(string nombre)
         {
-            var estadio = Estadios.FirstOrDefault(e => e.Nombre == nombre);
+            var estadio = Estadios.FirstOrDefault(e => UtilTexto.Normalizar(e.Nombre) == UtilTexto.Normalizar(nombre));
             if (estadio == null)
                 throw new KeyNotFoundException($"No existe un estadio con el nombre {nombre}.");
             Estadios.Remove(estadio);
