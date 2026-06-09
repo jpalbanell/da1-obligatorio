@@ -185,7 +185,7 @@
             Nav.NavigateTo("/login");
             return;
         }
-        if (!_usuarioActual.TieneRol(Rol.Administrador) && !_usuarioActual.TieneRol(Rol.Periodista))
+        if (!_usuarioActual.TieneRol(Rol.Administrador) && !_usuarioActual.TieneRol(Rol.Editor) && !_usuarioActual.TieneRol(Rol.Periodista))
         {
             _mensajeError = "No tenés permisos para ver esta página.";
             _cargado = true;
