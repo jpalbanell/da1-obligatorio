@@ -226,6 +226,27 @@ namespace Tests
 
             fixture.EliminarEstadio("Centenario");
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void AgregarEstadio_NombreDuplicadoDistintoCaso_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+            fixture.AgregarEstadio(CrearEstadioValido("Centenario"));
+
+            fixture.AgregarEstadio(CrearEstadioValido("centenario"));
+        }
+
+        [TestMethod]
+        public void EliminarEstadio_NombreDistintoCaso_EliminaCorrectamente()
+        {
+            var fixture = new Fixture();
+            fixture.AgregarEstadio(CrearEstadioValido("Centenario"));
+
+            fixture.EliminarEstadio("CENTENARIO");
+
+            Assert.AreEqual(0, fixture.Estadios.Count);
+        }
         
         [TestMethod]
         public void PuedeGenerarse_48Equipos4Estadios_RetornaTrue()

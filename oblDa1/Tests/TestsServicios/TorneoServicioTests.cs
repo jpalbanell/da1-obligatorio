@@ -429,6 +429,20 @@ namespace Tests
 
             Assert.IsTrue(partido.TieneResultado);
         }
+
+        [TestMethod]
+        public void SimularFase_ActualizaRankingsDeLosEquipos()
+        {
+            var partido = CrearPartidoValido();
+            var rankingLocalAntes = partido.EquipoLocal.RankingFifa;
+            var rankingVisitanteAntes = partido.EquipoVisitante.RankingFifa;
+            _partidoRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Partido> { partido });
+
+            _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
+
+            _equipoRepoMock.Verify(r => r.Actualizar(partido.EquipoLocal, partido.EquipoLocal.Nombre), Times.Once);
+            _equipoRepoMock.Verify(r => r.Actualizar(partido.EquipoVisitante, partido.EquipoVisitante.Nombre), Times.Once);
+        }
         
         [TestMethod]
         public void ObtenerTodosPartidos_ConPartidos_RetornaLista()
@@ -1809,7 +1823,9 @@ namespace Tests
 
             _torneoServicio.SimularFase(FaseTorneo.FaseGrupos, 42);
 
-            _auditoriaMock.Verify(a => a.Registrar(It.IsAny<string>(), It.IsAny<Usuario>()), Times.Once);
+            _auditoriaMock.Verify(a => a.Registrar(
+                It.Is<string>(s => s.Contains("Simulación de fase")),
+                It.IsAny<Usuario>()), Times.Once);
         }
 
         [TestMethod]

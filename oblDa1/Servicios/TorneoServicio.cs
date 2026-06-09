@@ -7,6 +7,8 @@ namespace Servicios
 {
     public class TorneoServicio : ITorneoServicio
     {
+        private const int CantidadEquiposRequeridos = 48;
+
         private readonly IEquipoRepositorio _equipoRepositorio;
         private readonly IEstadioRepositorio _estadioRepositorio;
         private readonly IPartidoRepositorio _partidoRepositorio;
@@ -106,7 +108,7 @@ namespace Servicios
                     var equipo = new Equipo();
                     equipo.Nombre = $"{confederacion}_{contador:D2}";
                     equipo.Confederacion = confederacion;
-                    equipo.RankingFifa = random.Next(300, 2501);
+                    equipo.RankingFifa = random.Next(Equipo.RankingMinimo, Equipo.RankingMaximo + 1);
                     var fixture = ObtenerOCrearFixture();
                     fixture.AgregarEquipo(equipo);
                     _equipoRepositorio.Agregar(equipo);
@@ -263,6 +265,8 @@ namespace Servicios
         }
         
         private const int CantidadBombos = 4;
+        private const int HoraInicioPartidos = 14;
+        private const int SeparacionHorasEntrePartidos = 4;
         private const int TamanoBombo = 12;
 
         public void GenerarFixture(Fixture fixture)
@@ -293,7 +297,7 @@ namespace Servicios
 
         private void ValidarCantidadEquipos()
         {
-            if (_equipoRepositorio.ObtenerTodos().Count != 48)
+            if (_equipoRepositorio.ObtenerTodos().Count != CantidadEquiposRequeridos)
                 throw new InvalidOperationException("Se necesitan exactamente 48 equipos para generar el fixture.");
         }
 
@@ -691,7 +695,7 @@ namespace Servicios
                 _fechaActualEliminatorias = _fechaActualEliminatorias.AddDays(1);
                 _partidosEnFechaActual = 0;
             }
-            var hora = 14 + (_partidosEnFechaActual * 4);
+            var hora = HoraInicioPartidos + (_partidosEnFechaActual * SeparacionHorasEntrePartidos);
             var fecha = _fechaActualEliminatorias.AddHours(hora);
             _partidosEnFechaActual++;
             return fecha;
@@ -828,6 +832,7 @@ namespace Servicios
                 GenerarIncidencias(partido, random);
                 partido.Grupo?.ActualizarPosiciones(partido);
                 PropagarResultado(partido);
+                RecalcularRankings(partido);
                 _partidoRepositorio.Actualizar(partido);
             }
 

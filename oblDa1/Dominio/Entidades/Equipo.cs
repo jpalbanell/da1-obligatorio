@@ -2,6 +2,9 @@ namespace Dominio.Entidades
 {
     public class Equipo
     {
+        public const int RankingMinimo = 300;
+        public const int RankingMaximo = 2500;
+
         private string _nombre;
         public Confederacion Confederacion { get; set; }
         private int _rankingFifa;
@@ -37,15 +40,13 @@ namespace Dominio.Entidades
         
         private void ValidarRankingFifa(int ranking)
         {
-            if (ranking < 300 || ranking > 2500)
-                throw new ArgumentException("El ranking FIFA debe estar entre 300 y 2500.");
+            if (ranking < RankingMinimo || ranking > RankingMaximo)
+                throw new ArgumentException($"El ranking FIFA debe estar entre {RankingMinimo} y {RankingMaximo}.");
         }
-        
+
         public int CalcularNuevoRanking(int rankingOponente, double resultado, double multiplicadorFase)
         {
             const double FactorDeDesarrollo = 30;
-            const int RankingMinimo = 300;
-            const int RankingMaximo = 2500;
 
             double probabilidad = 1.0 / (1.0 + Math.Pow(10, (rankingOponente - RankingFifa) / 1000.0));
             double rankingNuevo = RankingFifa + (FactorDeDesarrollo * (resultado - probabilidad)) * multiplicadorFase;

@@ -1,7 +1,12 @@
-﻿namespace Dominio.Entidades
+﻿using Dominio;
+
+namespace Dominio.Entidades
 {
     public class Fixture
     {
+        private const int HoraInicioPartidos = 14;
+        private const int SeparacionHorasEntrePartidos = 4;
+
         public int Id { get; set; }
         public int SemillaFixture { get; set; }
         public DateTime FechaInicioTorneo { get; set; } = new DateTime(2026, 6, 1);
@@ -63,14 +68,14 @@
         
         public void AgregarEstadio(Estadio estadio)
         {
-            if (Estadios.Any(e => e.Nombre == estadio.Nombre))
+            if (Estadios.Any(e => UtilTexto.Normalizar(e.Nombre) == UtilTexto.Normalizar(estadio.Nombre)))
                 throw new InvalidOperationException("Ya existe un estadio con ese nombre.");
             Estadios.Add(estadio);
         }
-        
+
         public void EliminarEstadio(string nombre)
         {
-            var estadio = Estadios.FirstOrDefault(e => e.Nombre == nombre);
+            var estadio = Estadios.FirstOrDefault(e => UtilTexto.Normalizar(e.Nombre) == UtilTexto.Normalizar(nombre));
             if (estadio == null)
                 throw new KeyNotFoundException($"No existe un estadio con el nombre {nombre}.");
             Estadios.Remove(estadio);
@@ -109,7 +114,7 @@
             {
                 fechaActual = BuscarFechaDisponible(fechaActual, partido, partidosPorDia, ultimoPartidoPorEquipo);
                 int turno = partidosPorDia.ContainsKey(fechaActual) ? partidosPorDia[fechaActual] : 0;
-                partido.Fecha = fechaActual.AddHours(14 + (turno * 4));
+                partido.Fecha = fechaActual.AddHours(HoraInicioPartidos + (turno * SeparacionHorasEntrePartidos));
                 ActualizarContadores(fechaActual, partido, partidosPorDia, ultimoPartidoPorEquipo);
             }
         }
@@ -139,8 +144,8 @@
                     fechaActual = fechaActual.AddDays(1);
                 }
 
-                partidoA.Fecha = fechaActual.AddHours(14);
-                partidoB.Fecha = fechaActual.AddHours(14);
+                partidoA.Fecha = fechaActual.AddHours(HoraInicioPartidos);
+                partidoB.Fecha = fechaActual.AddHours(HoraInicioPartidos);
                 ActualizarContadores(fechaActual, partidoA, partidosPorDia, ultimoPartidoPorEquipo);
                 ActualizarContadores(fechaActual, partidoB, partidosPorDia, ultimoPartidoPorEquipo);
             }

@@ -27,7 +27,7 @@ namespace Servicios
         {
             var notificacion = new Notificacion();
             notificacion.Mensaje = mensaje;
-            notificacion.FechaCreacion = DateTime.Now;
+            notificacion.FechaCreacion = DateTime.UtcNow;
             notificacion.Periodista = periodista;
             _notificacionRepositorio.Agregar(notificacion);
         }
