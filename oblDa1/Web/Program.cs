@@ -29,6 +29,7 @@ builder.Services.AddScoped<INotificacionRepositorio, NotificacionRepositorio>();
 
 
 builder.Services.AddScoped<ITorneoServicio, TorneoServicio>();
+builder.Services.AddScoped<IImportacionServicio, ImportacionServicio>();
 builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
 builder.Services.AddScoped<IAuditoriaServicio, AuditoriaServicio>();
 builder.Services.AddScoped<ISesionServicio, SesionServicio>();

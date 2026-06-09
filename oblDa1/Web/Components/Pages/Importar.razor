@@ -2,7 +2,7 @@
 @using Dominio.Entidades
 @using IServicios
 @using Web.DTOs
-@inject ITorneoServicio TorneoServicio
+@inject IImportacionServicio ImportacionServicio
 @inject ISesionServicio SesionServicio
 @inject NavigationManager Nav
 @using Microsoft.AspNetCore.Components.Forms
@@ -78,6 +78,6 @@ else
 
     private void EjecutarImportacion()
     {
-        _resultado = TorneoServicio.ImportarEquipos(_contenidoCsv);
+        _resultado = ImportacionServicio.ImportarEquipos(_contenidoCsv);
     }
 }
