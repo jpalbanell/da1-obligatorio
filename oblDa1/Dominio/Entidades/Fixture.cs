@@ -95,6 +95,12 @@ namespace Dominio.Entidades
         {
             return Equipos.Count == 48 && Estadios.Count >= 4;
         }
+
+        public void ValidarNoGenerado()
+        {
+            if (EstaGenerado)
+                throw new InvalidOperationException("El fixture ya fue generado.");
+        }
         
         public void AsignarFechasAPartidos(List<List<Partido>> partidosPorGrupo)
         {

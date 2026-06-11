@@ -393,5 +393,14 @@ namespace Tests
 
             fixture.NombreMotorSimulacion = string.Empty;
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarNoGenerado_CuandoEstaGenerado_LanzaExcepcion()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+
+            fixture.ValidarNoGenerado();
+        }
     }
 }
