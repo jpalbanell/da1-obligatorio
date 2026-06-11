@@ -420,5 +420,14 @@ namespace Tests
 
             fixture.ValidarCrucesNoGenerados();
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarCantidadEquipos_ConDistintoDe48_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+
+            fixture.ValidarCantidadEquipos(47);
+        }
     }
 }
