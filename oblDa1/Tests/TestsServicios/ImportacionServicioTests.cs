@@ -221,5 +221,16 @@ namespace Tests
             Assert.AreEqual("base64==", equiposCapturados[0].Bandera);
             Assert.IsNull(equiposCapturados[1].Bandera);
         }
+
+        [TestMethod]
+        public void ImportarEquipos_ConMasDeCuatroColumnas_RegistraError()
+        {
+            var csv = "Nombre,Confederacion,RankingFifa,Bandera,Extra\nUruguay,CONMEBOL,1500,base64==,sobraesto";
+
+            var resultado = _importacionServicio.ImportarEquipos(csv);
+
+            Assert.AreEqual(0, resultado.EquiposImportados);
+            Assert.AreEqual(1, resultado.Errores.Count);
+        }
     }
 }
