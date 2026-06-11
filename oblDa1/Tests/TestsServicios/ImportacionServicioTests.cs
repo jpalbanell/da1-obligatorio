@@ -178,5 +178,19 @@ namespace Tests
             Assert.IsNotNull(equipoCapturado);
             Assert.AreEqual("base64string==", equipoCapturado.Bandera);
         }
+
+        [TestMethod]
+        public void ImportarEquipos_ConColumnaBanderaVacia_BanderaEsNull()
+        {
+            Equipo equipoCapturado = null;
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                           .Callback<Equipo>(e => equipoCapturado = e);
+            var csv = "Nombre,Confederacion,RankingFifa,Bandera\nUruguay,CONMEBOL,1500,";
+
+            _importacionServicio.ImportarEquipos(csv);
+
+            Assert.IsNotNull(equipoCapturado);
+            Assert.IsNull(equipoCapturado.Bandera);
+        }
     }
 }
