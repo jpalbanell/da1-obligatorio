@@ -7,8 +7,6 @@ namespace Servicios
 {
     public class TorneoServicio : ITorneoServicio
     {
-        private const int CantidadEquiposRequeridos = 48;
-
         private readonly IEquipoRepositorio _equipoRepositorio;
         private readonly IEstadioRepositorio _estadioRepositorio;
         private readonly IPartidoRepositorio _partidoRepositorio;
@@ -176,8 +174,8 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Editor);
             fixture.ValidarNoGenerado();
-            ValidarCantidadEquipos();
-            ValidarCantidadEstadios();
+            fixture.ValidarCantidadEquipos(_equipoRepositorio.ObtenerTodos().Count);
+            fixture.ValidarCantidadEstadios(_estadioRepositorio.ObtenerTodos().Count);
 
             var grupos = CrearYPersistirGrupos();
             var equiposOrdenados = OrdenarEquiposConDesempate(fixture.SemillaFixture);
@@ -196,18 +194,6 @@ namespace Servicios
             _auditoriaServicio.Registrar(
                 $"Generación de fixture con SemillaFixture: {fixture.SemillaFixture}",
                 _sesionServicio.ObtenerUsuarioActual());
-        }
-
-        private void ValidarCantidadEquipos()
-        {
-            if (_equipoRepositorio.ObtenerTodos().Count != CantidadEquiposRequeridos)
-                throw new InvalidOperationException("Se necesitan exactamente 48 equipos para generar el fixture.");
-        }
-
-        private void ValidarCantidadEstadios()
-        {
-            if (_estadioRepositorio.ObtenerTodos().Count < 4)
-                throw new InvalidOperationException("Se necesitan al menos 4 estadios para generar el fixture.");
         }
 
         private List<Grupo> CrearYPersistirGrupos()
