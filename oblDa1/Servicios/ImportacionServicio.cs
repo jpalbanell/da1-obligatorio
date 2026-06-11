@@ -8,10 +8,12 @@ namespace Servicios
     public class ImportacionServicio : IImportacionServicio
     {
         private const int FilaEncabezado = 0;
-        private const int CantidadColumnasEsperadas = 3;
+        private const int CantidadColumnasMinimas = 3;
+        private const int CantidadColumnasMaximas = 4;
         private const int ColumnaNombre = 0;
         private const int ColumnaConfederacion = 1;
         private const int ColumnaRankingFifa = 2;
+        private const int ColumnaBandera = 3;
         private const char SeparadorDeColumnas = ',';
 
         private readonly IEquipoRepositorio _equipoRepositorio;
@@ -80,13 +82,14 @@ namespace Servicios
             equipo.Nombre = LeerNombre(columnas);
             equipo.Confederacion = LeerConfederacion(columnas);
             equipo.RankingFifa = LeerRankingFifa(columnas);
+            equipo.Bandera = LeerBandera(columnas);
             return equipo;
         }
 
         private void ValidarCantidadDeColumnas(string[] columnas)
         {
-            if (columnas.Length != CantidadColumnasEsperadas)
-                throw new FormatException($"Se esperaban {CantidadColumnasEsperadas} columnas pero se encontraron {columnas.Length}.");
+            if (columnas.Length < CantidadColumnasMinimas || columnas.Length > CantidadColumnasMaximas)
+                throw new FormatException($"Se esperaban entre {CantidadColumnasMinimas} y {CantidadColumnasMaximas} columnas pero se encontraron {columnas.Length}.");
         }
 
         private string LeerNombre(string[] columnas)
@@ -108,6 +111,15 @@ namespace Servicios
             if (!int.TryParse(valorRanking, out var ranking))
                 throw new FormatException($"El ranking '{valorRanking}' no es un número válido.");
             return ranking;
+        }
+
+        private string? LeerBandera(string[] columnas)
+        {
+            if (columnas.Length <= ColumnaBandera)
+                return null;
+
+            var valor = columnas[ColumnaBandera].Trim();
+            return string.IsNullOrEmpty(valor) ? null : valor;
         }
 
         private void GuardarEquipoImportado(Equipo equipo)
