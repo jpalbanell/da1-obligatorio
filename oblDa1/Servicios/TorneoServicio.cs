@@ -175,7 +175,7 @@ namespace Servicios
         public void GenerarFixture(Fixture fixture)
         {
             _sesionServicio.ValidarRol(Rol.Editor);
-            ValidarFixtureNoGenerado(fixture);
+            fixture.ValidarNoGenerado();
             ValidarCantidadEquipos();
             ValidarCantidadEstadios();
 
@@ -208,12 +208,6 @@ namespace Servicios
         {
             if (_estadioRepositorio.ObtenerTodos().Count < 4)
                 throw new InvalidOperationException("Se necesitan al menos 4 estadios para generar el fixture.");
-        }
-
-        private void ValidarFixtureNoGenerado(Fixture fixture)
-        {
-            if (fixture.EstaGenerado)
-                throw new InvalidOperationException("El fixture ya fue generado.");
         }
 
         private List<Grupo> CrearYPersistirGrupos()
@@ -340,8 +334,10 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Editor);
             var fixture = _fixtureRepositorio.Obtener();
-            ValidarFixtureGenerado(fixture);
-            ValidarCrucesNoGenerados(fixture);
+            if (fixture == null)
+                throw new InvalidOperationException("No se puede generar cruces si el fixture no fue generado.");
+            fixture.ValidarGenerado();
+            fixture.ValidarCrucesNoGenerados();
             ValidarTodosLosPartidosTienenResultado();
 
             var emparejamientos = GenerarEmparejamientos(semillaCrucesFase);
@@ -602,18 +598,6 @@ namespace Servicios
             var fecha = _fechaActualEliminatorias.AddHours(hora);
             _partidosEnFechaActual++;
             return fecha;
-        }
-
-        private void ValidarFixtureGenerado(Fixture fixture)
-        {
-            if (fixture == null || !fixture.EstaGenerado)
-                throw new InvalidOperationException("No se puede generar cruces si el fixture no fue generado.");
-        }
-
-        private void ValidarCrucesNoGenerados(Fixture fixture)
-        {
-            if (fixture.CrucesGenerados)
-                throw new InvalidOperationException("Los cruces ya fueron generados.");
         }
 
         private void ValidarTodosLosPartidosTienenResultado()
