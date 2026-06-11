@@ -107,6 +107,12 @@ namespace Dominio.Entidades
             if (!EstaGenerado)
                 throw new InvalidOperationException("No se puede generar cruces si el fixture no fue generado.");
         }
+
+        public void ValidarCrucesNoGenerados()
+        {
+            if (CrucesGenerados)
+                throw new InvalidOperationException("Los cruces ya fueron generados.");
+        }
         
         public void AsignarFechasAPartidos(List<List<Partido>> partidosPorGrupo)
         {

@@ -411,5 +411,14 @@ namespace Tests
 
             fixture.ValidarGenerado();
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarCrucesNoGenerados_CuandoCrucesGenerados_LanzaExcepcion()
+        {
+            var fixture = new Fixture { CrucesGenerados = true };
+
+            fixture.ValidarCrucesNoGenerados();
+        }
     }
 }
