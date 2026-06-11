@@ -429,5 +429,14 @@ namespace Tests
 
             fixture.ValidarCantidadEquipos(47);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarCantidadEstadios_ConMenosDe4_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+
+            fixture.ValidarCantidadEstadios(3);
+        }
     }
 }

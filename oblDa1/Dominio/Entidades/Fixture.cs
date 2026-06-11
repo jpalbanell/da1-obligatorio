@@ -121,6 +121,12 @@ namespace Dominio.Entidades
             if (cantidadEquipos != CantidadEquiposRequerida)
                 throw new InvalidOperationException("Se necesitan exactamente 48 equipos para generar el fixture.");
         }
+
+        public void ValidarCantidadEstadios(int cantidadEstadios)
+        {
+            if (cantidadEstadios < CantidadEstadiosMinima)
+                throw new InvalidOperationException("Se necesitan al menos 4 estadios para generar el fixture.");
+        }
         
         public void AsignarFechasAPartidos(List<List<Partido>> partidosPorGrupo)
         {
