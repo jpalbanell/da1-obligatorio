@@ -402,5 +402,14 @@ namespace Tests
 
             fixture.ValidarNoGenerado();
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarGenerado_CuandoNoEstaGenerado_LanzaExcepcion()
+        {
+            var fixture = new Fixture { EstaGenerado = false };
+
+            fixture.ValidarGenerado();
+        }
     }
 }
