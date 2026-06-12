@@ -6,6 +6,8 @@ namespace Dominio.Entidades
     {
         private const int HoraInicioPartidos = 14;
         private const int SeparacionHorasEntrePartidos = 4;
+        public const int CantidadEquiposRequerida = 48;
+        public const int CantidadEstadiosMinima = 4;
 
         public int Id { get; set; }
         public int SemillaFixture { get; set; }
@@ -93,7 +95,37 @@ namespace Dominio.Entidades
         
         public bool PuedeGenerarse()
         {
-            return Equipos.Count == 48 && Estadios.Count >= 4;
+            return Equipos.Count == CantidadEquiposRequerida && Estadios.Count >= CantidadEstadiosMinima;
+        }
+
+        public void ValidarNoGenerado()
+        {
+            if (EstaGenerado)
+                throw new InvalidOperationException("El fixture ya fue generado.");
+        }
+
+        public void ValidarGenerado()
+        {
+            if (!EstaGenerado)
+                throw new InvalidOperationException("No se puede generar cruces si el fixture no fue generado.");
+        }
+
+        public void ValidarCrucesNoGenerados()
+        {
+            if (CrucesGenerados)
+                throw new InvalidOperationException("Los cruces ya fueron generados.");
+        }
+
+        public void ValidarCantidadEquipos(int cantidadEquipos)
+        {
+            if (cantidadEquipos != CantidadEquiposRequerida)
+                throw new InvalidOperationException("Se necesitan exactamente 48 equipos para generar el fixture.");
+        }
+
+        public void ValidarCantidadEstadios(int cantidadEstadios)
+        {
+            if (cantidadEstadios < CantidadEstadiosMinima)
+                throw new InvalidOperationException("Se necesitan al menos 4 estadios para generar el fixture.");
         }
         
         public void AsignarFechasAPartidos(List<List<Partido>> partidosPorGrupo)

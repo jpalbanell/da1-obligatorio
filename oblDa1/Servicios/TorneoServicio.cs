@@ -7,8 +7,6 @@ namespace Servicios
 {
     public class TorneoServicio : ITorneoServicio
     {
-        private const int CantidadEquiposRequeridos = 48;
-
         private readonly IEquipoRepositorio _equipoRepositorio;
         private readonly IEstadioRepositorio _estadioRepositorio;
         private readonly IPartidoRepositorio _partidoRepositorio;
@@ -175,9 +173,9 @@ namespace Servicios
         public void GenerarFixture(Fixture fixture)
         {
             _sesionServicio.ValidarRol(Rol.Editor);
-            ValidarFixtureNoGenerado(fixture);
-            ValidarCantidadEquipos();
-            ValidarCantidadEstadios();
+            fixture.ValidarNoGenerado();
+            fixture.ValidarCantidadEquipos(_equipoRepositorio.ObtenerTodos().Count);
+            fixture.ValidarCantidadEstadios(_estadioRepositorio.ObtenerTodos().Count);
 
             var grupos = CrearYPersistirGrupos();
             var equiposOrdenados = OrdenarEquiposConDesempate(fixture.SemillaFixture);
@@ -196,24 +194,6 @@ namespace Servicios
             _auditoriaServicio.Registrar(
                 $"Generación de fixture con SemillaFixture: {fixture.SemillaFixture}",
                 _sesionServicio.ObtenerUsuarioActual());
-        }
-
-        private void ValidarCantidadEquipos()
-        {
-            if (_equipoRepositorio.ObtenerTodos().Count != CantidadEquiposRequeridos)
-                throw new InvalidOperationException("Se necesitan exactamente 48 equipos para generar el fixture.");
-        }
-
-        private void ValidarCantidadEstadios()
-        {
-            if (_estadioRepositorio.ObtenerTodos().Count < 4)
-                throw new InvalidOperationException("Se necesitan al menos 4 estadios para generar el fixture.");
-        }
-
-        private void ValidarFixtureNoGenerado(Fixture fixture)
-        {
-            if (fixture.EstaGenerado)
-                throw new InvalidOperationException("El fixture ya fue generado.");
         }
 
         private List<Grupo> CrearYPersistirGrupos()
@@ -340,8 +320,10 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Editor);
             var fixture = _fixtureRepositorio.Obtener();
-            ValidarFixtureGenerado(fixture);
-            ValidarCrucesNoGenerados(fixture);
+            if (fixture == null)
+                throw new InvalidOperationException("No se puede generar cruces si el fixture no fue generado.");
+            fixture.ValidarGenerado();
+            fixture.ValidarCrucesNoGenerados();
             ValidarTodosLosPartidosTienenResultado();
 
             var emparejamientos = GenerarEmparejamientos(semillaCrucesFase);
@@ -602,18 +584,6 @@ namespace Servicios
             var fecha = _fechaActualEliminatorias.AddHours(hora);
             _partidosEnFechaActual++;
             return fecha;
-        }
-
-        private void ValidarFixtureGenerado(Fixture fixture)
-        {
-            if (fixture == null || !fixture.EstaGenerado)
-                throw new InvalidOperationException("No se puede generar cruces si el fixture no fue generado.");
-        }
-
-        private void ValidarCrucesNoGenerados(Fixture fixture)
-        {
-            if (fixture.CrucesGenerados)
-                throw new InvalidOperationException("Los cruces ya fueron generados.");
         }
 
         private void ValidarTodosLosPartidosTienenResultado()

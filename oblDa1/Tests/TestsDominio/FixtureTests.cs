@@ -393,5 +393,50 @@ namespace Tests
 
             fixture.NombreMotorSimulacion = string.Empty;
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarNoGenerado_CuandoEstaGenerado_LanzaExcepcion()
+        {
+            var fixture = new Fixture { EstaGenerado = true };
+
+            fixture.ValidarNoGenerado();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarGenerado_CuandoNoEstaGenerado_LanzaExcepcion()
+        {
+            var fixture = new Fixture { EstaGenerado = false };
+
+            fixture.ValidarGenerado();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarCrucesNoGenerados_CuandoCrucesGenerados_LanzaExcepcion()
+        {
+            var fixture = new Fixture { CrucesGenerados = true };
+
+            fixture.ValidarCrucesNoGenerados();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarCantidadEquipos_ConDistintoDe48_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+
+            fixture.ValidarCantidadEquipos(47);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ValidarCantidadEstadios_ConMenosDe4_LanzaExcepcion()
+        {
+            var fixture = new Fixture();
+
+            fixture.ValidarCantidadEstadios(3);
+        }
     }
 }
