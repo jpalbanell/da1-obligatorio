@@ -108,5 +108,18 @@ namespace Tests
 
             _repositorio.Actualizar(estadio, "NoExiste");
         }
+
+        [TestMethod]
+        public void Actualizar_ConNombreDistinto_NombreNuevoExisteYNombreViejoNoExiste()
+        {
+            var estadio = CrearEstadioValido("Centenario", "Montevideo", 60000);
+            _repositorio.Agregar(estadio);
+
+            var estadioRenombrado = CrearEstadioValido("Estadio Centenario", "Montevideo", 60000);
+            _repositorio.Actualizar(estadioRenombrado, "Centenario");
+
+            Assert.IsNotNull(_repositorio.ObtenerPorNombre("Estadio Centenario"));
+            Assert.IsNull(_repositorio.ObtenerPorNombre("Centenario"));
+        }
     }
 }
