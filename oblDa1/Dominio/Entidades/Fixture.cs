@@ -94,6 +94,7 @@ namespace Dominio.Entidades
         }
         
         public bool PuedeGenerarse()
+        
         {
             return Equipos.Count == CantidadEquiposRequerida && Estadios.Count >= CantidadEstadiosMinima;
         }
