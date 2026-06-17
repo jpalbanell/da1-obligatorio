@@ -18,6 +18,7 @@ namespace Web.DTOs
                 .Select(PosicionResponse.FromEntity)
                 .ToList(),
             Partidos = grupo.ListaPartidos
+                .Where(p => p.Fase == FaseTorneo.FaseGrupos)
                 .OrderBy(p => p.Fecha)
                 .Select(PartidoGrupoResponse.FromEntity)
                 .ToList()
