@@ -55,6 +55,7 @@ namespace Servicios
         {
             var fixture = _fixtureRepositorio.Obtener() ?? new Fixture();
             fixture.HidratarEquipos(_equipoRepositorio.ObtenerTodos());
+            fixture.HidratarEstadios(_estadioRepositorio.ObtenerTodos());
             return fixture;
         }
         
@@ -143,8 +144,7 @@ namespace Servicios
         {
             _sesionServicio.ValidarRol(Rol.Administrador);
             var fixture = ObtenerOCrearFixture();
-            fixture.EliminarEstadio(nombreOriginal);
-            fixture.AgregarEstadio(estadio);
+            fixture.EditarEstadio(estadio, nombreOriginal);
             _estadioRepositorio.Actualizar(estadio, nombreOriginal);
             _fixtureRepositorio.Guardar(fixture);
             _auditoriaServicio.Registrar($"Edición de estadio: {estadio.Nombre}", _sesionServicio.ObtenerUsuarioActual());

@@ -979,15 +979,31 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void ModificarEstadio_ConNombreDuplicadoDeOtroEstadio_LanzaExcepcion()
+        public void ModificarEstadio_NombreEsReadonly_NoCambiaElNombreDelEstadio()
         {
             var fixture = new Fixture();
             fixture.AgregarEstadio(CrearEstadioValido());
             fixture.AgregarEstadio(new Estadio { Nombre = "Maracaná", Ciudad = "Rio", Capacidad = 78000 });
             _fixtureRepoMock.Setup(r => r.Obtener()).Returns(fixture);
 
-            _torneoServicio.ModificarEstadio(new Estadio { Nombre = "Centenario", Ciudad = "Rio", Capacidad = 78000 }, "Maracaná");
+            _torneoServicio.ModificarEstadio(new Estadio { Nombre = "Centenario", Ciudad = "Buenos Aires", Capacidad = 50000 }, "Maracaná");
+
+            _estadioRepoMock.Verify(r => r.Actualizar(It.IsAny<Estadio>(), "Maracaná"), Times.Once);
+            Assert.AreEqual("Maracaná", fixture.Estadios.First(e => e.Ciudad == "Buenos Aires").Nombre);
+        }
+
+        [TestMethod]
+        public void ModificarEstadio_EstadioEnRepoNoEnFixture_NuncaLanzaKeyNotFoundException()
+        {
+            var fixtureVacia = new Fixture();
+            _fixtureRepoMock.Setup(r => r.Obtener()).Returns(fixtureVacia);
+            var estadioEnRepo = CrearEstadioValido();
+            _estadioRepoMock.Setup(r => r.ObtenerTodos()).Returns(new List<Estadio> { estadioEnRepo });
+            var editado = new Estadio { Nombre = "Centenario", Ciudad = "Buenos Aires", Capacidad = 50000 };
+
+            _torneoServicio.ModificarEstadio(editado, "Centenario");
+
+            _estadioRepoMock.Verify(r => r.Actualizar(It.IsAny<Estadio>(), "Centenario"), Times.Once);
         }
 
         [TestMethod]
