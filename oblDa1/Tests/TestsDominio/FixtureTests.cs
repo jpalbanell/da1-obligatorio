@@ -273,6 +273,29 @@ namespace Tests
         }
         
         [TestMethod]
+        public void EditarEstadio_CambiaCiudadCapacidadDescripcion_ModificaEnSuLugar()
+        {
+            var fixture = new Fixture();
+            fixture.AgregarEstadio(CrearEstadioValido("Centenario"));
+
+            fixture.EditarEstadio(new Estadio { Nombre = "Centenario", Ciudad = "Buenos Aires", Capacidad = 50000, Descripcion = "Nueva desc" }, "Centenario");
+
+            Assert.AreEqual(1, fixture.Estadios.Count);
+            Assert.AreEqual("Buenos Aires", fixture.Estadios[0].Ciudad);
+            Assert.AreEqual(50000, fixture.Estadios[0].Capacidad);
+            Assert.AreEqual("Nueva desc", fixture.Estadios[0].Descripcion);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void EditarEstadio_NombreInexistente_LanzaKeyNotFoundException()
+        {
+            var fixture = new Fixture();
+
+            fixture.EditarEstadio(new Estadio { Nombre = "Fantasma", Ciudad = "X", Capacidad = 30000 }, "Fantasma");
+        }
+
+        [TestMethod]
         public void PuedeGenerarse_48Equipos4Estadios_RetornaTrue()
         {
             var fixture = new Fixture();

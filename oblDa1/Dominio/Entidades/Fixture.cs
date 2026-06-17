@@ -92,6 +92,24 @@ namespace Dominio.Entidades
                 throw new KeyNotFoundException($"No existe un estadio con el nombre {nombre}.");
             Estadios.Remove(estadio);
         }
+
+        public void EditarEstadio(Estadio estadio, string nombreOriginal)
+        {
+            var estadioExistente = Estadios.FirstOrDefault(e => UtilTexto.Normalizar(e.Nombre) == UtilTexto.Normalizar(nombreOriginal));
+            if (estadioExistente == null)
+                throw new KeyNotFoundException($"No existe un estadio con el nombre {nombreOriginal}.");
+            estadioExistente.Ciudad = estadio.Ciudad;
+            estadioExistente.Capacidad = estadio.Capacidad;
+            estadioExistente.Descripcion = estadio.Descripcion;
+        }
+
+        public void HidratarEstadios(IEnumerable<Estadio> estadios)
+        {
+            if (estadios == null) return;
+            foreach (var estadio in estadios)
+                if (!_estadios.Any(e => UtilTexto.Normalizar(e.Nombre) == UtilTexto.Normalizar(estadio.Nombre)))
+                    _estadios.Add(estadio);
+        }
         
         public bool PuedeGenerarse()
         {
