@@ -83,7 +83,6 @@ SET IDENTITY_INSERT DA1Db.dbo.[Grupos] OFF;
 
 SET IDENTITY_INSERT DA1Db.dbo.[Usuarios] ON;
 INSERT INTO DA1Db.dbo.Usuarios (Id,Nombre,Apellido,Email,FechaNacimiento,Contrasena,Roles) VALUES
-	 (1,N'Admin',N'Sistema',N'admin@worldcup.com','1990-01-01 00:00:00.0000000',N'6G94qKPK8LYNjnTllCqm2G3BUM08AzOK7yW30tfjrMc=',N'Administrador,Editor'),
 	 (2,N'Juan',N'Perez',N'jperez@gmail.com','2004-06-09 00:00:00.0000000',N'ObHh/OvCotvpecWdGgZE3MBax6avXhqALAQ7hlfTltM=',N'Administrador'),
 	 (3,N'Luis ',N'Suarez',N'lsuarez@gmail.com','2003-06-09 00:00:00.0000000',N'C7o2I3kUFbevhz8woe/HZ4BxQdYCBxHR1vGRmItL+ak=',N'Administrador'),
 	 (4,N'Rodrigo',N'Fernandez',N'rfernandez@gmail.com','1989-02-12 00:00:00.0000000',N'/VoKr4V3iU6i0OZq5M8WYvU3SBhJ2SIp5psdNvRo924=',N'Editor'),
