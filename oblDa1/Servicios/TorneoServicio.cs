@@ -98,22 +98,27 @@ namespace Servicios
             foreach (Confederacion confederacion in Enum.GetValues(typeof(Confederacion)))
             {
                 int cupo = confederacion.CupoMaximo();
-                int cantActual = _equipoRepositorio.ObtenerTodos()
-                    .Count(e => e.Confederacion == confederacion);
+                var equiposConfederacion = _equipoRepositorio.ObtenerTodos()
+                    .Where(e => e.Confederacion == confederacion)
+                    .ToList();
+                int cantAGenerar = cupo - equiposConfederacion.Count;
+                var nombresExistentes = equiposConfederacion.Select(e => e.Nombre).ToHashSet();
                 int cantGenerada = 0;
-                int contador = cantActual + 1;
 
-                for (int i = cantActual + 1; i <= cupo; i++)
+                for (int numero = 1; numero <= cupo && cantGenerada < cantAGenerar; numero++)
                 {
+                    string nombre = $"{confederacion}_{numero:D2}";
+                    if (nombresExistentes.Contains(nombre))
+                        continue;
+
                     var equipo = new Equipo();
-                    equipo.Nombre = $"{confederacion}_{contador:D2}";
+                    equipo.Nombre = nombre;
                     equipo.Confederacion = confederacion;
                     equipo.RankingFifa = random.Next(Equipo.RankingMinimo, Equipo.RankingMaximo + 1);
                     var fixture = ObtenerOCrearFixture();
                     fixture.AgregarEquipo(equipo);
                     _equipoRepositorio.Agregar(equipo);
                     _fixtureRepositorio.Guardar(fixture);
-                    contador++;
                     cantGenerada++;
                 }
 

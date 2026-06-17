@@ -892,6 +892,31 @@ namespace Tests
         }
 
         [TestMethod]
+        public void CompletarEquiposAutomaticamente_ConHuecosEnNombres_RellenaSinColision()
+        {
+            // UEFA tiene _01, _02 y _05 — huecos en _03 y _04
+            var equiposExistentes = new List<Equipo>
+            {
+                new Equipo { Nombre = "UEFA_01", Confederacion = Confederacion.UEFA, RankingFifa = 1500 },
+                new Equipo { Nombre = "UEFA_02", Confederacion = Confederacion.UEFA, RankingFifa = 1500 },
+                new Equipo { Nombre = "UEFA_05", Confederacion = Confederacion.UEFA, RankingFifa = 1500 },
+            };
+            var equiposAgregados = new List<Equipo>();
+            _equipoRepoMock.Setup(r => r.ObtenerTodos())
+                .Returns(() => equiposExistentes.Concat(equiposAgregados).ToList());
+            _equipoRepoMock.Setup(r => r.Agregar(It.IsAny<Equipo>()))
+                .Callback<Equipo>(e => equiposAgregados.Add(e));
+
+            _torneoServicio.CompletarEquiposAutomaticamente(42);
+
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre == "UEFA_03"), "Debe rellenar el hueco UEFA_03");
+            Assert.IsTrue(equiposAgregados.Any(e => e.Nombre == "UEFA_04"), "Debe rellenar el hueco UEFA_04");
+            Assert.IsFalse(equiposAgregados.Any(e => e.Nombre == "UEFA_05"), "No debe generar UEFA_05 que ya existe");
+            var totalUefa = equiposExistentes.Concat(equiposAgregados).Count(e => e.Confederacion == Confederacion.UEFA);
+            Assert.AreEqual(16, totalUefa, "El total de equipos UEFA debe ser exactamente 16");
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void EditarEquipo_CambiandoConfederacionACupoLleno_LanzaExcepcion()
         {
