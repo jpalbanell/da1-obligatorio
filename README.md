@@ -1,5 +1,7 @@
 # WorldCupPlanner 2026
 
+Obligatorio de Diseño de Aplicaciones 1, Universidad ORT Uruguay (2026). Hecho en equipo de tres con Leandro Chiurchiu y Santiago Jorcin. Copia del repositorio original de la cátedra, con el historial completo (~950 commits, Gitflow, CI con GitHub Actions).
+
 Aplicación web para gestionar la fase de grupos del Mundial de Fútbol 2026 (12 grupos de 4 equipos) y preparar los cruces de segunda fase mediante sorteos determinísticos con semillas auditadas. Permite administrar usuarios, equipos y estadios; generar y editar el fixture; simular resultados; importar equipos desde CSV; y exportar datos a XLSX.
 
 ## Tecnologías utilizadas
